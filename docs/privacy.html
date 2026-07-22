@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReDash — Política de privacidad</title>
+<style>
+  :root{
+    --bg:#191B24; --card:#20222C; --edge:rgba(255,255,255,.10);
+    --text:#fff; --muted:#A7AABC; --dim:#787C92; --primary:#A78BFA; --primary-hi:#C4B5FD; --warm:#F79E8C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);
+    font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;padding:0 20px}
+  .wrap{max-width:680px;margin:0 auto;padding:48px 0 80px}
+  h1{font-size:32px;font-weight:800;letter-spacing:-.02em}
+  .date{color:var(--dim);font-size:13px;margin-top:6px;margin-bottom:8px}
+  .lang{margin:18px 0 8px}
+  .lang a{color:var(--primary-hi);text-decoration:none;font-weight:700;font-size:13px}
+  .lead{color:var(--muted);font-size:15px;margin:14px 0 6px}
+  h2{font-size:19px;font-weight:800;margin:34px 0 10px;color:var(--primary-hi)}
+  p{color:var(--muted);font-size:14.5px;margin:10px 0}
+  ul{margin:10px 0 10px 20px}
+  li{color:var(--muted);font-size:14.5px;margin:6px 0}
+  b,strong{color:var(--text);font-weight:700}
+  .warn{background:rgba(247,158,140,.10);border:1px solid rgba(247,158,140,.35);border-radius:14px;
+    padding:14px 16px;margin:16px 0;color:var(--warm);font-size:14px}
+  .warn b{color:var(--primary-hi)}
+  a{color:var(--primary-hi)}
+  hr{border:0;border-top:1px solid var(--edge);margin:48px 0}
+  footer{color:var(--dim);font-size:12.5px;margin-top:40px;text-align:center}
+  .sec{scroll-margin-top:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============ ESPAÑOL ============ -->
+<div id="es" class="sec">
+  <h1>Política de privacidad de ReDash</h1>
+  <div class="date">Vigente desde el 22 de julio de 2026</div>
+  <div class="lang"><a href="#en">Read in English ↓</a></div>
+
+  <p class="lead">ReDash convierte un teléfono Android en una cámara de tablero (dashcam). Esta política
+  explica qué datos maneja la app, dónde se guardan y con quién se comparten. En resumen:
+  <b>tus grabaciones se quedan en tu teléfono</b> salvo que tú actives la sincronización con la nube.</p>
+
+  <h2>Quién es responsable de los datos</h2>
+  <p>ReDash es una herramienta que tú controlas. <b>Tú decides qué se graba y quién puede verlo</b>, y
+  por lo tanto eres el responsable del tratamiento de esas grabaciones frente a las personas que
+  aparezcan en ellas (pasajeros, peatones, otros conductores). ReDash (m8apps) desarrolla la
+  aplicación y, si tú lo activas, opera el servidor opcional descrito abajo.</p>
+
+  <h2>Qué datos procesa la app</h2>
+  <ul>
+    <li><b>Video</b> de la cámara del teléfono, en grabación por bucle, guardado en el propio teléfono.</li>
+    <li><b>Audio</b>, solo si tú lo activas. Viene <b>apagado por defecto</b> y encenderlo requiere pasar por una pantalla de consentimiento.</li>
+    <li><b>Ubicación (GPS)</b> para el mapa, la velocidad y sellar la posición en los eventos.</li>
+    <li><b>Eventos</b> de impacto y movimiento detectados por los sensores del teléfono.</li>
+    <li>Un <b>identificador propio por instalación</b> (una clave que la app genera) para autenticar la conexión entre el teléfono cámara y el visor. No es un identificador publicitario ni te identifica personalmente.</li>
+  </ul>
+  <p>ReDash <b>no</b> muestra publicidad, <b>no</b> usa rastreadores de terceros, <b>no</b> pide crear una
+  cuenta y <b>no</b> recopila estadísticas de uso.</p>
+
+  <h2>Dónde se guardan</h2>
+  <p>Por defecto, todo (video, audio, ubicación, eventos) se guarda <b>localmente en tu teléfono</b>. La
+  grabación es circular: cuando el almacenamiento se llena, el clip más antiguo se reemplaza. Los clips
+  que marcas como protegidos se conservan. Las credenciales de conexión se guardan cifradas en el
+  teléfono. Desinstalar la app borra estos datos locales.</p>
+
+  <h2>La nube es opcional</h2>
+  <p>La sincronización con la nube viene <b>desactivada</b>. Si tú la activas, la app envía a un servidor
+  que ReDash opera (alojado en un centro de datos en Estados Unidos) los clips protegidos, los eventos
+  (con su ubicación) y señales de estado. Si no la activas, nada de esto sale de tu teléfono. Puedes
+  apagarla en cualquier momento.</p>
+
+  <h2>Ver en vivo a distancia</h2>
+  <p>Cuando usas la vista en vivo entre el teléfono cámara y el visor, la app usa un servidor de
+  señalización y un relay para establecer la conexión de video. El video en vivo va directo entre tus
+  dos dispositivos (o a través del relay si la red lo exige) y <b>no se almacena</b> en ese servidor.</p>
+
+  <h2>Servicios de terceros con los que se conecta</h2>
+  <ul>
+    <li><b>GitHub</b>: al abrir la app, consulta si hay una versión nueva y, si la descargas, baja el archivo desde ahí. Esto expone tu dirección IP a GitHub, como cualquier descarga web.</li>
+    <li><b>OpenStreetMap</b>: la pantalla de mapa carga los mosaicos del mapa desde sus servidores, lo que implica enviarles la zona aproximada que estás viendo.</li>
+  </ul>
+
+  <div class="warn">
+    <b>Audio y consentimiento.</b> Grabar la voz de las personas sin su consentimiento es ilegal en
+    muchos lugares —incluidos buena parte de EE.UU., la Unión Europea y Ecuador—. El audio viene
+    apagado por defecto. Si lo activas, <b>es tu responsabilidad avisar a los ocupantes</b> de que se
+    está grabando. ReDash no puede hacerlo por ti.
+  </div>
+
+  <h2>Permisos que pide la app</h2>
+  <ul>
+    <li><b>Cámara</b>: para grabar video.</li>
+    <li><b>Micrófono</b>: solo si activas el audio o la función de hablar/escuchar.</li>
+    <li><b>Ubicación</b>: para el mapa, la velocidad y los eventos.</li>
+    <li><b>Notificaciones</b>: para avisarte de que la grabación sigue activa.</li>
+    <li><b>Instalar aplicaciones</b>: para poder actualizarse a sí misma, ya que se distribuye fuera de Google Play.</li>
+  </ul>
+
+  <h2>Retención y borrado</h2>
+  <p>Los clips locales se sobrescriben por el sistema de bucle; los protegidos se conservan hasta que los
+  borres. Si activaste la nube y quieres eliminar lo subido, escríbenos y lo borramos. Desinstalar la
+  app elimina los datos locales del teléfono.</p>
+
+  <h2>Menores</h2>
+  <p>ReDash no está dirigida a menores de edad y no recopila conscientemente sus datos.</p>
+
+  <h2>Tus derechos</h2>
+  <p>Según dónde vivas (RGPD en la UE, LOPDP en Ecuador, leyes estatales en EE.UU.), puedes tener derecho
+  a acceder, corregir o eliminar tus datos. Como casi todo se guarda solo en tu teléfono, ejercer esos
+  derechos suele ser tan directo como borrar los archivos o desinstalar la app. Para lo que esté en la
+  nube, contáctanos.</p>
+
+  <h2>Cambios</h2>
+  <p>Si esta política cambia, se publicará la versión nueva en esta misma página con su fecha de vigencia.</p>
+
+  <h2>Contacto</h2>
+  <p>Escríbenos a <a href="mailto:fitvfat@gmail.com">fitvfat@gmail.com</a>.</p>
+</div>
+
+<hr>
+
+<!-- ============ ENGLISH ============ -->
+<div id="en" class="sec">
+  <h1>ReDash Privacy Policy</h1>
+  <div class="date">Effective 22 July 2026</div>
+  <div class="lang"><a href="#es">Leer en español ↑</a></div>
+
+  <p class="lead">ReDash turns an Android phone into a dashcam. This policy explains what data the app
+  handles, where it is stored, and who it is shared with. In short: <b>your recordings stay on your
+  phone</b> unless you turn on cloud sync yourself.</p>
+
+  <h2>Who is responsible for the data</h2>
+  <p>ReDash is a tool that you control. <b>You decide what is recorded and who can see it</b>, so you are
+  the data controller for those recordings with respect to the people who appear in them (passengers,
+  pedestrians, other drivers). ReDash (m8apps) develops the app and, if you enable it, operates the
+  optional server described below.</p>
+
+  <h2>What data the app processes</h2>
+  <ul>
+    <li><b>Video</b> from the phone camera, loop-recorded, stored on the phone itself.</li>
+    <li><b>Audio</b>, only if you turn it on. It is <b>off by default</b> and enabling it requires passing a consent screen.</li>
+    <li><b>Location (GPS)</b> for the map, speed, and to stamp position onto events.</li>
+    <li><b>Events</b> for impacts and motion detected by the phone sensors.</li>
+    <li>A <b>per-install identifier</b> (a key the app generates) to authenticate the connection between the camera phone and the viewer. It is not an advertising ID and does not identify you personally.</li>
+  </ul>
+  <p>ReDash shows <b>no</b> ads, uses <b>no</b> third-party trackers, requires <b>no</b> account, and
+  collects <b>no</b> usage analytics.</p>
+
+  <h2>Where it is stored</h2>
+  <p>By default, everything (video, audio, location, events) is stored <b>locally on your phone</b>.
+  Recording is circular: when storage fills up, the oldest clip is replaced. Clips you mark as protected
+  are kept. Connection credentials are stored encrypted on the phone. Uninstalling the app deletes this
+  local data.</p>
+
+  <h2>Cloud is optional</h2>
+  <p>Cloud sync is <b>off</b>. If you turn it on, the app sends protected clips, events (with their
+  location), and status signals to a server operated by ReDash (hosted in a data center in the United
+  States). If you leave it off, none of this leaves your phone. You can turn it off at any time.</p>
+
+  <h2>Remote live view</h2>
+  <p>When you use live view between the camera phone and the viewer, the app uses a signaling server and
+  a relay to set up the video connection. The live video goes directly between your two devices (or
+  through the relay if the network requires it) and is <b>not stored</b> on that server.</p>
+
+  <h2>Third-party services it connects to</h2>
+  <ul>
+    <li><b>GitHub</b>: on launch, the app checks for a newer version and, if you download it, fetches the file from there. This exposes your IP address to GitHub, like any web download.</li>
+    <li><b>OpenStreetMap</b>: the map screen loads map tiles from their servers, which means sending them the approximate area you are viewing.</li>
+  </ul>
+
+  <div class="warn">
+    <b>Audio and consent.</b> Recording people's voices without their consent is illegal in many places
+    — including much of the US, the EU and Ecuador. Audio is off by default. If you turn it on, <b>it is
+    your responsibility to tell the occupants</b> that recording is happening. ReDash cannot do it for you.
+  </div>
+
+  <h2>Permissions the app requests</h2>
+  <ul>
+    <li><b>Camera</b>: to record video.</li>
+    <li><b>Microphone</b>: only if you enable audio or talk/listen.</li>
+    <li><b>Location</b>: for the map, speed, and events.</li>
+    <li><b>Notifications</b>: to tell you recording is still active.</li>
+    <li><b>Install apps</b>: so it can update itself, since it is distributed outside Google Play.</li>
+  </ul>
+
+  <h2>Retention and deletion</h2>
+  <p>Local clips are overwritten by the loop; protected ones are kept until you delete them. If you
+  enabled cloud sync and want uploaded data removed, contact us and we will delete it. Uninstalling the
+  app removes local data from the phone.</p>
+
+  <h2>Children</h2>
+  <p>ReDash is not directed at children and does not knowingly collect their data.</p>
+
+  <h2>Your rights</h2>
+  <p>Depending on where you live (GDPR in the EU, LOPDP in Ecuador, US state laws), you may have the
+  right to access, correct, or delete your data. Since almost everything is stored only on your phone,
+  exercising those rights is usually as direct as deleting the files or uninstalling the app. For
+  anything in the cloud, contact us.</p>
+
+  <h2>Changes</h2>
+  <p>If this policy changes, the new version will be posted on this page with its effective date.</p>
+
+  <h2>Contact</h2>
+  <p>Reach us at <a href="mailto:fitvfat@gmail.com">fitvfat@gmail.com</a>.</p>
+</div>
+
+<footer>ReDash · m8apps</footer>
+</div>
+</body>
+</html>
