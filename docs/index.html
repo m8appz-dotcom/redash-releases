@@ -1,94 +1,260 @@
 <!DOCTYPE html>
-<html lang="es">
+<html class="dark" lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ReDash — descargar</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ReDash — Give your old phone a new purpose</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700;800&family=Inter:wght@400;500&family=Geist:wght@500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
-  :root{
-    --bg:#191B24; --card:#20222C; --card2:#232632; --edge:rgba(255,255,255,.10);
-    --text:#fff; --muted:#A7AABC; --dim:#787C92;
-    --primary:#A78BFA; --primary-hi:#C4B5FD; --warm:#F79E8C; --ink:#181030;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);
-    font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-    line-height:1.55;-webkit-font-smoothing:antialiased;padding:0 20px}
-  .wrap{max-width:620px;margin:0 auto;padding:56px 0 80px}
-  .logo{width:76px;height:76px;border-radius:20px;border:2px solid var(--primary);
-    display:flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:22px;background:var(--card)}
-  h1{font-size:40px;font-weight:800;letter-spacing:-.02em}
-  .tagline{color:var(--muted);font-size:17px;margin-top:8px}
-  .ver{display:inline-block;margin-top:16px;padding:5px 12px;border-radius:999px;
-    background:rgba(167,139,250,.16);border:1px solid var(--edge);color:var(--primary-hi);
-    font-size:13px;font-weight:700}
-  .cta{display:block;width:100%;margin:28px 0 10px;padding:18px;border-radius:14px;border:0;
-    background:var(--primary);color:var(--ink);font-size:17px;font-weight:800;text-align:center;
-    text-decoration:none;cursor:pointer}
-  .cta:active{transform:scale(.99)}
-  .hash{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--dim);
-    word-break:break-all;background:var(--card);border:1px solid var(--edge);border-radius:10px;
-    padding:10px 12px;margin-bottom:8px}
-  .hash b{color:var(--muted);font-weight:700}
-  h2{font-size:15px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
-    margin:38px 0 14px}
-  .step{display:flex;gap:14px;padding:16px;background:var(--card);border:1px solid var(--edge);
-    border-radius:16px;margin-bottom:10px}
-  .num{flex:0 0 26px;height:26px;border-radius:50%;background:var(--primary);color:var(--ink);
-    font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px;margin-top:2px}
-  .step h3{font-size:15.5px;font-weight:700}
-  .step p{color:var(--muted);font-size:13.5px;margin-top:3px}
-  .warn{background:rgba(247,158,140,.10);border:1px solid rgba(247,158,140,.35);border-radius:16px;
-    padding:16px;margin-top:10px;color:var(--warm)}
-  .warn b{color:var(--primary-hi)}
-  footer{margin-top:44px;color:var(--dim);font-size:12.5px;text-align:center}
-  a{color:var(--primary-hi)}
+  .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}
+  html{scroll-behavior:smooth;}
 </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode:"class",
+    theme:{extend:{
+      colors:{error:"#ffb4ab","outline-variant":"#494553",outline:"#948e9e",
+        background:"#111317",primary:"#cdbdff","on-primary":"#360493","on-background":"#e2e2e7",
+        "surface-container-highest":"#333539","surface-container-high":"#282a2e","surface-container":"#1e2023",
+        "surface-container-low":"#1a1c1f","surface-container-lowest":"#0c0e12","surface-bright":"#37393d",
+        "on-surface":"#e2e2e7","on-surface-variant":"#cac4d5","secondary":"#c5c5d3",
+        "primary-container":"#9d80fe","on-primary-container":"#33008d",warm:"#f79e8c"},
+      borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},
+      spacing:{xl:"80px","margin-mobile":"20px",lg:"48px",sm:"12px","margin-desktop":"64px",gutter:"16px",md:"24px",xs:"4px",base:"8px"},
+      fontFamily:{"headline-lg":["Hanken Grotesk"],"body-md":["Inter"],"body-sm":["Inter"],
+        "headline-lg-mobile":["Hanken Grotesk"],"label-md":["Geist"],"headline-xl":["Hanken Grotesk"],"cta":["Hanken Grotesk"]},
+      fontSize:{
+        "headline-lg":["32px",{lineHeight:"40px",letterSpacing:"-0.01em",fontWeight:"700"}],
+        "body-md":["16px",{lineHeight:"24px",fontWeight:"400"}],
+        "body-sm":["14px",{lineHeight:"20px",fontWeight:"400"}],
+        "headline-lg-mobile":["28px",{lineHeight:"34px",fontWeight:"700"}],
+        "label-md":["14px",{lineHeight:"16px",letterSpacing:"0.05em",fontWeight:"500"}],
+        "headline-xl":["48px",{lineHeight:"56px",letterSpacing:"-0.02em",fontWeight:"800"}],
+        "cta":["18px",{lineHeight:"24px",fontWeight:"700"}]},
+    }},
+  }
+</script>
 </head>
-<body>
-<div class="wrap">
-  <div class="logo">🚗</div>
-  <h1>ReDash</h1>
-  <p class="tagline">Convierte un teléfono viejo en dashcam. Tus videos se quedan en tu teléfono.</p>
-  <div class="ver" id="ver">v0.3.0</div>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col">
 
-  <a class="cta" id="dl" href="https://github.com/m8appz-dotcom/redash-releases/releases/latest">Descargar el APK</a>
-  <div class="hash"><b>SHA-256:</b> <span id="sha">—</span></div>
-  <p style="color:var(--dim);font-size:12.5px">Solo Android. No está en Google Play a propósito — se instala directo.</p>
+<!-- Nav -->
+<header class="bg-background/90 backdrop-blur border-b border-outline-variant w-full sticky top-0 z-50">
+  <nav class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-md max-w-7xl mx-auto">
+    <div class="font-headline-lg text-headline-lg font-extrabold tracking-tight">ReDash</div>
+    <div class="hidden md:flex items-center gap-md">
+      <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#features" data-i18n="nav_features">Features</a>
+      <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#faq" data-i18n="nav_install">Install</a>
+      <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="privacy.html" data-i18n="nav_privacy">Privacy</a>
+      <button id="lang" class="text-on-surface-variant font-bold border border-outline-variant rounded-lg px-sm py-xs hover:text-primary transition-colors">ES</button>
+      <a href="#downloads" class="bg-primary-container text-on-primary-container font-cta text-cta px-md py-sm rounded-lg hover:opacity-90 transition-all active:scale-95" data-i18n="nav_download">Download APK</a>
+    </div>
+    <button id="lang-m" class="md:hidden text-on-surface-variant font-bold border border-outline-variant rounded-lg px-sm py-xs">ES</button>
+  </nav>
+</header>
 
-  <h2>Cómo instalar</h2>
-  <div class="step"><div class="num">1</div><div>
-    <h3>Descarga el APK</h3>
-    <p>Toca el botón de arriba desde el teléfono Android donde lo vas a usar.</p></div></div>
-  <div class="step"><div class="num">2</div><div>
-    <h3>Permite instalar desde tu navegador</h3>
-    <p>Android pedirá activar "instalar apps de fuentes desconocidas" para el navegador o el gestor de archivos. Actívalo cuando lo pida.</p></div></div>
-  <div class="step"><div class="num">3</div><div>
-    <h3>En Xiaomi/MIUI: "Instalar de todos modos"</h3>
-    <p>Si sale "para tu seguridad MIUI bloqueó la instalación", toca <b>Instalar de todos modos</b>. Puede pedirte desactivar temporalmente el escaneo.</p></div></div>
-  <div class="step"><div class="num">4</div><div>
-    <h3>Ábrela y elige un rol</h3>
-    <p>Dashcam (el teléfono del carro que graba) o Viewer (desde donde miras). Las siguientes versiones se actualizan solas desde la app.</p></div></div>
+<main class="flex-grow">
+  <!-- Hero -->
+  <section class="w-full px-margin-mobile md:px-margin-desktop py-xl md:py-24 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-lg">
+    <div class="w-full md:w-1/2 flex flex-col items-start gap-md">
+      <h1 class="font-headline-xl text-headline-xl max-w-2xl" data-i18n="hero_title">Give your old phone a new purpose.</h1>
+      <p class="font-body-md text-body-md text-on-surface-variant max-w-xl" data-i18n="hero_sub">Turn a spare Android into a private dashcam. Your videos stay on your phone, and it installs straight onto the device — even old 32-bit ones.</p>
+      <div class="flex flex-col sm:flex-row gap-sm w-full sm:w-auto mt-sm">
+        <a id="dl-hero" href="https://github.com/m8appz-dotcom/redash-releases/releases/latest" class="bg-primary-container text-on-primary-container font-cta text-cta px-xl py-sm rounded-lg hover:opacity-90 transition-all active:scale-95 text-center flex justify-center items-center gap-2">
+          <span class="material-symbols-outlined">download</span><span data-i18n="cta_download">Download APK</span>
+        </a>
+        <a href="#faq" class="border-2 border-primary-container text-primary-container font-cta text-cta px-lg py-sm rounded-lg hover:bg-primary-container/10 transition-all active:scale-95 text-center" data-i18n="cta_how">How it works</a>
+      </div>
+      <div class="flex items-center gap-2 text-on-surface-variant/70 font-body-sm text-body-sm mt-xs">
+        <span class="material-symbols-outlined text-base">android</span>
+        <span data-i18n="hero_req">Android 8.0+ · Not on Google Play, by design</span>
+      </div>
+    </div>
+    <!-- Maqueta CSS del HUD de grabación (sin imágenes externas) -->
+    <div class="w-full md:w-1/2 mt-lg md:mt-0 flex justify-center">
+      <div class="w-[280px] h-[420px] rounded-[36px] border-[6px] border-surface-container-highest bg-surface-container-lowest shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#333A55] via-[#232840] to-[#151827]"></div>
+        <div class="absolute top-4 left-4 flex items-center gap-2 bg-black/40 rounded-full px-3 py-1">
+          <span class="w-2 h-2 rounded-full bg-warm animate-pulse"></span>
+          <span class="text-white/90 text-xs font-mono font-bold">REC 04:12</span>
+        </div>
+        <div class="absolute top-4 right-4 bg-black/40 rounded-full px-3 py-1 text-white/80 text-xs font-mono">1080p</div>
+        <div class="absolute bottom-4 left-4 bg-black/40 rounded-full px-3 py-1 text-primary text-xs font-mono">-0.2103, -78.4890</div>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span class="material-symbols-outlined text-white/15" style="font-size:120px">directions_car</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <div class="warn">
-    <b>¿Ya tenías una versión instalada?</b> Si la instalaste antes con otra firma, tienes que <b>desinstalarla primero</b> o la instalación fallará con "app no instalada".
+  <!-- Features -->
+  <section class="w-full px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto" id="features">
+    <div class="text-center mb-lg">
+      <h2 class="font-headline-lg text-headline-lg" data-i18n="feat_title">Built to be useful</h2>
+      <p class="font-body-md text-body-md text-on-surface-variant mt-sm" data-i18n="feat_sub">Real features on hardware you already own.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-md" id="features-grid"></div>
+  </section>
+
+  <!-- Install -->
+  <section class="w-full px-margin-mobile md:px-margin-desktop py-xl max-w-3xl mx-auto" id="faq">
+    <div class="text-center mb-lg">
+      <h2 class="font-headline-lg text-headline-lg" data-i18n="inst_title">How to install</h2>
+      <p class="font-body-md text-body-md text-on-surface-variant mt-sm" data-i18n="inst_sub">It is not on Google Play on purpose — you install it directly.</p>
+    </div>
+    <div class="flex flex-col gap-sm" id="steps"></div>
+    <div class="bg-warm/10 border border-warm/30 rounded-xl p-md mt-md text-warm font-body-sm text-body-sm" data-i18n="inst_warn">
+      Already had it installed? If an older build with a different signature is on the phone, uninstall it first or the install will fail with "app not installed".
+    </div>
+  </section>
+
+  <!-- Download CTA -->
+  <section class="w-full px-margin-mobile md:px-margin-desktop py-xl max-w-3xl mx-auto text-center" id="downloads">
+    <div class="bg-surface-container-high rounded-2xl p-xl border border-white/10 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+      <div class="relative z-10 flex flex-col items-center">
+        <div class="inline-flex items-center gap-xs bg-primary/15 text-primary px-sm py-xs rounded-full font-label-md text-label-md mb-md border border-primary/20">
+          <span class="material-symbols-outlined text-sm">new_releases</span>
+          <span id="ver">v0.3.0</span>&nbsp;<span data-i18n="dl_available">available</span>
+        </div>
+        <h2 class="font-headline-lg text-headline-lg mb-sm" data-i18n="dl_title">Ready to hit the road?</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mb-lg max-w-md mx-auto" data-i18n="dl_sub">Get the latest APK and give your old phone a job. Requires Android 8.0 or newer.</p>
+        <a id="dl-main" href="https://github.com/m8appz-dotcom/redash-releases/releases/latest" class="bg-primary-container text-on-primary-container font-cta text-cta px-xl py-md rounded-lg hover:opacity-90 hover:-translate-y-1 transition-all active:scale-95 shadow-[0_0_20px_rgba(157,128,254,0.3)] text-center flex items-center gap-2">
+          <span class="material-symbols-outlined">download</span><span data-i18n="cta_download">Download APK</span>
+        </a>
+        <p class="font-body-sm text-body-sm text-on-surface-variant/50 mt-md break-all font-mono">
+          SHA-256: <span id="sha">—</span>
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant w-full mt-auto">
+  <div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-lg max-w-7xl mx-auto gap-md">
+    <div class="font-headline-lg text-headline-lg-mobile font-extrabold text-center md:text-left">
+      ReDash
+      <div class="font-body-sm text-body-sm text-on-surface-variant font-normal mt-xs" data-i18n="foot_tag">© 2026 m8apps · Recording someone's voice without consent may be illegal where you live. Audio is off by default.</div>
+    </div>
+    <div class="flex flex-wrap justify-center gap-md font-body-sm text-body-sm">
+      <a class="text-on-surface-variant hover:text-primary hover:underline transition-all" href="privacy.html" data-i18n="nav_privacy">Privacy</a>
+      <a class="text-on-surface-variant hover:text-primary hover:underline transition-all" href="https://github.com/m8appz-dotcom/redash-releases">GitHub</a>
+      <a class="text-on-surface-variant hover:text-primary hover:underline transition-all" href="mailto:fitvfat@gmail.com" data-i18n="foot_support">Support</a>
+    </div>
   </div>
-
-  <footer>
-    <a href="privacy.html">Política de privacidad</a> · <a href="https://github.com/m8appz-dotcom/redash-releases">repositorio de releases</a><br>
-    Grabar audio de personas sin su consentimiento puede ser ilegal donde vives. El audio viene apagado por defecto.
-  </footer>
-</div>
+</footer>
 
 <script>
-  // Rellena versión, hash y enlace directo desde el MISMO version.json que consume la app
-  // (fuente única de verdad en la raíz del repo; raw.githubusercontent envía CORS *).
+  // ---- Contenido traducible. Inglés por defecto, toggle a español. DOM por textContent (sin innerHTML). ----
+  const FEATURES = {
+    en:[
+      {i:"recycling", t:"Repurpose hardware", d:"Save money and e-waste. An unused phone becomes a dedicated dashcam."},
+      {i:"lock", t:"Private by default", d:"Videos stay on the phone. No ads, no trackers, no account. Cloud sync is optional and off unless you turn it on."},
+      {i:"loop", t:"Records on a loop", d:"Continuous recording that overwrites the oldest clip when storage fills. Impact and motion auto-protect the clip."},
+      {i:"videocam", t:"Watch it live", d:"Pair a second phone and see the camera live, listen, talk, and save the clips that matter."},
+      {i:"emergency_home", t:"Panic button", d:"One tap starts recording, saves the moment, and alerts your paired phones."},
+      {i:"system_update", t:"Updates itself", d:"New versions are detected and installed from inside the app — no store needed."},
+    ],
+    es:[
+      {i:"recycling", t:"Reutiliza el hardware", d:"Ahorra dinero y basura electronica. Un telefono sin uso se vuelve una dashcam dedicada."},
+      {i:"lock", t:"Privada por defecto", d:"Los videos se quedan en el telefono. Sin publicidad, sin rastreadores, sin cuenta. La nube es opcional y viene apagada."},
+      {i:"loop", t:"Graba en bucle", d:"Grabacion continua que reemplaza el clip mas viejo cuando se llena. El impacto y el movimiento protegen el clip solos."},
+      {i:"videocam", t:"Mirala en vivo", d:"Empareja un segundo telefono y ve la camara en vivo, escucha, habla y guarda los clips que importan."},
+      {i:"emergency_home", t:"Boton de panico", d:"Un toque empieza a grabar, guarda el momento y alerta a tus telefonos pareados."},
+      {i:"system_update", t:"Se actualiza sola", d:"Las versiones nuevas se detectan y se instalan desde la app, sin tienda."},
+    ]
+  };
+  const STEPS = {
+    en:[
+      {t:"Download the APK", d:"Tap a download button from the Android phone you will use it on."},
+      {t:"Allow installing from your browser", d:"Android will ask to enable installs from unknown sources. Turn it on when prompted."},
+      {t:"On Xiaomi/MIUI: Install anyway", d:"If MIUI blocks it for your safety, tap Install anyway. It may ask to pause scanning."},
+      {t:"Open it and pick a role", d:"Dashcam (the phone in the car) or Viewer (where you watch). Future versions update themselves."},
+    ],
+    es:[
+      {t:"Descarga el APK", d:"Toca un boton de descarga desde el telefono Android donde lo vas a usar."},
+      {t:"Permite instalar desde el navegador", d:"Android pedira activar fuentes desconocidas. Activalo cuando lo pida."},
+      {t:"En Xiaomi/MIUI: Instalar de todos modos", d:"Si MIUI lo bloquea por tu seguridad, toca Instalar de todos modos. Puede pedir pausar el escaneo."},
+      {t:"Abrela y elige un rol", d:"Dashcam (el telefono del carro) o Viewer (desde donde miras). Las proximas versiones se actualizan solas."},
+    ]
+  };
+  const T = {
+    en:{nav_features:"Features",nav_install:"Install",nav_privacy:"Privacy",nav_download:"Download APK",
+      hero_title:"Give your old phone a new purpose.",
+      hero_sub:"Turn a spare Android into a private dashcam. Your videos stay on your phone, and it installs straight onto the device — even old 32-bit ones.",
+      cta_download:"Download APK",cta_how:"How it works",
+      hero_req:"Android 8.0+ · Not on Google Play, by design",
+      feat_title:"Built to be useful",feat_sub:"Real features on hardware you already own.",
+      inst_title:"How to install",inst_sub:"It is not on Google Play on purpose — you install it directly.",
+      inst_warn:"Already had it installed? If an older build with a different signature is on the phone, uninstall it first or the install will fail with \"app not installed\".",
+      dl_available:"available",dl_title:"Ready to hit the road?",
+      dl_sub:"Get the latest APK and give your old phone a job. Requires Android 8.0 or newer.",
+      foot_tag:"© 2026 m8apps · Recording someone's voice without consent may be illegal where you live. Audio is off by default.",
+      foot_support:"Support"},
+    es:{nav_features:"Funciones",nav_install:"Instalar",nav_privacy:"Privacidad",nav_download:"Descargar APK",
+      hero_title:"Dale un nuevo proposito a tu telefono viejo.",
+      hero_sub:"Convierte un Android que no usas en una dashcam privada. Tus videos se quedan en tu telefono, y se instala directo en el equipo, hasta en los viejos de 32 bits.",
+      cta_download:"Descargar APK",cta_how:"Como funciona",
+      hero_req:"Android 8.0+ · Fuera de Google Play, a proposito",
+      feat_title:"Hecha para ser util",feat_sub:"Funciones reales sobre hardware que ya tienes.",
+      inst_title:"Como instalar",inst_sub:"No esta en Google Play a proposito, se instala directo.",
+      inst_warn:"Ya la tenias instalada? Si hay una version vieja con otra firma en el telefono, desinstalala primero o la instalacion fallara con \"app no instalada\".",
+      dl_available:"disponible",dl_title:"Listo para la carretera?",
+      dl_sub:"Descarga el APK mas reciente y pon a trabajar tu telefono viejo. Requiere Android 8.0 o mas nuevo.",
+      foot_tag:"© 2026 m8apps · Grabar la voz de alguien sin su consentimiento puede ser ilegal donde vives. El audio viene apagado por defecto.",
+      foot_support:"Soporte"}
+  };
+
+  function el(tag, cls){ const e=document.createElement(tag); if(cls) e.className=cls; return e; }
+  function icon(name, cls){ const s=el('span', (cls||'')+' material-symbols-outlined'); s.textContent=name; return s; }
+
+  function renderLists(lang){
+    const grid = document.getElementById('features-grid'); grid.replaceChildren();
+    FEATURES[lang].forEach(f=>{
+      const card = el('div',"bg-surface-container-high rounded-xl p-lg border border-white/10 hover:border-primary/50 transition-colors flex flex-col items-start group");
+      const ib = el('div',"bg-primary/10 p-sm rounded-lg mb-md text-primary group-hover:bg-primary/20 transition-colors");
+      ib.appendChild(icon(f.i,"text-3xl")); card.appendChild(ib);
+      const h = el('h3',"font-headline-lg text-headline-lg-mobile mb-sm"); h.textContent=f.t; card.appendChild(h);
+      const p = el('p',"font-body-sm text-body-sm text-on-surface-variant leading-relaxed"); p.textContent=f.d; card.appendChild(p);
+      grid.appendChild(card);
+    });
+    const steps = document.getElementById('steps'); steps.replaceChildren();
+    STEPS[lang].forEach((s,n)=>{
+      const row = el('div',"flex gap-md bg-surface-container-high rounded-xl p-md border border-white/10");
+      const num = el('div',"flex-none w-7 h-7 rounded-full bg-primary-container text-on-primary-container font-bold flex items-center justify-center"); num.textContent=String(n+1); row.appendChild(num);
+      const box = el('div');
+      const h = el('h3',"font-medium text-on-background"); h.textContent=s.t; box.appendChild(h);
+      const p = el('p',"text-on-surface-variant font-body-sm text-body-sm mt-xs"); p.textContent=s.d; box.appendChild(p);
+      row.appendChild(box); steps.appendChild(row);
+    });
+  }
+  function setLang(lang){
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(e=>{ const k=e.getAttribute('data-i18n'); if(T[lang][k]!==undefined) e.textContent=T[lang][k]; });
+    const other = lang==='en'?'ES':'EN';
+    document.getElementById('lang').textContent = other;
+    document.getElementById('lang-m').textContent = other;
+    renderLists(lang);
+    try{ localStorage.setItem('redash_lang', lang);}catch(e){}
+  }
+  function toggleLang(){ setLang(document.documentElement.lang==='en'?'es':'en'); }
+  document.getElementById('lang').onclick = toggleLang;
+  document.getElementById('lang-m').onclick = toggleLang;
+
+  let saved='en'; try{ saved = localStorage.getItem('redash_lang')||'en'; }catch(e){}
+  setLang(saved);
+
+  // ---- Datos reales desde el mismo version.json que consume la app ----
   fetch('https://raw.githubusercontent.com/m8appz-dotcom/redash-releases/main/version.json')
     .then(r=>r.json()).then(v=>{
-    document.getElementById('ver').textContent = 'v'+v.versionName;
-    document.getElementById('sha').textContent = v.sha256 || '—';
-    if(v.apkUrl) document.getElementById('dl').href = v.apkUrl;
-  }).catch(()=>{});
+      document.getElementById('ver').textContent = 'v'+v.versionName;
+      if(v.sha256) document.getElementById('sha').textContent = v.sha256;
+      if(v.apkUrl){ document.getElementById('dl-hero').href=v.apkUrl; document.getElementById('dl-main').href=v.apkUrl; }
+    }).catch(()=>{});
 </script>
 </body>
 </html>
