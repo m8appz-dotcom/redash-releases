@@ -81,8 +81,10 @@
 </div>
 
 <script>
-  // Rellena versión, hash y enlace directo desde el mismo version.json que consume la app.
-  fetch('../version.json').then(r=>r.json()).then(v=>{
+  // Rellena versión, hash y enlace directo desde el MISMO version.json que consume la app
+  // (fuente única de verdad en la raíz del repo; raw.githubusercontent envía CORS *).
+  fetch('https://raw.githubusercontent.com/m8appz-dotcom/redash-releases/main/version.json')
+    .then(r=>r.json()).then(v=>{
     document.getElementById('ver').textContent = 'v'+v.versionName;
     document.getElementById('sha').textContent = v.sha256 || '—';
     if(v.apkUrl) document.getElementById('dl').href = v.apkUrl;
