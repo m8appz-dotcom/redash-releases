@@ -1,0 +1,7 @@
+{
+  "versionCode": 52,
+  "versionName": "0.3.0",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.3.0/redash-0.3.0.apk",
+  "sha256": "92febaf270d35758798c89b7cb06d4ceedbd4ba3214844fd546f55b4af982955",
+  "notes": "Primera version distribuida por fuera de Google Play.\n- Instala en equipos de 32 bits (Redmi 7A).\n- Audio apagado por defecto con pantalla de consentimiento.\n- Boton de panico y alerta a los telefonos pareados.\n- Sin destello al cambiar de pantalla.\n- Auto-actualizacion dentro de la app."
+}

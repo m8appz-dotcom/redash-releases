@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReDash — descargar</title>
+<style>
+  :root{
+    --bg:#191B24; --card:#20222C; --card2:#232632; --edge:rgba(255,255,255,.10);
+    --text:#fff; --muted:#A7AABC; --dim:#787C92;
+    --primary:#A78BFA; --primary-hi:#C4B5FD; --warm:#F79E8C; --ink:#181030;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);
+    font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    line-height:1.55;-webkit-font-smoothing:antialiased;padding:0 20px}
+  .wrap{max-width:620px;margin:0 auto;padding:56px 0 80px}
+  .logo{width:76px;height:76px;border-radius:20px;border:2px solid var(--primary);
+    display:flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:22px;background:var(--card)}
+  h1{font-size:40px;font-weight:800;letter-spacing:-.02em}
+  .tagline{color:var(--muted);font-size:17px;margin-top:8px}
+  .ver{display:inline-block;margin-top:16px;padding:5px 12px;border-radius:999px;
+    background:rgba(167,139,250,.16);border:1px solid var(--edge);color:var(--primary-hi);
+    font-size:13px;font-weight:700}
+  .cta{display:block;width:100%;margin:28px 0 10px;padding:18px;border-radius:14px;border:0;
+    background:var(--primary);color:var(--ink);font-size:17px;font-weight:800;text-align:center;
+    text-decoration:none;cursor:pointer}
+  .cta:active{transform:scale(.99)}
+  .hash{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--dim);
+    word-break:break-all;background:var(--card);border:1px solid var(--edge);border-radius:10px;
+    padding:10px 12px;margin-bottom:8px}
+  .hash b{color:var(--muted);font-weight:700}
+  h2{font-size:15px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
+    margin:38px 0 14px}
+  .step{display:flex;gap:14px;padding:16px;background:var(--card);border:1px solid var(--edge);
+    border-radius:16px;margin-bottom:10px}
+  .num{flex:0 0 26px;height:26px;border-radius:50%;background:var(--primary);color:var(--ink);
+    font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px;margin-top:2px}
+  .step h3{font-size:15.5px;font-weight:700}
+  .step p{color:var(--muted);font-size:13.5px;margin-top:3px}
+  .warn{background:rgba(247,158,140,.10);border:1px solid rgba(247,158,140,.35);border-radius:16px;
+    padding:16px;margin-top:10px;color:var(--warm)}
+  .warn b{color:var(--primary-hi)}
+  footer{margin-top:44px;color:var(--dim);font-size:12.5px;text-align:center}
+  a{color:var(--primary-hi)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">🚗</div>
+  <h1>ReDash</h1>
+  <p class="tagline">Convierte un teléfono viejo en dashcam. Tus videos se quedan en tu teléfono.</p>
+  <div class="ver" id="ver">v0.3.0</div>
+
+  <a class="cta" id="dl" href="https://github.com/m8appz-dotcom/redash-releases/releases/latest">Descargar el APK</a>
+  <div class="hash"><b>SHA-256:</b> <span id="sha">—</span></div>
+  <p style="color:var(--dim);font-size:12.5px">Solo Android. No está en Google Play a propósito — se instala directo.</p>
+
+  <h2>Cómo instalar</h2>
+  <div class="step"><div class="num">1</div><div>
+    <h3>Descarga el APK</h3>
+    <p>Toca el botón de arriba desde el teléfono Android donde lo vas a usar.</p></div></div>
+  <div class="step"><div class="num">2</div><div>
+    <h3>Permite instalar desde tu navegador</h3>
+    <p>Android pedirá activar "instalar apps de fuentes desconocidas" para el navegador o el gestor de archivos. Actívalo cuando lo pida.</p></div></div>
+  <div class="step"><div class="num">3</div><div>
+    <h3>En Xiaomi/MIUI: "Instalar de todos modos"</h3>
+    <p>Si sale "para tu seguridad MIUI bloqueó la instalación", toca <b>Instalar de todos modos</b>. Puede pedirte desactivar temporalmente el escaneo.</p></div></div>
+  <div class="step"><div class="num">4</div><div>
+    <h3>Ábrela y elige un rol</h3>
+    <p>Dashcam (el teléfono del carro que graba) o Viewer (desde donde miras). Las siguientes versiones se actualizan solas desde la app.</p></div></div>
+
+  <div class="warn">
+    <b>¿Ya tenías una versión instalada?</b> Si la instalaste antes con otra firma, tienes que <b>desinstalarla primero</b> o la instalación fallará con "app no instalada".
+  </div>
+
+  <footer>
+    Código abierto del cliente · <a href="https://github.com/m8appz-dotcom/redash-releases">repositorio de releases</a><br>
+    Grabar audio de personas sin su consentimiento puede ser ilegal donde vives. El audio viene apagado por defecto.
+  </footer>
+</div>
+
+<script>
+  // Rellena versión, hash y enlace directo desde el mismo version.json que consume la app.
+  fetch('../version.json').then(r=>r.json()).then(v=>{
+    document.getElementById('ver').textContent = 'v'+v.versionName;
+    document.getElementById('sha').textContent = v.sha256 || '—';
+    if(v.apkUrl) document.getElementById('dl').href = v.apkUrl;
+  }).catch(()=>{});
+</script>
+</body>
+</html>
