@@ -47,8 +47,9 @@
     <div class="font-headline-lg text-headline-lg font-extrabold tracking-tight">ReDash</div>
     <div class="hidden md:flex items-center gap-md">
       <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#features" data-i18n="nav_features">Features</a>
-      <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#faq" data-i18n="nav_install">Install</a>
       <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="privacy.html" data-i18n="nav_privacy">Privacy</a>
+      <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#faq" data-i18n="nav_faq">FAQ</a>
+      <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#downloads" data-i18n="nav_downloads">Downloads</a>
       <button id="lang" class="text-on-surface-variant font-bold border border-outline-variant rounded-lg px-sm py-xs hover:text-primary transition-colors">ES</button>
       <a href="#downloads" class="bg-primary-container text-on-primary-container font-cta text-cta px-md py-sm rounded-lg hover:opacity-90 transition-all active:scale-95" data-i18n="nav_download">Download APK</a>
     </div>
@@ -60,8 +61,8 @@
   <!-- Hero -->
   <section class="w-full px-margin-mobile md:px-margin-desktop py-xl md:py-24 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-lg">
     <div class="w-full md:w-1/2 flex flex-col items-start gap-md">
-      <h1 class="font-headline-xl text-headline-xl max-w-2xl" data-i18n="hero_title">Give your old phone a new purpose.</h1>
-      <p class="font-body-md text-body-md text-on-surface-variant max-w-xl" data-i18n="hero_sub">Turn a spare Android into a private dashcam. Your videos stay on your phone, and it installs straight onto the device — even old 32-bit ones.</p>
+      <h1 class="font-headline-xl text-headline-xl max-w-2xl" data-i18n="hero_title">ReDash: Give your old phone a new purpose.</h1>
+      <p class="font-body-md text-body-md text-on-surface-variant max-w-xl" data-i18n="hero_sub">Convert your old smartphone into a powerful, privacy-first dashcam. Repurpose hardware, protect the road.</p>
       <div class="flex flex-col sm:flex-row gap-sm w-full sm:w-auto mt-sm">
         <a id="dl-hero" href="https://github.com/m8appz-dotcom/redash-releases/releases/latest" class="bg-primary-container text-on-primary-container font-cta text-cta px-xl py-sm rounded-lg hover:opacity-90 transition-all active:scale-95 text-center flex justify-center items-center gap-2">
           <span class="material-symbols-outlined">download</span><span data-i18n="cta_download">Download APK</span>
@@ -93,8 +94,8 @@
   <!-- Features -->
   <section class="w-full px-margin-mobile md:px-margin-desktop py-xl max-w-7xl mx-auto" id="features">
     <div class="text-center mb-lg">
-      <h2 class="font-headline-lg text-headline-lg" data-i18n="feat_title">Built to be useful</h2>
-      <p class="font-body-md text-body-md text-on-surface-variant mt-sm" data-i18n="feat_sub">Real features on hardware you already own.</p>
+      <h2 class="font-headline-lg text-headline-lg" data-i18n="feat_title">Engineered for Utility</h2>
+      <p class="font-body-md text-body-md text-on-surface-variant mt-sm" data-i18n="feat_sub">Powerful features packed into your existing hardware.</p>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-md" id="features-grid"></div>
   </section>
@@ -121,12 +122,12 @@
           <span id="ver">v0.3.0</span>&nbsp;<span data-i18n="dl_available">available</span>
         </div>
         <h2 class="font-headline-lg text-headline-lg mb-sm" data-i18n="dl_title">Ready to hit the road?</h2>
-        <p class="font-body-md text-body-md text-on-surface-variant mb-lg max-w-md mx-auto" data-i18n="dl_sub">Get the latest APK and give your old phone a job. Requires Android 8.0 or newer.</p>
+        <p class="font-body-md text-body-md text-on-surface-variant mb-lg max-w-md mx-auto" data-i18n="dl_sub">Get the latest APK and start transforming your old phone today. Requires Android 8.0+.</p>
         <a id="dl-main" href="https://github.com/m8appz-dotcom/redash-releases/releases/latest" class="bg-primary-container text-on-primary-container font-cta text-cta px-xl py-md rounded-lg hover:opacity-90 hover:-translate-y-1 transition-all active:scale-95 shadow-[0_0_20px_rgba(157,128,254,0.3)] text-center flex items-center gap-2">
           <span class="material-symbols-outlined">download</span><span data-i18n="cta_download">Download APK</span>
         </a>
         <p class="font-body-sm text-body-sm text-on-surface-variant/50 mt-md break-all font-mono">
-          SHA-256: <span id="sha">—</span>
+          Checksum: <span id="sha">—</span> (SHA-256)
         </p>
       </div>
     </div>
@@ -138,7 +139,7 @@
   <div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-lg max-w-7xl mx-auto gap-md">
     <div class="font-headline-lg text-headline-lg-mobile font-extrabold text-center md:text-left">
       ReDash
-      <div class="font-body-sm text-body-sm text-on-surface-variant font-normal mt-xs" data-i18n="foot_tag">© 2026 m8apps · Recording someone's voice without consent may be illegal where you live. Audio is off by default.</div>
+      <div class="font-body-sm text-body-sm text-on-surface-variant font-normal mt-xs" data-i18n="foot_tag">© 2024 ReDash. All rights reserved. Repurpose hardware, protect the road.</div>
     </div>
     <div class="flex flex-wrap justify-center gap-md font-body-sm text-body-sm">
       <a class="text-on-surface-variant hover:text-primary hover:underline transition-all" href="privacy.html" data-i18n="nav_privacy">Privacy</a>
@@ -152,20 +153,14 @@
   // ---- Contenido traducible. Inglés por defecto, toggle a español. DOM por textContent (sin innerHTML). ----
   const FEATURES = {
     en:[
-      {i:"recycling", t:"Repurpose hardware", d:"Save money and e-waste. An unused phone becomes a dedicated dashcam."},
-      {i:"lock", t:"Private by default", d:"Videos stay on the phone. No ads, no trackers, no account. Cloud sync is optional and off unless you turn it on."},
-      {i:"loop", t:"Records on a loop", d:"Continuous recording that overwrites the oldest clip when storage fills. Impact and motion auto-protect the clip."},
-      {i:"videocam", t:"Watch it live", d:"Pair a second phone and see the camera live, listen, talk, and save the clips that matter."},
-      {i:"emergency_home", t:"Panic button", d:"One tap starts recording, saves the moment, and alerts your paired phones."},
-      {i:"system_update", t:"Updates itself", d:"New versions are detected and installed from inside the app — no store needed."},
+      {i:"recycling", t:"Repurpose Hardware", d:"Save money and the environment by using what you already own. Transform an unused device into a dedicated security tool."},
+      {i:"shield_lock", t:"Privacy First", d:"Your videos stay on your phone. No cloud uploads, no tracking, complete control over your own data."},
+      {i:"fiber_smart_record", t:"Automatic Recording", d:"Set it and forget it. ReDash can be configured to start recording automatically when it detects movement or power."},
     ],
     es:[
-      {i:"recycling", t:"Reutiliza el hardware", d:"Ahorra dinero y basura electronica. Un telefono sin uso se vuelve una dashcam dedicada."},
-      {i:"lock", t:"Privada por defecto", d:"Los videos se quedan en el telefono. Sin publicidad, sin rastreadores, sin cuenta. La nube es opcional y viene apagada."},
-      {i:"loop", t:"Graba en bucle", d:"Grabacion continua que reemplaza el clip mas viejo cuando se llena. El impacto y el movimiento protegen el clip solos."},
-      {i:"videocam", t:"Mirala en vivo", d:"Empareja un segundo telefono y ve la camara en vivo, escucha, habla y guarda los clips que importan."},
-      {i:"emergency_home", t:"Boton de panico", d:"Un toque empieza a grabar, guarda el momento y alerta a tus telefonos pareados."},
-      {i:"system_update", t:"Se actualiza sola", d:"Las versiones nuevas se detectan y se instalan desde la app, sin tienda."},
+      {i:"recycling", t:"Reutiliza el hardware", d:"Ahorra dinero y cuida el ambiente usando lo que ya tienes. Transforma un dispositivo sin uso en una herramienta de seguridad dedicada."},
+      {i:"shield_lock", t:"Privacidad primero", d:"Tus videos se quedan en tu teléfono. Sin subidas a la nube, sin rastreo, control total sobre tus propios datos."},
+      {i:"fiber_smart_record", t:"Grabación automática", d:"Configúrala y olvídate. ReDash puede configurarse para empezar a grabar automáticamente cuando detecta movimiento o energía."},
     ]
   };
   const STEPS = {
@@ -176,36 +171,36 @@
       {t:"Open it and pick a role", d:"Dashcam (the phone in the car) or Viewer (where you watch). Future versions update themselves."},
     ],
     es:[
-      {t:"Descarga el APK", d:"Toca un boton de descarga desde el telefono Android donde lo vas a usar."},
-      {t:"Permite instalar desde el navegador", d:"Android pedira activar fuentes desconocidas. Activalo cuando lo pida."},
+      {t:"Descarga el APK", d:"Toca un botón de descarga desde el teléfono Android donde lo vas a usar."},
+      {t:"Permite instalar desde el navegador", d:"Android pedirá activar fuentes desconocidas. Actívalo cuando lo pida."},
       {t:"En Xiaomi/MIUI: Instalar de todos modos", d:"Si MIUI lo bloquea por tu seguridad, toca Instalar de todos modos. Puede pedir pausar el escaneo."},
-      {t:"Abrela y elige un rol", d:"Dashcam (el telefono del carro) o Viewer (desde donde miras). Las proximas versiones se actualizan solas."},
+      {t:"Ábrela y elige un rol", d:"Dashcam (el teléfono del carro) o Viewer (desde donde miras). Las próximas versiones se actualizan solas."},
     ]
   };
   const T = {
-    en:{nav_features:"Features",nav_install:"Install",nav_privacy:"Privacy",nav_download:"Download APK",
-      hero_title:"Give your old phone a new purpose.",
-      hero_sub:"Turn a spare Android into a private dashcam. Your videos stay on your phone, and it installs straight onto the device — even old 32-bit ones.",
+    en:{nav_features:"Features",nav_privacy:"Privacy",nav_faq:"FAQ",nav_downloads:"Downloads",nav_download:"Download APK",
+      hero_title:"ReDash: Give your old phone a new purpose.",
+      hero_sub:"Convert your old smartphone into a powerful, privacy-first dashcam. Repurpose hardware, protect the road.",
       cta_download:"Download APK",cta_how:"How it works",
       hero_req:"Android 8.0+ · Not on Google Play, by design",
-      feat_title:"Built to be useful",feat_sub:"Real features on hardware you already own.",
+      feat_title:"Engineered for Utility",feat_sub:"Powerful features packed into your existing hardware.",
       inst_title:"How to install",inst_sub:"It is not on Google Play on purpose — you install it directly.",
       inst_warn:"Already had it installed? If an older build with a different signature is on the phone, uninstall it first or the install will fail with \"app not installed\".",
-      dl_available:"available",dl_title:"Ready to hit the road?",
-      dl_sub:"Get the latest APK and give your old phone a job. Requires Android 8.0 or newer.",
-      foot_tag:"© 2026 m8apps · Recording someone's voice without consent may be illegal where you live. Audio is off by default.",
+      dl_available:"Available",dl_title:"Ready to hit the road?",
+      dl_sub:"Get the latest APK and start transforming your old phone today. Requires Android 8.0+.",
+      foot_tag:"© 2024 ReDash. All rights reserved. Repurpose hardware, protect the road.",
       foot_support:"Support"},
-    es:{nav_features:"Funciones",nav_install:"Instalar",nav_privacy:"Privacidad",nav_download:"Descargar APK",
-      hero_title:"Dale un nuevo proposito a tu telefono viejo.",
-      hero_sub:"Convierte un Android que no usas en una dashcam privada. Tus videos se quedan en tu telefono, y se instala directo en el equipo, hasta en los viejos de 32 bits.",
-      cta_download:"Descargar APK",cta_how:"Como funciona",
-      hero_req:"Android 8.0+ · Fuera de Google Play, a proposito",
-      feat_title:"Hecha para ser util",feat_sub:"Funciones reales sobre hardware que ya tienes.",
-      inst_title:"Como instalar",inst_sub:"No esta en Google Play a proposito, se instala directo.",
-      inst_warn:"Ya la tenias instalada? Si hay una version vieja con otra firma en el telefono, desinstalala primero o la instalacion fallara con \"app no instalada\".",
-      dl_available:"disponible",dl_title:"Listo para la carretera?",
-      dl_sub:"Descarga el APK mas reciente y pon a trabajar tu telefono viejo. Requiere Android 8.0 o mas nuevo.",
-      foot_tag:"© 2026 m8apps · Grabar la voz de alguien sin su consentimiento puede ser ilegal donde vives. El audio viene apagado por defecto.",
+    es:{nav_features:"Funciones",nav_privacy:"Privacidad",nav_faq:"FAQ",nav_downloads:"Descargas",nav_download:"Descargar APK",
+      hero_title:"ReDash: Dale un nuevo propósito a tu teléfono viejo.",
+      hero_sub:"Convierte tu viejo smartphone en una dashcam potente y centrada en la privacidad. Reutiliza el hardware, protege la vía.",
+      cta_download:"Descargar el APK",cta_how:"Cómo funciona",
+      hero_req:"Android 8.0+ · Fuera de Google Play, a propósito",
+      feat_title:"Diseñada para la utilidad",feat_sub:"Funciones potentes empacadas en el hardware que ya tienes.",
+      inst_title:"Cómo instalar",inst_sub:"No está en Google Play a propósito, se instala directo.",
+      inst_warn:"¿Ya la tenías instalada? Si hay una versión vieja con otra firma en el teléfono, desinstálala primero o la instalación fallará con \"app no instalada\".",
+      dl_available:"Disponible",dl_title:"¿Listo para la carretera?",
+      dl_sub:"Consigue el APK más reciente y empieza a transformar tu teléfono viejo hoy. Requiere Android 8.0+.",
+      foot_tag:"© 2024 ReDash. Todos los derechos reservados. Reutiliza el hardware, protege la via.",
       foot_support:"Soporte"}
   };
 
