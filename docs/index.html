@@ -123,9 +123,13 @@
         <a id="dl-main" href="https://github.com/m8appz-dotcom/redash-releases/releases/latest" class="bg-primary-container text-on-primary-container font-cta text-cta px-xl py-md rounded-lg hover:opacity-90 hover:-translate-y-1 transition-all active:scale-95 shadow-[0_0_20px_rgba(157,128,254,0.3)] text-center flex items-center gap-2">
           <span class="material-symbols-outlined">download</span><span data-i18n="cta_download">Download APK</span>
         </a>
-        <p class="font-body-sm text-body-sm text-on-surface-variant/50 mt-md break-all font-mono">
-          Checksum: <span id="sha">—</span> (SHA-256)
-        </p>
+        <details class="mt-md w-full max-w-md text-left">
+          <summary class="cursor-pointer text-center list-none font-body-sm text-body-sm text-on-surface-variant/60 hover:text-primary transition-colors select-none" data-i18n="dl_details">View details</summary>
+          <div class="mt-sm bg-background/60 border border-white/10 rounded-lg p-sm">
+            <div class="font-body-sm text-body-sm text-on-surface-variant/50 mb-xs" data-i18n="dl_checksum_label">Checksum (SHA-256)</div>
+            <div class="break-all font-mono text-xs text-on-surface-variant/70" id="sha">—</div>
+          </div>
+        </details>
       </div>
     </div>
   </section>
@@ -181,6 +185,7 @@
       feat_title:"Engineered for Utility",feat_sub:"Powerful features packed into your existing hardware.",
       inst_title:"How to install",inst_sub:"It is not on Google Play on purpose — you install it directly.",
       dl_available:"Available",dl_title:"Ready to hit the road?",
+      dl_details:"View details",dl_checksum_label:"Checksum (SHA-256)",
       dl_sub:"Get the latest APK and start transforming your old phone today. Requires Android 8.0+.",
       foot_tag:"© 2024 ReDash. All rights reserved. Repurpose hardware, protect the road.",
       foot_support:"Support"},
@@ -192,6 +197,7 @@
       feat_title:"Diseñada para la utilidad",feat_sub:"Funciones potentes empacadas en el hardware que ya tienes.",
       inst_title:"Cómo instalar",inst_sub:"No está en Google Play a propósito, se instala directo.",
       dl_available:"Disponible",dl_title:"¿Listo para la carretera?",
+      dl_details:"Ver detalles",dl_checksum_label:"Checksum (SHA-256)",
       dl_sub:"Consigue el APK más reciente y empieza a transformar tu teléfono viejo hoy. Requiere Android 8.0+.",
       foot_tag:"© 2024 ReDash. Todos los derechos reservados. Reutiliza el hardware, protege la via.",
       foot_support:"Soporte"}
