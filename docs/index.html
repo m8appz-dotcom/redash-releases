@@ -48,6 +48,7 @@
     <div class="hidden md:flex items-center gap-md">
       <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#features" data-i18n="nav_features">Features</a>
       <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="privacy.html" data-i18n="nav_privacy">Privacy</a>
+      <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#pricing" data-i18n="nav_pricing">Pricing</a>
       <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#faq" data-i18n="nav_faq">FAQ</a>
       <a class="text-on-surface-variant font-medium hover:text-primary transition-colors" href="#downloads" data-i18n="nav_downloads">Downloads</a>
       <button id="lang" class="text-on-surface-variant font-bold border border-outline-variant rounded-lg px-sm py-xs hover:text-primary transition-colors">ES</button>
@@ -74,18 +75,14 @@
         <span data-i18n="hero_req">Android 8.0+ · Not on Google Play, by design</span>
       </div>
     </div>
-    <!-- Maqueta CSS del HUD de grabación (sin imágenes externas) -->
-    <div class="w-full md:w-1/2 mt-lg md:mt-0 flex justify-center">
-      <div class="w-[280px] h-[420px] rounded-[36px] border-[6px] border-surface-container-highest bg-surface-container-lowest shadow-2xl relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-[#333A55] via-[#232840] to-[#151827]"></div>
-        <div class="absolute top-4 left-4 flex items-center gap-2 bg-black/40 rounded-full px-3 py-1">
+    <!-- Foto del mockup, guardada en el repo para no depender de una URL externa temporal. -->
+    <div class="w-full md:w-1/2 mt-lg md:mt-0 relative">
+      <div class="aspect-video bg-surface-container-high rounded-xl border border-outline-variant/30 flex items-center justify-center shadow-2xl relative overflow-hidden group">
+        <img class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-luminosity" src="hero.jpg" alt="Phone mounted on a car dashboard recording the road at night"/>
+        <div class="absolute inset-0 bg-gradient-to-tr from-background/80 via-transparent to-primary/10"></div>
+        <div class="absolute top-4 left-4 flex items-center gap-2 bg-black/50 rounded-full px-3 py-1 z-10">
           <span class="w-2 h-2 rounded-full bg-warm animate-pulse"></span>
           <span class="text-white/90 text-xs font-mono font-bold">REC 04:12</span>
-        </div>
-        <div class="absolute top-4 right-4 bg-black/40 rounded-full px-3 py-1 text-white/80 text-xs font-mono">1080p</div>
-        <div class="absolute bottom-4 left-4 bg-black/40 rounded-full px-3 py-1 text-primary text-xs font-mono">-0.2103, -78.4890</div>
-        <div class="absolute inset-0 flex items-center justify-center">
-          <span class="material-symbols-outlined text-white/15" style="font-size:120px">directions_car</span>
         </div>
       </div>
     </div>
@@ -98,6 +95,33 @@
       <p class="font-body-md text-body-md text-on-surface-variant mt-sm" data-i18n="feat_sub">Powerful features packed into your existing hardware.</p>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-md" id="features-grid"></div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="w-full px-margin-mobile md:px-margin-desktop py-xl max-w-3xl mx-auto" id="pricing">
+    <div class="text-center mb-lg">
+      <h2 class="font-headline-lg text-headline-lg" data-i18n="price_title">One payment. Yours forever.</h2>
+      <p class="font-body-md text-body-md text-on-surface-variant mt-sm" data-i18n="price_sub">No subscription, no ads, no account. Buy it once and keep it, updates included.</p>
+    </div>
+    <div class="bg-surface-container-high rounded-2xl border border-primary/30 p-xl relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"></div>
+      <div class="relative z-10 flex flex-col items-center text-center">
+        <div class="inline-flex items-center gap-xs bg-primary/15 text-primary px-sm py-xs rounded-full font-label-md text-label-md mb-md border border-primary/20">
+          <span class="material-symbols-outlined text-sm">bolt</span>
+          <span data-i18n="price_badge">Launch price</span>
+        </div>
+        <div class="flex items-end gap-2 mb-xs">
+          <span class="font-headline-xl text-headline-xl text-on-background">$14.99</span>
+          <span class="font-body-md text-body-md text-on-surface-variant/60 line-through mb-2">$19.99</span>
+        </div>
+        <p class="font-body-sm text-body-sm text-on-surface-variant mb-lg" data-i18n="price_once">one time · not per month</p>
+        <ul class="flex flex-col gap-sm w-full max-w-sm text-left mb-lg" id="price-list"></ul>
+        <a id="dl-price" href="https://github.com/m8appz-dotcom/redash-releases/releases/latest" class="bg-primary-container text-on-primary-container font-cta text-cta px-xl py-md rounded-lg hover:opacity-90 hover:-translate-y-1 transition-all active:scale-95 shadow-[0_0_20px_rgba(157,128,254,0.3)] w-full sm:w-auto text-center flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined">download</span><span data-i18n="price_cta">Get ReDash</span>
+        </a>
+        <p class="font-body-sm text-body-sm text-on-surface-variant/60 mt-md" data-i18n="price_compare">A real dash cam costs $60–$300. The popular app alternative charges about $24 every year.</p>
+      </div>
+    </div>
   </section>
 
   <!-- Install -->
@@ -140,7 +164,7 @@
   <div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-lg max-w-7xl mx-auto gap-md">
     <div class="font-headline-lg text-headline-lg-mobile font-extrabold text-center md:text-left">
       ReDash
-      <div class="font-body-sm text-body-sm text-on-surface-variant font-normal mt-xs" data-i18n="foot_tag">© 2024 ReDash. All rights reserved. Repurpose hardware, protect the road.</div>
+      <div class="font-body-sm text-body-sm text-on-surface-variant font-normal mt-xs" data-i18n="foot_tag">© 2026 ReDash. All rights reserved. Repurpose hardware, protect the road.</div>
     </div>
     <div class="flex flex-wrap justify-center gap-md font-body-sm text-body-sm">
       <a class="text-on-surface-variant hover:text-primary hover:underline transition-all" href="privacy.html" data-i18n="nav_privacy">Privacy</a>
@@ -164,6 +188,10 @@
       {i:"fiber_smart_record", t:"Grabación automática", d:"Configúrala y olvídate. ReDash puede configurarse para empezar a grabar automáticamente cuando detecta movimiento o energía."},
     ]
   };
+  const INCLUDED = {
+    en:["Unlimited loop recording","Remote live view, listen and talk","Multi-camera viewer","Panic button and alerts","Stealth mode","IP camera support (RTSP/ONVIF)","All future updates"],
+    es:["Grabación en bucle sin límite","Ver en vivo, escuchar y hablar a distancia","Visor de varias cámaras","Botón de pánico y alertas","Modo sigilo","Soporte de cámaras IP (RTSP/ONVIF)","Todas las actualizaciones futuras"]
+  };
   const STEPS = {
     en:[
       {t:"Download the APK", d:"Tap a download button from the Android phone you will use it on."},
@@ -186,8 +214,12 @@
       inst_title:"How to install",inst_sub:"It is not on Google Play on purpose — you install it directly.",
       dl_available:"Available",dl_title:"Ready to hit the road?",
       dl_details:"View details",dl_checksum_label:"Checksum (SHA-256)",
+      nav_pricing:"Pricing",price_title:"One payment. Yours forever.",
+      price_sub:"No subscription, no ads, no account. Buy it once and keep it, updates included.",
+      price_badge:"Launch price",price_once:"one time · not per month",price_cta:"Get ReDash",
+      price_compare:"A real dash cam costs $60–$300. The popular app alternative charges about $24 every year.",
       dl_sub:"Get the latest APK and start transforming your old phone today. Requires Android 8.0+.",
-      foot_tag:"© 2024 ReDash. All rights reserved. Repurpose hardware, protect the road.",
+      foot_tag:"© 2026 ReDash. All rights reserved. Repurpose hardware, protect the road.",
       foot_support:"Support"},
     es:{nav_features:"Funciones",nav_privacy:"Privacidad",nav_faq:"FAQ",nav_downloads:"Descargas",nav_download:"Descargar APK",
       hero_title:"ReDash: Dale un nuevo propósito a tu teléfono viejo.",
@@ -198,8 +230,12 @@
       inst_title:"Cómo instalar",inst_sub:"No está en Google Play a propósito, se instala directo.",
       dl_available:"Disponible",dl_title:"¿Listo para la carretera?",
       dl_details:"Ver detalles",dl_checksum_label:"Checksum (SHA-256)",
+      nav_pricing:"Precio",price_title:"Un solo pago. Tuyo para siempre.",
+      price_sub:"Sin suscripción, sin publicidad, sin cuenta. Lo compras una vez y es tuyo, con actualizaciones incluidas.",
+      price_badge:"Precio de lanzamiento",price_once:"pago único · no mensual",price_cta:"Consíguela",
+      price_compare:"Una dashcam de verdad cuesta entre $60 y $300. La app alternativa popular cobra unos $24 cada año.",
       dl_sub:"Consigue el APK más reciente y empieza a transformar tu teléfono viejo hoy. Requiere Android 8.0+.",
-      foot_tag:"© 2024 ReDash. Todos los derechos reservados. Reutiliza el hardware, protege la via.",
+      foot_tag:"© 2026 ReDash. Todos los derechos reservados. Reutiliza el hardware, protege la vía.",
       foot_support:"Soporte"}
   };
 
@@ -224,6 +260,13 @@
       const h = el('h3',"font-medium text-on-background"); h.textContent=s.t; box.appendChild(h);
       const p = el('p',"text-on-surface-variant font-body-sm text-body-sm mt-xs"); p.textContent=s.d; box.appendChild(p);
       row.appendChild(box); steps.appendChild(row);
+    });
+    const list = document.getElementById('price-list'); list.replaceChildren();
+    INCLUDED[lang].forEach(item=>{
+      const li = el('li',"flex items-start gap-2 text-on-surface-variant font-body-sm text-body-sm");
+      li.appendChild(icon("check_circle","text-primary text-base flex-none"));
+      const s = el('span'); s.textContent=item; li.appendChild(s);
+      list.appendChild(li);
     });
   }
   function setLang(lang){
