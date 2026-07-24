@@ -1,7 +1,7 @@
 {
-  "versionCode": 54,
-  "versionName": "0.3.2",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.3.2/redash-0.3.2.apk",
-  "sha256": "1f6ac1549a5e8eba78c5289d2494224713f4561fb7836fdb3a9417167d47931d",
-  "notes": "La bateria del telefono camara ahora se ve en el visor. Al emparejar por QR, el telefono camara avisa cuando el visor se conecta. La camara abre un angulo mas amplio para ver mas via. Mejor eleccion de red Wi-Fi al emparejar."
+  "versionCode": 55,
+  "versionName": "0.3.3",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.3.3/redash-0.3.3.apk",
+  "sha256": "149b46a5e33b2723b0e59994e059e215479c918fd046e1055f41e7d6dafcd2fd",
+  "notes": "Nuevo paso al configurar el telefono camara: con un toque le pides al sistema que no mate a ReDash por bateria (clave en Xiaomi/MIUI, donde ademas te lleva a activar el inicio automatico)."
 }
