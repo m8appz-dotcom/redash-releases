@@ -1,7 +1,7 @@
 {
-  "versionCode": 53,
-  "versionName": "0.3.1",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.3.1/redash-0.3.1.apk",
-  "sha256": "b665bafaf3c96aeb693fd27b29f763587792a87d9bb04ba1fa40853d7abca985",
-  "notes": "Los clips protegidos (impacto, panico o los que marcas) ahora se guardan en un album ReDash de tu Galeria, visible en Fotos. Antes vivian solo en una carpeta privada que MIUI oculta."
+  "versionCode": 54,
+  "versionName": "0.3.2",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.3.2/redash-0.3.2.apk",
+  "sha256": "1f6ac1549a5e8eba78c5289d2494224713f4561fb7836fdb3a9417167d47931d",
+  "notes": "La bateria del telefono camara ahora se ve en el visor. Al emparejar por QR, el telefono camara avisa cuando el visor se conecta. La camara abre un angulo mas amplio para ver mas via. Mejor eleccion de red Wi-Fi al emparejar."
 }
