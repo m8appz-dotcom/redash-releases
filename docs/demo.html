@@ -135,7 +135,7 @@
   const T = {
     en:{tag:"LIVE BROWSER DEMO",get:"Get the app",gate_title:"Turn this device into a dashcam",
       gate_body:"Give camera access and see the real ReDash experience — live view, loop recording, impact detection — running entirely in your browser. Nothing leaves this device.",
-      gate_btn:"Start camera",rear:"Rear",front:"Front",record:"Record",stop:"Stop",panic:"Panic",full:"Full",
+      gate_btn:"Start camera",cam_requesting:"Requesting camera...",cam_unsupported:"Your browser does not support camera access. Try Chrome or Safari.",cam_denied:"Camera access was denied. Allow it in your browser settings, then tap again.",cam_none:"No camera found on this device.",cam_timeout:"Your browser did not respond. Open this page in Chrome or Safari and try again.",inapp:"Open this page in your real browser (Chrome or Safari). In-app browsers (WhatsApp, Instagram, Telegram...) block the camera.",rear:"Rear",front:"Front",record:"Record",stop:"Stop",panic:"Panic",full:"Full",
       clips:"Recorded clips",clips_empty:"Tap Record — clips are saved in a loop, right here.",
       note_t:"This is the real thing, not a video.",
       note_b:" Your camera, real loop recording, impact detection by the phone's sensors — all in the browser, nothing uploaded. The installed app adds what a browser can't: recording with the screen off, watching from another phone, and alerts.",
@@ -144,7 +144,7 @@
       impact:"IMPACT",panicflash:"PANIC",saved:"Saved",protected:"Protected",download:"Download"},
     es:{tag:"DEMO EN VIVO EN EL NAVEGADOR",get:"Descargar app",gate_title:"Convierte este equipo en dashcam",
       gate_body:"Da acceso a la cámara y ve la experiencia real de ReDash — vista en vivo, grabación en bucle, detección de impacto — corriendo entera en tu navegador. Nada sale de este equipo.",
-      gate_btn:"Encender cámara",rear:"Trasera",front:"Frontal",record:"Grabar",stop:"Detener",panic:"Pánico",full:"Full",
+      gate_btn:"Encender cámara",cam_requesting:"Pidiendo cámara...",cam_unsupported:"Tu navegador no permite acceso a la cámara. Prueba Chrome o Safari.",cam_denied:"Se denegó el acceso a la cámara. Actívalo en los ajustes del navegador y toca de nuevo.",cam_none:"No se encontró cámara en este equipo.",cam_timeout:"Tu navegador no respondió. Abre esta página en Chrome o Safari y vuelve a intentar.",inapp:"Abre esta página en tu navegador real (Chrome o Safari). Los navegadores dentro de apps (WhatsApp, Instagram, Telegram...) bloquean la cámara.",rear:"Trasera",front:"Frontal",record:"Grabar",stop:"Detener",panic:"Pánico",full:"Full",
       clips:"Clips grabados",clips_empty:"Toca Grabar — los clips se guardan en bucle, aquí mismo.",
       note_t:"Esto es de verdad, no un video.",
       note_b:" Tu cámara, grabación en bucle real, detección de impacto con los sensores del teléfono — todo en el navegador, sin subir nada. La app instalada agrega lo que un navegador no puede: grabar con la pantalla apagada, ver desde otro teléfono, y alertas.",
@@ -169,10 +169,30 @@
   let segTimer=null, chunks=[], protectNext=false;
   const SEG_MS = 15000; // segmentos cortos para que el demo muestre el bucle rápido
 
+  function gateError(msg, showBtn){
+    const g=document.getElementById('gate');
+    g.querySelector('h2').textContent = t('gate_title');
+    g.querySelector('p').textContent = msg;
+    const b=g.querySelector('button'); b.style.display = showBtn? 'block':'none';
+    b.disabled=false; b.textContent=t('gate_btn');
+  }
+  function isInApp(){
+    const u=navigator.userAgent||'';
+    return /FBAN|FBAV|Instagram|Line|Telegram|WhatsApp|Snapchat|MicroMessenger|TikTok/i.test(u);
+  }
   async function startCamera(){
+    const btn=document.getElementById('start');
+    btn.disabled=true; btn.textContent=t('cam_requesting');
+    // Sin API o contexto inseguro: mensaje claro en vez de un botón muerto.
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      gateError(isInApp()? t('inapp'): t('cam_unsupported'), true); return false;
+    }
     try{
       if(stream) stream.getTracks().forEach(t=>t.stop());
-      stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: facing }, audio:false });
+      // Timeout: si el navegador (típico embebido) nunca responde, no dejar la pantalla colgada.
+      const gum = navigator.mediaDevices.getUserMedia({ video:{ facingMode: facing }, audio:false });
+      const timeout = new Promise((_,rej)=>setTimeout(()=>rej({name:'Timeout'}), 12000));
+      stream = await Promise.race([gum, timeout]);
       video.srcObject = stream;
       document.getElementById('gate').style.display='none';
       document.getElementById('lens').style.display='flex';
@@ -181,14 +201,24 @@
       const s = stream.getVideoTracks()[0].getSettings();
       const res = document.getElementById('resChip'); res.style.display='flex';
       res.textContent = (s.height? s.height+'p' : 'HD');
+      return true;
     }catch(err){
-      const g=document.getElementById('gate');
-      g.querySelector('h2').textContent = t('denied');
-      g.querySelector('p').textContent = '';
-      g.querySelector('button').style.display='none';
+      const n = err && err.name;
+      let msg;
+      if(n==='NotAllowedError'||n==='SecurityError') msg=t('cam_denied');
+      else if(n==='NotFoundError'||n==='OverconstrainedError') msg=t('cam_none');
+      else if(n==='Timeout') msg = isInApp()? t('inapp'): t('cam_timeout');
+      else msg = isInApp()? t('inapp'): (t('cam_denied'));
+      gateError(msg, true);
+      return false;
     }
   }
-  document.getElementById('start').onclick = async ()=>{ await startCamera(); startGeo(); armImpact(); };
+  document.getElementById('start').onclick = async ()=>{
+    // Aviso proactivo si es un navegador embebido: ahí la cámara casi nunca funciona.
+    if(isInApp()){ gateError(t('inapp'), true); return; }
+    const ok = await startCamera();
+    if(ok){ startGeo(); armImpact(); }
+  };
 
   // Lente
   document.querySelectorAll('#lens button').forEach(b=>b.onclick=async()=>{
