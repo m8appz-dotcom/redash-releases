@@ -96,6 +96,7 @@
       <h2 class="h" data-i18n="gate_title">Turn this device into a dashcam</h2>
       <p data-i18n="gate_body">Give camera access and see the real ReDash experience — live view, loop recording, impact detection — running entirely in your browser. Nothing leaves this device.</p>
       <button class="bigbtn" id="start" data-i18n="gate_btn">Start camera</button>
+      <div id="diag" style="font-family:ui-monospace,monospace;font-size:11px;color:var(--muted);opacity:.7"></div>
     </div>
   </div>
 
@@ -175,10 +176,33 @@
     g.querySelector('p').textContent = msg;
     const b=g.querySelector('button'); b.style.display = showBtn? 'block':'none';
     b.disabled=false; b.textContent=t('gate_btn');
+    // Diagnóstico visible: qué navegador detectó, para poder afinar si algo falla.
+    let perm='';
+    try{ if(navigator.permissions) navigator.permissions.query({name:'camera'}).then(r=>{ document.getElementById('diag').textContent = browserInfo()+' · cam:'+r.state; }); }catch(e){}
+    document.getElementById('diag').textContent = browserInfo();
   }
   function isInApp(){
     const u=navigator.userAgent||'';
-    return /FBAN|FBAV|Instagram|Line|Telegram|WhatsApp|Snapchat|MicroMessenger|TikTok/i.test(u);
+    // Apps conocidas + marcador genérico de Android WebView ("; wv") + Android WebView sin marca de
+    // navegador real. Cubre la mayoría de navegadores embebidos donde la cámara no puede pedir permiso.
+    if(/FBAN|FBAV|Instagram|Line|Telegram|WhatsApp|Snapchat|MicroMessenger|TikTok|GSA/i.test(u)) return true;
+    if(/;\s*wv\)/i.test(u)) return true;
+    if(/Android/i.test(u) && !/Chrome\/|Firefox\/|EdgA\/|OPR\//i.test(u)) return true;
+    return false;
+  }
+  function browserInfo(){
+    const u=navigator.userAgent||'';
+    let name='Unknown';
+    if(/CriOS/i.test(u)) name='Chrome (iOS)';
+    else if(/FxiOS/i.test(u)) name='Firefox (iOS)';
+    else if(/EdgA|Edg\//i.test(u)) name='Edge';
+    else if(/OPR|Opera/i.test(u)) name='Opera';
+    else if(/;\s*wv\)/i.test(u)) name='Android WebView (in-app)';
+    else if(/Chrome\//i.test(u)) name='Chrome';
+    else if(/Firefox\//i.test(u)) name='Firefox';
+    else if(/Version\/.*Safari/i.test(u)) name='Safari';
+    const os = /iPhone|iPad|iPod/i.test(u)?'iOS':(/Android/i.test(u)?'Android':'Desktop');
+    return name+' · '+os;
   }
   async function startCamera(){
     const btn=document.getElementById('start');
