@@ -1,7 +1,7 @@
 {
-  "versionCode": 57,
-  "versionName": "0.3.5",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.3.5/redash-0.3.5.apk",
-  "sha256": "af0dc477871ef735e3e35badb7053764cfa339a60b866c6dcf8f845e9934e0db",
-  "notes": "Home mas limpia (sin el preview horizontal que se veia cortado). Modo kiosko para fijar la app en un telefono dedicado. Y alertas de panico por Telegram configurables por cada usuario con su propio bot, directo desde el telefono."
+  "versionCode": 59,
+  "versionName": "0.4.1",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.4.1/redash-0.4.1.apk",
+  "sha256": "1b7d43080e2d31e9fa5c170e8b7248012660ef047e2b1172683ae14733e64ab8",
+  "notes": "Home rediseñada tipo app de cámara. Tus viajes quedan grabados en el mapa y se exportan como GPX. Busca una dirección y navega con Google Maps mientras la dashcam sigue grabando en una ventanita. Grabación más robusta ante reinicios."
 }
