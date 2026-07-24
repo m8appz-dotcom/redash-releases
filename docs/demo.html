@@ -136,7 +136,7 @@
   const T = {
     en:{tag:"LIVE BROWSER DEMO",get:"Get the app",gate_title:"Turn this device into a dashcam",
       gate_body:"Give camera access and see the real ReDash experience — live view, loop recording, impact detection — running entirely in your browser. Nothing leaves this device.",
-      gate_btn:"Start camera",cam_requesting:"Requesting camera...",cam_allow_hint:"Look for the camera permission at the top of your browser and click Allow. On a computer, the demo works but shines on a phone.",cam_unsupported:"Your browser does not support camera access. Try Chrome or Safari.",cam_denied:"Camera access was denied. Allow it in your browser settings, then tap again.",cam_none:"No camera found on this device.",cam_timeout:"Your browser did not respond. Open this page in Chrome or Safari and try again.",inapp:"Open this page in your real browser (Chrome or Safari). In-app browsers (WhatsApp, Instagram, Telegram...) block the camera.",rear:"Rear",front:"Front",record:"Record",stop:"Stop",panic:"Panic",full:"Full",
+      gate_btn:"Start camera",cam_requesting:"Requesting camera...",cam_allow_hint:"Look for the camera permission at the top of your browser and click Allow. On a computer, the demo works but shines on a phone.",cam_unsupported:"Your browser does not support camera access. Try Chrome or Safari.",cam_denied:"Camera access was denied. Allow it in your browser settings, then tap again.",cam_none:"No camera found on this device. Open the demo on your phone, where it shines.",cam_hang:"Your computer camera is not responding — a virtual-camera app (OBS, ManyCam, DroidCam...) or a driver may be blocking it. Try your phone instead.",cam_timeout:"Your browser did not respond. Open this page in Chrome or Safari and try again.",inapp:"Open this page in your real browser (Chrome or Safari). In-app browsers (WhatsApp, Instagram, Telegram...) block the camera.",rear:"Rear",front:"Front",record:"Record",stop:"Stop",panic:"Panic",full:"Full",
       clips:"Recorded clips",clips_empty:"Tap Record — clips are saved in a loop, right here.",
       note_t:"This is the real thing, not a video.",
       note_b:" Your camera, real loop recording, impact detection by the phone's sensors — all in the browser, nothing uploaded. The installed app adds what a browser can't: recording with the screen off, watching from another phone, and alerts.",
@@ -145,7 +145,7 @@
       impact:"IMPACT",panicflash:"PANIC",saved:"Saved",protected:"Protected",download:"Download"},
     es:{tag:"DEMO EN VIVO EN EL NAVEGADOR",get:"Descargar app",gate_title:"Convierte este equipo en dashcam",
       gate_body:"Da acceso a la cámara y ve la experiencia real de ReDash — vista en vivo, grabación en bucle, detección de impacto — corriendo entera en tu navegador. Nada sale de este equipo.",
-      gate_btn:"Encender cámara",cam_requesting:"Pidiendo cámara...",cam_allow_hint:"Busca el permiso de cámara arriba en tu navegador y toca Permitir. En computadora funciona, pero el demo luce en un teléfono.",cam_unsupported:"Tu navegador no permite acceso a la cámara. Prueba Chrome o Safari.",cam_denied:"Se denegó el acceso a la cámara. Actívalo en los ajustes del navegador y toca de nuevo.",cam_none:"No se encontró cámara en este equipo.",cam_timeout:"Tu navegador no respondió. Abre esta página en Chrome o Safari y vuelve a intentar.",inapp:"Abre esta página en tu navegador real (Chrome o Safari). Los navegadores dentro de apps (WhatsApp, Instagram, Telegram...) bloquean la cámara.",rear:"Trasera",front:"Frontal",record:"Grabar",stop:"Detener",panic:"Pánico",full:"Full",
+      gate_btn:"Encender cámara",cam_requesting:"Pidiendo cámara...",cam_allow_hint:"Busca el permiso de cámara arriba en tu navegador y toca Permitir. En computadora funciona, pero el demo luce en un teléfono.",cam_unsupported:"Tu navegador no permite acceso a la cámara. Prueba Chrome o Safari.",cam_denied:"Se denegó el acceso a la cámara. Actívalo en los ajustes del navegador y toca de nuevo.",cam_none:"No se encontró cámara en este equipo. Abre el demo en tu teléfono, donde luce.",cam_hang:"La cámara de tu computadora no responde — puede que una app de cámara virtual (OBS, ManyCam, DroidCam...) o un driver la estén bloqueando. Mejor pruébalo en tu teléfono.",cam_timeout:"Tu navegador no respondió. Abre esta página en Chrome o Safari y vuelve a intentar.",inapp:"Abre esta página en tu navegador real (Chrome o Safari). Los navegadores dentro de apps (WhatsApp, Instagram, Telegram...) bloquean la cámara.",rear:"Trasera",front:"Frontal",record:"Grabar",stop:"Detener",panic:"Pánico",full:"Full",
       clips:"Clips grabados",clips_empty:"Toca Grabar — los clips se guardan en bucle, aquí mismo.",
       note_t:"Esto es de verdad, no un video.",
       note_b:" Tu cámara, grabación en bucle real, detección de impacto con los sensores del teléfono — todo en el navegador, sin subir nada. La app instalada agrega lo que un navegador no puede: grabar con la pantalla apagada, ver desde otro teléfono, y alertas.",
@@ -215,6 +215,18 @@
     }
     try{
       if(stream) stream.getTracks().forEach(t=>t.stop());
+      // Pre-chequeo rápido: si enumerateDevices no responde, el subsistema de cámara del equipo
+      // está atascado (cámara virtual/driver roto) — pasa en PCs. Mensaje claro en vez de colgarse.
+      try{
+        const list = await Promise.race([
+          navigator.mediaDevices.enumerateDevices(),
+          new Promise((_,rej)=>setTimeout(()=>rej({name:'EnumHang'}), 4000)),
+        ]);
+        const cams = list.filter(d=>d.kind==='videoinput');
+        if(cams.length===0){ gateError(t('cam_none'), true); return false; }
+      }catch(pe){
+        if(pe && pe.name==='EnumHang'){ gateError(t('cam_hang'), true); return false; }
+      }
       // Timeout: si el navegador (típico embebido) nunca responde, no dejar la pantalla colgada.
       const gum = navigator.mediaDevices.getUserMedia({ video:{ facingMode: facing }, audio:false });
       const timeout = new Promise((_,rej)=>setTimeout(()=>rej({name:'Timeout'}), 40000));
