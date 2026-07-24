@@ -1,7 +1,7 @@
 {
-  "versionCode": 55,
-  "versionName": "0.3.3",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.3.3/redash-0.3.3.apk",
-  "sha256": "149b46a5e33b2723b0e59994e059e215479c918fd046e1055f41e7d6dafcd2fd",
-  "notes": "Nuevo paso al configurar el telefono camara: con un toque le pides al sistema que no mate a ReDash por bateria (clave en Xiaomi/MIUI, donde ademas te lleva a activar el inicio automatico)."
+  "versionCode": 56,
+  "versionName": "0.3.4",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.3.4/redash-0.3.4.apk",
+  "sha256": "6a64bc4e672695aed16ee99a8e38bdd9e77cee91e0d3da2adb4f2f09c98c9020",
+  "notes": "El modo sigilo ya no arranca la grabacion al activarse: solo oculta el telefono. Y (con la nube activada) el panico ahora te puede llegar por Telegram aunque tengas el visor cerrado."
 }
