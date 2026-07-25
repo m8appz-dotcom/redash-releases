@@ -1,7 +1,7 @@
 {
-  "versionCode": 65,
-  "versionName": "0.4.7",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.4.7/redash-0.4.7.apk",
-  "sha256": "a422e73e05f8dc40921cca37b5a1410d91c9cf528e8f1945c49f2a30c97056c1",
-  "notes": "Desde el panel web ya puedes emparejar camaras igual que en la app: escanear el QR de la dashcam o buscar camaras en tu red. Arreglado el boton de cancelar al cambiar de modo."
+  "versionCode": 66,
+  "versionName": "0.4.8",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.4.8/redash-0.4.8.apk",
+  "sha256": "1e98ecc717ecc2a975cd05c310a11ef39137ed3f1f3ef8aa305d044e404045d0",
+  "notes": "Escanear el QR desde el navegador ya funciona en cualquier computadora (antes fallaba en Windows). Y buscar en la red ahora si encuentra otras dashcams ReDash, no solo camaras IP."
 }
