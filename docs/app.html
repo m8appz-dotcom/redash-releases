@@ -198,6 +198,8 @@ var I18N={
   no_clips:"Aún no hay clips",no_events:"Aún no hay eventos",no_trips:"Aún no hay viajes",no_cams:"Aún no hay cámaras",
   qr_manual:"O pega aquí el enlace del QR",
   scan_dash:"Dashcam ReDash",
+  only_app:"Cámara IP — añádela desde la app",
+  scan_note:"Busca dashcams ReDash y cámaras IP. Las cámaras IP se ven en la app: el navegador no reproduce RTSP.",
   add_qr:"Escanear el QR de la dashcam",add_qr_sub:"La vía más rápida para emparejar un ReDash",
   add_scan:"Buscar cámaras en mi red",add_scan_sub:"Detecta cámaras IP automáticamente",
   qr_aim:"Apunta al QR que muestra la pantalla Emparejar",qr_unsupported:"No se pudo abrir la cámara: pega el enlace del QR abajo.",
@@ -232,6 +234,8 @@ var I18N={
   no_clips:"No clips yet",no_events:"No events yet",no_trips:"No trips yet",no_cams:"No cameras yet",
   qr_manual:"Or paste the QR link here",
   scan_dash:"ReDash dashcam",
+  only_app:"IP camera — add it from the app",
+  scan_note:"Finds ReDash dashcams and IP cameras. IP cameras play in the app: browsers cannot play RTSP.",
   add_qr:"Scan the dashcam QR",add_qr_sub:"Fastest way to pair a ReDash phone",
   add_scan:"Find cameras on my network",add_scan_sub:"Detects IP cameras automatically",
   qr_aim:"Point at the QR shown on the Pairing screen",qr_unsupported:"Could not open the camera: paste the QR link below.",
@@ -833,6 +837,7 @@ function drawScan(root){
   var c=el("div","glass");c.style.padding="16px";c.style.maxWidth="520px";
   var msg=el("p","hint",t("scan_running"));c.appendChild(msg);
   var list=el("div");list.style.marginTop="10px";c.appendChild(list);
+  var foot=el("p","hint",t("scan_note"));foot.style.marginTop="12px";c.appendChild(foot);
   root.appendChild(c);
   if(!hasLocal){msg.textContent=t("scan_needs_dash");return;}
   j("/discover").then(function(r){
@@ -849,6 +854,11 @@ function drawScan(root){
         row.appendChild(go2);
         // Encontrada la dashcam, falta su clave: se pide y se valida contra ella.
         row.onclick=function(){askKeyFor("http://"+dev.address);};
+      }else{
+        // Una camara IP habla RTSP y ningun navegador lo reproduce: se muestra que esta ahi,
+        // pero se anade desde la app de Android, que si tiene reproductor RTSP.
+        var tag=el("span","hint",t("only_app"));tag.style.marginLeft="auto";
+        tag.style.textAlign="right";row.appendChild(tag);
       }
       list.appendChild(row);
     });
