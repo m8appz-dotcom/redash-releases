@@ -173,8 +173,8 @@
 <div class="wrap" id="root"></div>
 
 <script>
-(function(){var s=document.createElement("script");s.src="leaflet/leaflet.js";s.async=false;
-  document.head.appendChild(s);})();
+(function(){["leaflet/leaflet.js","jsqr.js"].forEach(function(u){
+  var s=document.createElement("script");s.src=u;s.async=false;document.head.appendChild(s);});})();
 </script>
 <script>
 "use strict";
@@ -196,9 +196,11 @@ var I18N={
   cam_on:"Encender cámara",cam_denied:"Permiso de cámara denegado. Actívalo en el candado de la barra de direcciones.",
   cam_none:"No se detectó ninguna cámara.",cam_hang:"La cámara no responde — puede que otra app la esté usando.",
   no_clips:"Aún no hay clips",no_events:"Aún no hay eventos",no_trips:"Aún no hay viajes",no_cams:"Aún no hay cámaras",
+  qr_manual:"O pega aquí el enlace del QR",
+  scan_dash:"Dashcam ReDash",
   add_qr:"Escanear el QR de la dashcam",add_qr_sub:"La vía más rápida para emparejar un ReDash",
   add_scan:"Buscar cámaras en mi red",add_scan_sub:"Detecta cámaras IP automáticamente",
-  qr_aim:"Apunta al QR que muestra la pantalla Emparejar",qr_unsupported:"Este navegador no puede escanear QR. Usa Chrome o Edge.",
+  qr_aim:"Apunta al QR que muestra la pantalla Emparejar",qr_unsupported:"No se pudo abrir la cámara: pega el enlace del QR abajo.",
   qr_foreign:"Ese QR no es de ReDash",qr_unreachable:"No se pudo conectar con esa dashcam",added:"Cámara añadida",
   scan_running:"Buscando en la red…",scan_none:"No se encontraron cámaras",scan_found:"cámaras encontradas",
   scan_camera:"Cámara IP",scan_needs_dash:"Abre esta página desde tu dashcam para buscar en la red",
@@ -228,9 +230,11 @@ var I18N={
   cam_on:"Turn on camera",cam_denied:"Camera permission denied. Enable it from the padlock in the address bar.",
   cam_none:"No camera detected.",cam_hang:"The camera is not responding — another app may be using it.",
   no_clips:"No clips yet",no_events:"No events yet",no_trips:"No trips yet",no_cams:"No cameras yet",
+  qr_manual:"Or paste the QR link here",
+  scan_dash:"ReDash dashcam",
   add_qr:"Scan the dashcam QR",add_qr_sub:"Fastest way to pair a ReDash phone",
   add_scan:"Find cameras on my network",add_scan_sub:"Detects IP cameras automatically",
-  qr_aim:"Point at the QR shown on the Pairing screen",qr_unsupported:"This browser cannot scan QR codes. Use Chrome or Edge.",
+  qr_aim:"Point at the QR shown on the Pairing screen",qr_unsupported:"Could not open the camera: paste the QR link below.",
   qr_foreign:"That QR is not from ReDash",qr_unreachable:"Could not reach that dashcam",added:"Camera added",
   scan_running:"Scanning the network…",scan_none:"No cameras found",scan_found:"cameras found",
   scan_camera:"IP camera",scan_needs_dash:"Open this page from your dashcam to scan the network",
@@ -789,24 +793,34 @@ function drawQr(root){
   c.appendChild(vp);
   var msg=el("p","hint",t("qr_aim"));msg.style.marginTop="10px";c.appendChild(msg);
   root.appendChild(c);
-  if(!("BarcodeDetector" in window)){msg.textContent=t("qr_unsupported");return;}
-  var det=new BarcodeDetector({formats:["qr_code"]});
+  // jsQR sobre canvas: BarcodeDetector solo existe en Android/macOS/ChromeOS, en Chrome de
+  // Windows no, asi que decodificar por software es lo unico que funciona en todas partes.
+  var cv=document.createElement("canvas"),cx=cv.getContext("2d",{willReadFrequently:true});
+  function handle(val){
+    if(val.indexOf("redash://pair")!==0){msg.textContent=t("qr_foreign");return false;}
+    var u=decodeURIComponent((val.match(/[?&]u=([^&]*)/)||[])[1]||"");
+    var k=decodeURIComponent((val.match(/[?&]k=([^&]*)/)||[])[1]||"");
+    if(!u||!k){msg.textContent=t("qr_foreign");return false;}
+    stopQr();addDashcam(u,k);return true;
+  }
   navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).then(function(st){
     qrStream=st;v.srcObject=st;
-    var id=every(500,function(){
-      if(!v.videoWidth)return;
-      det.detect(v).then(function(codes){
-        if(!codes.length)return;
-        var val=codes[0].rawValue||"";
-        if(val.indexOf("redash://pair")!==0){msg.textContent=t("qr_foreign");return;}
-        clearInterval(id);stopQr();
-        var u=decodeURIComponent((val.match(/[?&]u=([^&]*)/)||[])[1]||"");
-        var k=decodeURIComponent((val.match(/[?&]k=([^&]*)/)||[])[1]||"");
-        if(!u||!k){msg.textContent=t("qr_foreign");return;}
-        addDashcam(u,k);
-      }).catch(function(){});
+    var id=every(300,function(){
+      if(!v.videoWidth||typeof jsQR!=="function")return;
+      cv.width=v.videoWidth;cv.height=v.videoHeight;
+      cx.drawImage(v,0,0,cv.width,cv.height);
+      var img=cx.getImageData(0,0,cv.width,cv.height);
+      var code=jsQR(img.data,img.width,img.height,{inversionAttempts:"dontInvert"});
+      if(code&&code.data){if(handle(code.data))clearInterval(id);}
     });
   }).catch(function(){msg.textContent=t("cam_denied");});
+  // Sin camara (o si falla) siempre queda pegar el enlace del QR a mano.
+  var man=el("div");man.style.marginTop="14px";
+  man.appendChild(el("label",null,t("qr_manual")));
+  var im=el("input");im.placeholder="redash://pair?u=...&k=...";man.appendChild(im);
+  var mb=el("button","btn ghost",t("add"));
+  mb.onclick=function(){if(!handle(im.value.trim()))return;};
+  man.appendChild(mb);c.appendChild(man);
 }
 var qrStream=null;
 function stopQr(){if(qrStream){qrStream.getTracks().forEach(function(x){x.stop();});qrStream=null;}}
@@ -825,13 +839,37 @@ function drawScan(root){
     var d=r.devices||[];
     msg.textContent=d.length?(d.length+" "+t("scan_found")):t("scan_none");
     d.forEach(function(dev){
-      var row=el("div","item");
-      row.appendChild(ico("cam"));
-      row.appendChild(el("b",null,dev.label||t("scan_camera")));
+      var esRedash=dev.kind==="redash";
+      var row=el("div","item");row.style.cursor=esRedash?"pointer":"default";
+      row.appendChild(ico(esRedash?"grid":"cam"));
+      row.appendChild(el("b",null,esRedash?"ReDash":(dev.label||t("scan_camera"))));
       row.appendChild(el("span","hint",dev.address));
+      if(esRedash){
+        var go2=el("span");go2.style.marginLeft="auto";go2.appendChild(ico("chevron"));
+        row.appendChild(go2);
+        // Encontrada la dashcam, falta su clave: se pide y se valida contra ella.
+        row.onclick=function(){askKeyFor("http://"+dev.address);};
+      }
       list.appendChild(row);
     });
   }).catch(function(){msg.textContent=t("scan_none");});
+}
+
+/* Dashcam encontrada por red: falta su clave (la del QR ya la trae). */
+function askKeyFor(url){
+  var root=document.getElementById("root");clearTimers();root.replaceChildren();
+  var c=el("div","dialog glass");
+  c.appendChild(el("h2",null,t("key_label")));
+  c.appendChild(el("p","hint",url.replace(/^https?:\/\//,"")));
+  var i=el("input");i.placeholder="XXXXXXXXXXXX";i.style.textAlign="center";i.style.marginTop="14px";
+  c.appendChild(i);
+  var row=el("div","dlgbtns");
+  var no=el("button","btn ghost sm",t("cancel"));no.onclick=function(){go("scan");};
+  var si=el("button","btn pri sm",t("add"));
+  si.onclick=function(){addDashcam(url,i.value.trim().replace(/[^A-Za-z0-9]/g,""));};
+  i.addEventListener("keydown",function(e){if(e.key==="Enter")si.click();});
+  row.appendChild(no);row.appendChild(si);c.appendChild(row);
+  root.appendChild(c);
 }
 
 /* Alta de otra dashcam ReDash (por QR). Su API vive en OTRO origen: funciona porque el
