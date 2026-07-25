@@ -1,7 +1,7 @@
 {
-  "versionCode": 66,
-  "versionName": "0.4.8",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.4.8/redash-0.4.8.apk",
-  "sha256": "1e98ecc717ecc2a975cd05c310a11ef39137ed3f1f3ef8aa305d044e404045d0",
-  "notes": "Escanear el QR desde el navegador ya funciona en cualquier computadora (antes fallaba en Windows). Y buscar en la red ahora si encuentra otras dashcams ReDash, no solo camaras IP."
+  "versionCode": 67,
+  "versionName": "0.4.9",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.4.9/redash-0.4.9.apk",
+  "sha256": "2f5be527b4f7d17999a20d378e25214bc07777b0165c97b0bb0a65f160ea629e",
+  "notes": "Buscar en la red ahora distingue lo que encuentra: las dashcams ReDash se anaden desde el navegador y las camaras IP quedan senaladas para anadirlas desde la app."
 }
