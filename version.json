@@ -1,7 +1,7 @@
 {
-  "versionCode": 61,
-  "versionName": "0.4.3",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.4.3/redash-0.4.3.apk",
-  "sha256": "dbf55b029ecd2d782ccaa4cfd75670e2030b8d2f500ead94fab46fa67f3fb0be",
-  "notes": "Versión web completa: abre tu dashcam desde el navegador de la PC (video en vivo, clips, eventos, mapa con tus viajes) y convierte cualquier computadora con webcam en una cámara más de tu flota. Incluye la home rediseñada, los viajes grabados en el mapa, y buscar dirección para navegar con Google Maps mientras la dashcam sigue grabando."
+  "versionCode": 62,
+  "versionName": "0.4.4",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.4.4/redash-0.4.4.apk",
+  "sha256": "645ad711941a963f4b28327aeb0ecf9b6ca16d5bfeb9dfdae17cc3544119a4b2",
+  "notes": "La pantalla Emparejar ahora muestra la direccion del panel web: abrela en el navegador de tu computadora para ver y controlar tu dashcam desde ahi. Incluye toda la version web: viewer web servido por la dashcam y camara web para PCs."
 }
