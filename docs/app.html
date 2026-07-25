@@ -3,13 +3,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ReDash</title>
 <script>
-// La misma página se sirve desde la dashcam (/app/leaflet/) y desde la web pública
-// (leaflet/ junto al html). Se resuelve la base antes de pedir la librería.
-window.LEAF = (location.port === "8765") ? "/app/leaflet/" : "leaflet/";
+// Rutas RELATIVAS: la misma pagina sirve desde la dashcam (raiz) y desde la web publica
+// (junto al html). Detectar el origen por puerto se rompia con adb forward o tras un proxy.
 (function(){
-  var l = document.createElement("link");
-  l.rel = "stylesheet"; l.href = window.LEAF + "leaflet.css";
-  document.head.appendChild(l);
+  var l=document.createElement("link");
+  l.rel="stylesheet";l.href="leaflet/leaflet.css";document.head.appendChild(l);
+  var f=document.createElement("style");
+  f.textContent="@font-face{font-family:'Plus Jakarta Sans';src:url('plus_jakarta.ttf') format('truetype');font-weight:400 800;font-display:swap}";
+  document.head.appendChild(f);
 })();
 </script>
 <style>
@@ -21,9 +22,17 @@ window.LEAF = (location.port === "8765") ? "/app/leaflet/" : "leaflet/";
     --ok:#5EC9A0;--ok-edge:rgba(94,201,160,.35);--line:rgba(255,255,255,.12);--edge:rgba(255,255,255,.18)}
   *{margin:0;padding:0;box-sizing:border-box}
   body{background:var(--bg);color:var(--tx);min-height:100vh;
-    font:15px/1.5 "Plus Jakarta Sans",system-ui,Segoe UI,Roboto,sans-serif}
+    font:15px/1.5 "Plus Jakarta Sans",system-ui,Segoe UI,Roboto,sans-serif;letter-spacing:-.01em}
   .wrap{max-width:1060px;margin:0 auto;padding:16px 16px 40px}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .ic{width:22px;height:22px;flex:none;display:block}
+  .icobtn .ic{width:21px;height:21px}
+  .role .ico .ic{width:26px;height:26px}
+  .sat .circle .ic{width:22px;height:22px}
+  .trigger .circle .ic{width:32px;height:32px}
+  .ovbtn .ic{width:17px;height:17px}
+  .navrow .ico .ic{width:21px;height:21px}
+  .chev{width:16px;height:16px;color:var(--mut)}
   .glass{background:linear-gradient(160deg,rgba(255,255,255,.11),rgba(255,255,255,.03));
     border:1px solid var(--line);border-radius:16px}
   .row{display:flex;align-items:center;gap:10px}
@@ -51,7 +60,7 @@ window.LEAF = (location.port === "8765") ? "/app/leaflet/" : "leaflet/";
   /* chooser (espejo del de la app) */
   .chooser{max-width:520px;margin:6vh auto;text-align:center;padding:0 16px}
   .logo{width:96px;height:96px;border-radius:24px;border:2px solid var(--pri);margin:0 auto 18px;
-    display:flex;align-items:center;justify-content:center;font-size:44px}
+    display:flex;align-items:center;justify-content:center;overflow:hidden}
   .chooser h1{font-size:30px;font-weight:800;margin-bottom:6px}
   .chooser .tag{color:var(--tx2);margin-bottom:26px}
   .kicker{font:700 10px inherit;letter-spacing:.14em;color:var(--mut);text-align:left;margin-bottom:10px}
@@ -151,12 +160,13 @@ window.LEAF = (location.port === "8765") ? "/app/leaflet/" : "leaflet/";
     border:1px solid var(--line);color:var(--tx);padding:12px 20px;border-radius:14px;display:none;z-index:70;font-weight:600}
 </style></head>
 <body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true"><symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8 -7l8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 9.5V19a1 1 0 0 0 1 1h10a1 1 0 0 0 1 -1V9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-cam" viewBox="0 0 24 24"><path d="M3 9.5A2.5 2.5 0 0 1 5.5 7h8A2.5 2.5 0 0 1 16 9.5v6A2.5 2.5 0 0 1 13.5 18h-8A2.5 2.5 0 0 1 3 15.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 10.5l5 -3v9l-5 -3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-grid" viewBox="0 0 24 24"><path d="M4 5.6A1.6 1.6 0 0 1 5.6 4h3.8A1.6 1.6 0 0 1 11 5.6v3.8A1.6 1.6 0 0 1 9.4 11H5.6A1.6 1.6 0 0 1 4 9.4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 5.6A1.6 1.6 0 0 1 14.6 4h3.8A1.6 1.6 0 0 1 20 5.6v3.8A1.6 1.6 0 0 1 18.4 11h-3.8A1.6 1.6 0 0 1 13 9.4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 14.6A1.6 1.6 0 0 1 5.6 13h3.8A1.6 1.6 0 0 1 11 14.6v3.8A1.6 1.6 0 0 1 9.4 20H5.6A1.6 1.6 0 0 1 4 18.4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 14.6A1.6 1.6 0 0 1 14.6 13h3.8A1.6 1.6 0 0 1 20 14.6v3.8A1.6 1.6 0 0 1 18.4 20h-3.8A1.6 1.6 0 0 1 13 18.4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-map" viewBox="0 0 24 24"><path d="M12 21s-6 -5 -6 -10a6 6 0 0 1 12 0c0 5 -6 10 -6 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8.5a2.5 2.5 0 1 1 0 5a2.5 2.5 0 1 1 0 -5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3L5 6v5c0 4 3 7 7 8c4 -1 7 -4 7 -8V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 12l2 2l4 -4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 9v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 17h0.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-record" viewBox="0 0 24 24"><path d="M12 6a6 6 0 1 1 0 12a6 6 0 1 1 0 -12" fill="currentColor"/></symbol><symbol id="i-stop" viewBox="0 0 24 24"><path d="M6 9a3 3 0 0 1 3 -3h6a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3H9a3 3 0 0 1 -3 -3z" fill="currentColor"/></symbol><symbol id="i-flip" viewBox="0 0 24 24"><path d="M4 9a8 8 0 0 1 13 -3M20 15a8 8 0 0 1 -13 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 5.5V9h-3.5M5.5 18.5V15h3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-full" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0 -2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1 -2 2h-3M3 16v3a2 2 0 0 0 2 2h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-signal" viewBox="0 0 24 24"><path d="M8.6 14.8a5 5 0 0 1 6.8 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.8 11.6a9 9 0 0 1 12.4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 17.4a1.4 1.4 0 1 1 0 2.8a1.4 1.4 0 1 1 0 -2.8" fill="currentColor"/></symbol><symbol id="i-motion" viewBox="0 0 24 24"><path d="M12 10a2 2 0 1 1 0 4a2 2 0 1 1 0 -4" fill="currentColor"/><path d="M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7M5.5 5.5a9 9 0 0 0 0 13M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-park" viewBox="0 0 24 24"><path d="M4 7a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3H7a3 3 0 0 1 -3 -3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 16V8h3.5a2.5 2.5 0 0 1 0 5H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-cog" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04,-0.3 0.06,-0.61 0.06,-0.94c0,-0.32 -0.02,-0.64 -0.07,-0.94l2.03,-1.58c0.18,-0.14 0.23,-0.41 0.12,-0.61l-1.92,-3.32c-0.12,-0.22 -0.37,-0.29 -0.59,-0.22l-2.39,0.96c-0.5,-0.38 -1.03,-0.7 -1.62,-0.94L14.4,2.81c-0.04,-0.24 -0.24,-0.41 -0.48,-0.41h-3.84c-0.24,0 -0.43,0.17 -0.47,0.41L9.25,5.35C8.66,5.59 8.12,5.92 7.63,6.29L5.24,5.33c-0.22,-0.08 -0.47,0 -0.59,0.22L2.74,8.87C2.62,9.08 2.66,9.34 2.86,9.48l2.03,1.58C4.84,11.36 4.8,11.69 4.8,12s0.02,0.64 0.07,0.94l-2.03,1.58c-0.18,0.14 -0.23,0.41 -0.12,0.61l1.92,3.32c0.12,0.22 0.37,0.29 0.59,0.22l2.39,-0.96c0.5,0.38 1.03,0.7 1.62,0.94l0.36,2.54c0.05,0.24 0.24,0.41 0.48,0.41h3.84c0.24,0 0.44,-0.17 0.47,-0.41l0.36,-2.54c0.59,-0.24 1.13,-0.56 1.62,-0.94l2.39,0.96c0.22,0.08 0.47,0 0.59,-0.22l1.92,-3.32c0.12,-0.22 0.07,-0.47 -0.12,-0.61L19.14,12.94zM12,15.6c-1.98,0 -3.6,-1.62 -3.6,-3.6s1.62,-3.6 3.6,-3.6s3.6,1.62 3.6,3.6S13.98,15.6 12,15.6z" fill="currentColor"/></symbol><symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9 6l6 6l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-back" viewBox="0 0 24 24"><path d="M15 18l-6 -6l6 -6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 1 0 18a9 9 0 1 1 0 -18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 12h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-info" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 1 0 18a9 9 0 1 1 0 -18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 11v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.2a1.1 1.1 0 1 1 0 2.2a1.1 1.1 0 1 1 0 -2.2" fill="currentColor"/></symbol><symbol id="i-impact" viewBox="0 0 24 24"><path d="M12 9a3 3 0 1 1 0 6a3 3 0 1 1 0 -6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2.5v3.5M12 18v3.5M2.5 12H6M18 12h3.5M5.6 5.6L8 8M16 16l2.4 2.4M18.4 5.6L16 8M8 16l-2.4 2.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-storage" viewBox="0 0 24 24"><path d="M5 6c0 -1.65 3.1 -3 7 -3s7 1.35 7 3s-3.1 3 -7 3s-7 -1.35 -7 -3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 6v12c0 1.6 3.1 3 7 3s7 -1.4 7 -3V6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12c0 1.6 3.1 3 7 3s7 -1.4 7 -3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11 -7z" fill="currentColor"/></symbol><symbol id="i-head" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 16a2 2 0 0 1 2 -2a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2a2 2 0 0 1 -2 -2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 16a2 2 0 0 1 2 -2a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2a2 2 0 0 1 -2 -2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-gps" viewBox="0 0 24 24"><path d="M12 5a7 7 0 1 1 0 14a7 7 0 1 1 0 -14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 10a2 2 0 1 1 0 4a2 2 0 1 1 0 -4" fill="currentColor"/></symbol><symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1 0 -8a5 5 0 0 1 9.6 -1.3A3.5 3.5 0 0 1 17 18z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0 -2.3 6.3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 5v6h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l4 4L19 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-power" viewBox="0 0 24 24"><path d="M12 3v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.2 6.8a8 8 0 1 0 11.6 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-flash" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8l9 -12h-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><path d="M9 6a3 3 0 0 1 6 0v5a3 3 0 0 1 -6 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-battery" viewBox="0 0 24 24"><path d="M3 10.4A2.4 2.4 0 0 1 5.4 8h11.2A2.4 2.4 0 0 1 19 10.4v4.2A2.4 2.4 0 0 1 16.6 17H5.4A2.4 2.4 0 0 1 3 14.6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21.5 11v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol></svg>
 <div id="flash"></div>
 <div id="drawer" class="hidden"></div>
 <div class="wrap" id="root"></div>
 
 <script>
-(function(){var s=document.createElement("script");s.src=window.LEAF+"leaflet.js";s.async=false;
+(function(){var s=document.createElement("script");s.src="leaflet/leaflet.js";s.async=false;
   document.head.appendChild(s);})();
 </script>
 <script>
@@ -220,6 +230,21 @@ var lang=localStorage.getItem("redash_lang")||"es";
 function t(k){return I18N[lang][k]||I18N.es[k]||k;}
 
 /* ============================ utilidades ============================ */
+// Iconos: los MISMOS VectorDrawables del APK, convertidos a simbolos SVG. currentColor
+// reproduce el tint de Android, asi que heredan el color del contenedor.
+function logoEl(){
+  var d=el("div","logo");var i=document.createElement("img");
+  i.src="logo.png";i.alt="ReDash";i.width=76;i.height=76;
+  i.style.borderRadius="18px";d.appendChild(i);return d;
+}
+function ico(name,size){
+  var s=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  s.setAttribute("class","ic");s.setAttribute("aria-hidden","true");
+  if(size){s.style.width=size+"px";s.style.height=size+"px";}
+  var u=document.createElementNS("http://www.w3.org/2000/svg","use");
+  u.setAttribute("href","#i-"+name);s.appendChild(u);return s;
+}
+function icoBtn(name,cls,fn){var b=el("button",cls||"icobtn");b.appendChild(ico(name));if(fn)b.onclick=fn;return b;}
 function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;}
 function mk(html){var d=document.createElement("div");d.innerHTML=html;return d.firstElementChild;}
 function flash(msg){var f=document.getElementById("flash");f.textContent=msg;f.style.display="block";
@@ -257,19 +282,19 @@ var screenArg=null;
 /* ============================ chooser (espejo de la app) ============================ */
 function drawChooser(root){
   var c=el("div","chooser");
-  c.appendChild(mk('<div class="logo">🚗</div>'));
+  c.appendChild(logoEl());
   c.appendChild(el("h1",null,t("app")));
   c.appendChild(el("p","tag",t("tagline")));
   c.appendChild(el("p","kicker",t("choose")));
-  function role(ico,title,sub,fn){
+  function role(icName,title,sub,fn){
     var r=el("div","role glass");
-    r.appendChild(el("div","ico",ico));
+    var box=el("div","ico");box.appendChild(ico(icName));r.appendChild(box);
     var b=el("div");b.appendChild(el("b",null,title));b.appendChild(el("span",null,sub));
-    r.appendChild(b);r.appendChild(el("div",null,"›"));
+    r.appendChild(b);var ch=ico("chevron");ch.classList.add("chev");r.appendChild(ch);
     r.onclick=fn;return r;
   }
-  c.appendChild(role("🎥",t("role_s"),t("role_s_sub"),function(){setMode("sender");}));
-  c.appendChild(role("🗂",t("role_v"),t("role_v_sub"),function(){setMode("viewer");}));
+  c.appendChild(role("cam",t("role_s"),t("role_s_sub"),function(){setMode("sender");}));
+  c.appendChild(role("grid",t("role_v"),t("role_v_sub"),function(){setMode("viewer");}));
   c.appendChild(el("p","foot",t("chooser_foot")));
   root.appendChild(c);
 }
@@ -278,7 +303,7 @@ function setMode(m){mode=m;LS.set("rd_mode",m);screen="home";tab="live";render()
 /* ============================ appbar + drawer ============================ */
 function appbar(title,pills){
   var bar=el("div","bar");
-  var menu=el("button","icobtn","☰");menu.onclick=openDrawer;bar.appendChild(menu);
+  var menu=icoBtn("menu",null,openDrawer);bar.appendChild(menu);
   bar.appendChild(el("h1",null,title));
   (pills||[]).forEach(function(p){bar.appendChild(p);});
   bar.appendChild(el("div","spacer"));
@@ -288,25 +313,26 @@ function openDrawer(){
   var d=document.getElementById("drawer");
   d.replaceChildren();d.classList.remove("hidden");
   var bar=el("div","bar");
-  var x=el("button","icobtn","✕");x.onclick=function(){d.classList.add("hidden");};
+  var x=icoBtn("close",null,function(){d.classList.add("hidden");});
   bar.appendChild(x);bar.appendChild(el("h1",null,mode==="sender"?"ReDash "+t("dashcam"):t("viewer")));
   d.appendChild(bar);
-  function nav(ico,txt,fn,on){
+  function nav(icName,txt,fn,on){
     var r=el("div","navrow"+(on?" on":""));
-    r.appendChild(el("div","ico",ico));r.appendChild(el("div",null,txt));
-    r.appendChild(el("div","spacer"));r.appendChild(el("div",null,"›"));
+    var box=el("div","ico");box.appendChild(ico(icName));r.appendChild(box);
+    r.appendChild(el("div",null,txt));r.appendChild(el("div","spacer"));
+    var ch=ico("chevron");ch.classList.add("chev");r.appendChild(ch);
     r.onclick=function(){d.classList.add("hidden");fn();};return r;
   }
-  d.appendChild(nav("🏠",t("nav_home"),function(){go("home");},screen==="home"));
+  d.appendChild(nav("home",t("nav_home"),function(){go("home");},screen==="home"));
   if(mode==="sender"){
-    d.appendChild(nav("📶",t("nav_link"),function(){go("link");},screen==="link"));
+    d.appendChild(nav("signal",t("nav_link"),function(){go("link");},screen==="link"));
   }else{
-    d.appendChild(nav("➕",t("nav_add"),function(){go("add");},screen==="add"));
+    d.appendChild(nav("plus",t("nav_add"),function(){go("add");},screen==="add"));
   }
-  d.appendChild(nav("🌐",t("nav_lang"),function(){
+  d.appendChild(nav("globe",t("nav_lang"),function(){
     lang=lang==="es"?"en":"es";LS.set("redash_lang",lang);localStorage.setItem("redash_lang",lang);render();
   }));
-  d.appendChild(nav("ℹ️",t("nav_about"),function(){go("about");},screen==="about"));
+  d.appendChild(nav("info",t("nav_about"),function(){go("about");},screen==="about"));
   var sw=el("button","btn switch",mode==="sender"?t("to_viewer"):t("to_sender"));
   sw.onclick=function(){d.classList.add("hidden");confirmSwitch();};
   d.appendChild(sw);
@@ -344,7 +370,7 @@ function drawSender(root){
 
   if(!stream){                       // portada: encender la cámara
     var card=el("div","glass");card.style.padding="34px";card.style.textAlign="center";
-    card.appendChild(mk('<div style="font-size:44px">📷</div>'));
+    var ci=ico("cam");ci.style.width="46px";ci.style.height="46px";ci.style.margin="0 auto";ci.style.color="var(--pri)";card.appendChild(ci);
     card.appendChild(el("h1",null,t("role_s")));
     var p=el("p","hint",t("role_s_sub"));p.style.margin="8px 0 18px";card.appendChild(p);
     var b=el("button","btn pri",t("cam_on"));b.style.maxWidth="280px";b.style.margin="0 auto";
@@ -366,8 +392,8 @@ function drawSender(root){
   vid.onloadedmetadata=function(){hRes.textContent=vid.videoWidth+"×"+vid.videoHeight;};
   if(vid.videoWidth)hRes.textContent=vid.videoWidth+"×"+vid.videoHeight;
   var ov=el("div","ovbtns");
-  var bf=el("button","ovbtn","⟳");bf.onclick=flipCamera;ov.appendChild(bf);
-  var bfs=el("button","ovbtn","⛶");bfs.onclick=function(){vp.requestFullscreen&&vp.requestFullscreen();};ov.appendChild(bfs);
+  var bf=icoBtn("flip","ovbtn",flipCamera);ov.appendChild(bf);
+  var bfs=icoBtn("full","ovbtn",function(){vp.requestFullscreen&&vp.requestFullscreen();});ov.appendChild(bfs);
   vp.appendChild(ov);
   vcard.appendChild(vp);
   left.appendChild(vcard);
@@ -393,12 +419,12 @@ function drawSender(root){
 
   /* deck: Mapa · Rec · Pánico (igual que la app) */
   var deck=el("div","deck");
-  deck.appendChild(sat("📍",t("map"),false,function(){go("map");}));
+  deck.appendChild(sat("map",t("map"),false,function(){go("map");}));
   var trig=el("div","trigger"+(recOn?" rec":""));
-  var tc=el("div","circle",recOn?"■":"●");trig.appendChild(tc);
+  var tc=el("div","circle");tc.appendChild(ico(recOn?"stop":"record"));trig.appendChild(tc);
   trig.appendChild(el("small",null,recOn?t("stop"):t("rec")));
   trig.onclick=toggleRec;deck.appendChild(trig);
-  deck.appendChild(sat("⚠",t("panic"),true,function(){
+  deck.appendChild(sat("alert",t("panic"),true,function(){
     protectNext=true;if(!recOn)toggleRec();
     addEvent("panic","Panic");flash(t("panic_on"));
   }));
@@ -458,10 +484,10 @@ function gauge(parent,label,val){
   var bg=el("div","bar-bg");bg.appendChild(el("div","bar-fill"));g.appendChild(bg);
   parent.appendChild(g);return b;
 }
-function sat(ico,txt,warm,fn){
+function sat(icName,txt,warm,fn){
   var s=el("div","sat"+(warm?" warm":""));
-  s.appendChild(el("div","circle",ico));s.appendChild(el("small",null,txt));
-  s.onclick=fn;return s;
+  var c=el("div","circle");c.appendChild(ico(icName));s.appendChild(c);
+  s.appendChild(el("small",null,txt));s.onclick=fn;return s;
 }
 /* cámara */
 async function startCamera(errEl){
@@ -671,7 +697,7 @@ function drawViewer(root){
     c.onclick=function(){go("cam",{type:"web",i:i});};
     grid.appendChild(c);
   });
-  var gh=el("div","ghost","＋ "+t("nav_add"));gh.onclick=function(){go("add");};
+  var gh=el("div","ghost");gh.appendChild(ico("plus"));gh.appendChild(el("span",null," "+t("nav_add")));gh.onclick=function(){go("add");};
   grid.appendChild(gh);
   root.appendChild(grid);
   if(!hasLocal&&!list.length){
@@ -680,7 +706,7 @@ function drawViewer(root){
 }
 function drawLogin(root){
   var c=el("div","chooser");
-  c.appendChild(mk('<div class="logo">🚗</div>'));
+  c.appendChild(logoEl());
   c.appendChild(el("h1",null,t("app")));
   c.appendChild(el("p","tag",t("key_sub")));
   var i=el("input");i.placeholder="XXXXXXXXXXXX";i.style.textAlign="center";
@@ -727,7 +753,7 @@ function drawCamDetail(root,arg){
   if(arg.type==="web")return drawWebCam(root,arg.i);
   var recPill=el("span","pill","…"),batPill=el("span","pill","--%");
   var bar=appbar(t("this_dash"),[recPill,batPill]);
-  var back=el("button","icobtn","‹");back.onclick=function(){go("home");};
+  var back=icoBtn("back",null,function(){go("home");});
   bar.replaceChild(back,bar.firstChild);
   root.appendChild(bar);
 
@@ -737,8 +763,8 @@ function drawCamDetail(root,arg){
   var img=el("img");img.src="/stream?k="+encodeURIComponent(KEY);vp.appendChild(img);
   var hGps=el("span","hud bl","—");hGps.classList.add("hidden");vp.appendChild(hGps);
   var ov=el("div","ovbtns");
-  var bf=el("button","ovbtn","⟳");bf.onclick=function(){post("/camera/switch");};ov.appendChild(bf);
-  var bfs=el("button","ovbtn","⛶");bfs.onclick=function(){vp.requestFullscreen&&vp.requestFullscreen();};ov.appendChild(bfs);
+  var bf=icoBtn("flip","ovbtn",function(){post("/camera/switch");});ov.appendChild(bf);
+  var bfs=icoBtn("full","ovbtn",function(){vp.requestFullscreen&&vp.requestFullscreen();});ov.appendChild(bfs);
   vp.appendChild(ov);vcard.appendChild(vp);left.appendChild(vcard);
 
   var armed=false,parked=false;
@@ -760,13 +786,13 @@ function drawCamDetail(root,arg){
   left.appendChild(gg);
 
   var deck=el("div","deck");
-  deck.appendChild(sat("📍",t("map"),false,function(){go("map",true);}));
+  deck.appendChild(sat("map",t("map"),false,function(){go("map",true);}));
   var recOnR=false;
-  var trig=el("div","trigger");var tc=el("div","circle","●");trig.appendChild(tc);
+  var trig=el("div","trigger");var tc=el("div","circle");tc.appendChild(ico("record"));trig.appendChild(tc);
   var tl=el("small",null,t("rec"));trig.appendChild(tl);
   trig.onclick=function(){post("/recording/"+(recOnR?"stop":"start"));};
   deck.appendChild(trig);
-  deck.appendChild(sat("🛡",t("protected_ok").split(" ")[0],false,function(){
+  deck.appendChild(sat("shield",t("protected_ok").split(" ")[0],false,function(){
     post("/clip/protect").then(function(){flash(t("protected_ok"));});
   }));
   left.appendChild(deck);
@@ -788,7 +814,7 @@ function drawCamDetail(root,arg){
   function poll(){
     j("/status").then(function(s){
       recOnR=!!s.recordingActive;
-      trig.classList.toggle("rec",recOnR);tc.textContent=recOnR?"■":"●";tl.textContent=recOnR?t("stop"):t("rec");
+      trig.classList.toggle("rec",recOnR);tc.replaceChildren(ico(recOnR?"stop":"record"));tl.textContent=recOnR?t("stop"):t("rec");
       if(recOnR&&s.recordingStartedAt>0){recPill.textContent="REC "+mmss((Date.now()-s.recordingStartedAt)/1000);recPill.className="pill rec";}
       else{recPill.textContent=t("ready");recPill.className="pill ok";}
       batPill.textContent=(s.battery>=0?s.battery:"--")+"%";
@@ -834,7 +860,7 @@ function drawWebCam(root,i){
   var cam=cams()[i];if(!cam)return go("home");
   var pill=el("span","pill","…");
   var bar=appbar(cam.name,[pill]);
-  var back=el("button","icobtn","‹");back.onclick=function(){closeWebCam();go("home");};
+  var back=icoBtn("back",null,function(){closeWebCam();go("home");});
   bar.replaceChild(back,bar.firstChild);
   root.appendChild(bar);
   var card=el("div","glass");card.style.padding="14px";card.style.maxWidth="760px";
@@ -842,7 +868,7 @@ function drawWebCam(root,i){
   var vid=el("video");vid.autoplay=true;vid.muted=true;vid.playsInline=true;vp.appendChild(vid);
   card.appendChild(vp);
   var info=el("p","hint",t("web_cam")+" · "+cam.device);info.style.marginTop="10px";card.appendChild(info);
-  var del=el("button","btn ghost","🗑");del.style.marginTop="12px";del.style.maxWidth="120px";
+  var del=el("button","btn ghost");del.appendChild(ico("close"));del.style.marginTop="12px";del.style.maxWidth="120px";
   del.onclick=function(){var l=cams();l.splice(i,1);saveCams(l);closeWebCam();go("home");};
   card.appendChild(del);
   root.appendChild(card);
@@ -883,7 +909,7 @@ function closeWebCam(){
 var map=null,liveMk=null,trail=null,tA=null,tB=null,shownTrip=null;
 function drawMapScreen(root,remote){
   var bar=appbar(t("tab_map"));
-  var back=el("button","icobtn","‹");back.onclick=function(){go("home");};
+  var back=icoBtn("back",null,function(){go("home");});
   bar.replaceChild(back,bar.firstChild);
   root.appendChild(bar);
   var card=el("div","glass");card.style.padding="14px";
@@ -937,11 +963,11 @@ function renderTrips(box,trips){
 /* ============================ about ============================ */
 function drawAbout(root){
   var bar=appbar(t("nav_about"));
-  var back=el("button","icobtn","‹");back.onclick=function(){go("home");};
+  var back=icoBtn("back",null,function(){go("home");});
   bar.replaceChild(back,bar.firstChild);
   root.appendChild(bar);
   var c=el("div","glass");c.style.padding="22px";c.style.maxWidth="520px";c.style.textAlign="center";
-  c.appendChild(mk('<div class="logo">🚗</div>'));
+  c.appendChild(logoEl());
   c.appendChild(el("h1",null,t("app")));
   var p=el("p","hint",t("about_txt"));p.style.margin="10px 0 16px";c.appendChild(p);
   var a=el("a","btn ghost",t("get_app"));
