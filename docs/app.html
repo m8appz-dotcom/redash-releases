@@ -134,8 +134,8 @@
   .cam .st{margin-top:auto;font:700 12px ui-monospace,monospace;color:var(--mut)}
   .cam .sub{font-size:11.5px;color:var(--mut)}
   .cam.rec{border-color:var(--warm-edge)} .cam.rec .st{color:var(--warm)}
-  .ghost{border:2px dashed var(--line);border-radius:16px;display:flex;align-items:center;
-    justify-content:center;color:var(--mut);cursor:pointer;min-height:120px;font-weight:600}
+  .addcard{border:2px dashed var(--line);border-radius:16px;display:flex;align-items:center;
+    justify-content:center;gap:8px;color:var(--mut);cursor:pointer;min-height:120px;font-weight:600}
   /* listas */
   .item{display:flex;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,.06);font-size:13.5px}
   .item time{color:var(--mut);font:600 11px ui-monospace,monospace;white-space:nowrap}
@@ -156,6 +156,13 @@
   .chip{white-space:nowrap;font:600 12px inherit;color:var(--tx2);background:rgba(255,255,255,.07);
     border:1px solid var(--line);border-radius:99px;padding:7px 13px;cursor:pointer}
   .chip.on{background:linear-gradient(135deg,#C4B5FD,#A78BFA);color:var(--on-pri);border-color:transparent}
+  .dialog{max-width:360px;margin:12vh auto;padding:24px;text-align:center}
+  .dialog h2{font-size:19px;font-weight:700;margin-bottom:8px}
+  .dlgbtns{display:flex;gap:10px;margin-top:20px}
+  /* width:100% de .btn choca dentro de una fila flex y parte el texto letra a letra:
+     aqui manda flex:1 y el alto es fijo, como los botones de la app. */
+  .dlgbtns .btn{flex:1 1 0;width:auto;height:46px;padding:0 14px;white-space:nowrap}
+  .btn.sm{font-size:13.5px;border-radius:12px}
   #flash{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:rgba(20,17,34,.95);
     border:1px solid var(--line);color:var(--tx);padding:12px 20px;border-radius:14px;display:none;z-index:70;font-weight:600}
 </style></head>
@@ -189,6 +196,12 @@ var I18N={
   cam_on:"Encender cámara",cam_denied:"Permiso de cámara denegado. Actívalo en el candado de la barra de direcciones.",
   cam_none:"No se detectó ninguna cámara.",cam_hang:"La cámara no responde — puede que otra app la esté usando.",
   no_clips:"Aún no hay clips",no_events:"Aún no hay eventos",no_trips:"Aún no hay viajes",no_cams:"Aún no hay cámaras",
+  add_qr:"Escanear el QR de la dashcam",add_qr_sub:"La vía más rápida para emparejar un ReDash",
+  add_scan:"Buscar cámaras en mi red",add_scan_sub:"Detecta cámaras IP automáticamente",
+  qr_aim:"Apunta al QR que muestra la pantalla Emparejar",qr_unsupported:"Este navegador no puede escanear QR. Usa Chrome o Edge.",
+  qr_foreign:"Ese QR no es de ReDash",qr_unreachable:"No se pudo conectar con esa dashcam",added:"Cámara añadida",
+  scan_running:"Buscando en la red…",scan_none:"No se encontraron cámaras",scan_found:"cámaras encontradas",
+  scan_camera:"Cámara IP",scan_needs_dash:"Abre esta página desde tu dashcam para buscar en la red",
   dl:"Descargar",prot:"P",add_web:"Cámara web",add_web_sub:"Otro navegador publicando con ReDash",
   this_dash:"Esta dashcam",web_cam:"Cámara web",dev_name:"NOMBRE DEL DISPOSITIVO",token:"TOKEN",
   signal:"SERVIDOR DE ENLACE",link:"Enlazar",unlink:"Desenlazar",link_off:"sin enlazar",
@@ -215,6 +228,12 @@ var I18N={
   cam_on:"Turn on camera",cam_denied:"Camera permission denied. Enable it from the padlock in the address bar.",
   cam_none:"No camera detected.",cam_hang:"The camera is not responding — another app may be using it.",
   no_clips:"No clips yet",no_events:"No events yet",no_trips:"No trips yet",no_cams:"No cameras yet",
+  add_qr:"Scan the dashcam QR",add_qr_sub:"Fastest way to pair a ReDash phone",
+  add_scan:"Find cameras on my network",add_scan_sub:"Detects IP cameras automatically",
+  qr_aim:"Point at the QR shown on the Pairing screen",qr_unsupported:"This browser cannot scan QR codes. Use Chrome or Edge.",
+  qr_foreign:"That QR is not from ReDash",qr_unreachable:"Could not reach that dashcam",added:"Camera added",
+  scan_running:"Scanning the network…",scan_none:"No cameras found",scan_found:"cameras found",
+  scan_camera:"IP camera",scan_needs_dash:"Open this page from your dashcam to scan the network",
   dl:"Download",prot:"P",add_web:"Web camera",add_web_sub:"Another browser publishing with ReDash",
   this_dash:"This dashcam",web_cam:"Web camera",dev_name:"DEVICE NAME",token:"TOKEN",
   signal:"SIGNALING SERVER",link:"Link",unlink:"Unlink",link_off:"not linked",
@@ -339,13 +358,14 @@ function openDrawer(){
 }
 function confirmSwitch(){
   var root=document.getElementById("root");clearTimers();root.replaceChildren();
-  var c=el("div","chooser");
-  c.appendChild(el("h1",null,t("switch_q")));
-  c.appendChild(el("p","tag",t("switch_body")));
-  var no=el("button","btn ghost",t("cancel"));no.style.marginBottom="10px";no.onclick=function(){render();};
-  var si=el("button","btn pri",t("yes"));
+  var c=el("div","dialog glass");
+  var t1=el("h2",null,t("switch_q"));c.appendChild(t1);
+  c.appendChild(el("p","hint",t("switch_body")));
+  var row=el("div","dlgbtns");
+  var no=el("button","btn ghost sm",t("cancel"));no.onclick=function(){render();};
+  var si=el("button","btn pri sm",t("yes"));
   si.onclick=function(){stopSender();setMode(mode==="sender"?"viewer":"sender");};
-  c.appendChild(no);c.appendChild(si);
+  row.appendChild(no);row.appendChild(si);c.appendChild(row);
   root.appendChild(c);
 }
 
@@ -665,6 +685,9 @@ function cams(){try{return JSON.parse(LS.get("rd_cams","[]"));}catch(e){return [
 function saveCams(v){LS.set("rd_cams",JSON.stringify(v));}
 function drawViewer(root){
   if(screen==="add"){drawAdd(root);return;}
+  if(screen==="qr"){drawQr(root);return;}
+  if(screen==="scan"){drawScan(root);return;}
+  if(screen==="addweb"){drawAddWeb(root);return;}
   if(screen==="about"){drawAbout(root);return;}
   if(screen==="cam"){drawCamDetail(root,screenArg);return;}
   if(screen==="map"){drawMapScreen(root,true);return;}
@@ -692,12 +715,24 @@ function drawViewer(root){
   list.forEach(function(cam,i){
     var c=el("div","cam glass");
     c.appendChild(el("b",null,cam.name));
-    c.appendChild(el("div","sub",cam.device));
-    c.appendChild(el("div","st",t("web_cam")));
-    c.onclick=function(){go("cam",{type:"web",i:i});};
+    c.appendChild(el("div","sub",cam.device||cam.url));
+    var st=el("div","st",cam.type==="dash"?"…":t("web_cam"));c.appendChild(st);
+    c.onclick=function(){go("cam",cam.type==="dash"?{type:"dash",i:i}:{type:"web",i:i});};
     grid.appendChild(c);
+    if(cam.type==="dash"){
+      var ping=function(){
+        fetch(cam.url+"/status",{headers:{Authorization:"Bearer "+cam.key}})
+          .then(function(r){return r.ok?r.json():Promise.reject();})
+          .then(function(s){
+            var rec=s.recordingActive&&s.recordingStartedAt>0;
+            st.textContent=rec?"● REC "+mmss((Date.now()-s.recordingStartedAt)/1000):"● "+t("live");
+            c.classList.toggle("rec",!!rec);
+          }).catch(function(){st.textContent=t("offline");c.classList.remove("rec");});
+      };
+      ping();every(4000,ping);
+    }
   });
-  var gh=el("div","ghost");gh.appendChild(ico("plus"));gh.appendChild(el("span",null," "+t("nav_add")));gh.onclick=function(){go("add");};
+  var gh=el("div","addcard");gh.appendChild(ico("plus"));gh.appendChild(el("span",null," "+t("nav_add")));gh.onclick=function(){go("add");};
   grid.appendChild(gh);
   root.appendChild(grid);
   if(!hasLocal&&!list.length){
@@ -724,9 +759,95 @@ function drawLogin(root){
   root.appendChild(c);
 }
 function drawAdd(root){
-  root.appendChild(appbar(t("nav_add")));
+  var bar=appbar(t("nav_add"));
+  var back=icoBtn("back",null,function(){go("home");});
+  bar.replaceChild(back,bar.firstChild);
+  root.appendChild(bar);
+  // Mismas vias que la app: QR, buscar en la red, y la camara web propia del navegador.
+  function bigOption(icName,title,sub2,fn){
+    var r=el("div","role glass");r.style.padding="16px";
+    var box=el("div","ico");box.appendChild(ico(icName));r.appendChild(box);
+    var b=el("div");b.appendChild(el("b",null,title));b.appendChild(el("span",null,sub2));
+    r.appendChild(b);var ch=ico("chevron");ch.classList.add("chev");r.appendChild(ch);
+    r.onclick=fn;return r;
+  }
+  var box=el("div");box.style.maxWidth="520px";
+  box.appendChild(bigOption("grid",t("add_qr"),t("add_qr_sub"),function(){go("qr");}));
+  box.appendChild(bigOption("signal",t("add_scan"),t("add_scan_sub"),function(){go("scan");}));
+  box.appendChild(bigOption("cam",t("add_web"),t("add_web_sub"),function(){go("addweb");}));
+  root.appendChild(box);
+}
+
+/* --- escaneo de QR: BarcodeDetector nativo, sin librerias --- */
+function drawQr(root){
+  var bar=appbar(t("add_qr"));
+  var back=icoBtn("back",null,function(){stopQr();go("add");});
+  bar.replaceChild(back,bar.firstChild);root.appendChild(bar);
+  var c=el("div","glass");c.style.padding="14px";c.style.maxWidth="520px";
+  var vp=el("div","viewport");
+  var v=el("video");v.autoplay=true;v.muted=true;v.playsInline=true;vp.appendChild(v);
+  c.appendChild(vp);
+  var msg=el("p","hint",t("qr_aim"));msg.style.marginTop="10px";c.appendChild(msg);
+  root.appendChild(c);
+  if(!("BarcodeDetector" in window)){msg.textContent=t("qr_unsupported");return;}
+  var det=new BarcodeDetector({formats:["qr_code"]});
+  navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).then(function(st){
+    qrStream=st;v.srcObject=st;
+    var id=every(500,function(){
+      if(!v.videoWidth)return;
+      det.detect(v).then(function(codes){
+        if(!codes.length)return;
+        var val=codes[0].rawValue||"";
+        if(val.indexOf("redash://pair")!==0){msg.textContent=t("qr_foreign");return;}
+        clearInterval(id);stopQr();
+        var u=decodeURIComponent((val.match(/[?&]u=([^&]*)/)||[])[1]||"");
+        var k=decodeURIComponent((val.match(/[?&]k=([^&]*)/)||[])[1]||"");
+        if(!u||!k){msg.textContent=t("qr_foreign");return;}
+        addDashcam(u,k);
+      }).catch(function(){});
+    });
+  }).catch(function(){msg.textContent=t("cam_denied");});
+}
+var qrStream=null;
+function stopQr(){if(qrStream){qrStream.getTracks().forEach(function(x){x.stop();});qrStream=null;}}
+
+/* --- buscar en la red: el TELEFONO escanea (el navegador no puede) --- */
+function drawScan(root){
+  var bar=appbar(t("add_scan"));
+  var back=icoBtn("back",null,function(){go("add");});
+  bar.replaceChild(back,bar.firstChild);root.appendChild(bar);
+  var c=el("div","glass");c.style.padding="16px";c.style.maxWidth="520px";
+  var msg=el("p","hint",t("scan_running"));c.appendChild(msg);
+  var list=el("div");list.style.marginTop="10px";c.appendChild(list);
+  root.appendChild(c);
+  if(!hasLocal){msg.textContent=t("scan_needs_dash");return;}
+  j("/discover").then(function(r){
+    var d=r.devices||[];
+    msg.textContent=d.length?(d.length+" "+t("scan_found")):t("scan_none");
+    d.forEach(function(dev){
+      var row=el("div","item");
+      row.appendChild(ico("cam"));
+      row.appendChild(el("b",null,dev.label||t("scan_camera")));
+      row.appendChild(el("span","hint",dev.address));
+      list.appendChild(row);
+    });
+  }).catch(function(){msg.textContent=t("scan_none");});
+}
+
+/* Alta de otra dashcam ReDash (por QR). Su API vive en OTRO origen: funciona porque el
+   servicio responde con CORS y la clave sigue siendo obligatoria en cada peticion. */
+function addDashcam(url,key){
+  url=url.replace(/\/$/,"");
+  fetch(url+"/status",{headers:{Authorization:"Bearer "+key}}).then(function(r){
+    if(!r.ok)throw 0;
+    var l=cams();l.push({name:url.replace(/^https?:\/\//,""),type:"dash",url:url,key:key});saveCams(l);
+    flash(t("added"));go("home");
+  }).catch(function(){flash(t("qr_unreachable"));go("add");});
+}
+
+function drawAddWeb(root){
+  root.appendChild(appbar(t("add_web")));
   var c=el("div","glass");c.style.padding="16px";c.style.maxWidth="480px";
-  c.appendChild(el("p","kick",t("add_web")));
   c.appendChild(el("p","hint",t("add_web_sub")));
   var d=el("div");d.style.marginTop="14px";
   d.appendChild(el("label",null,t("dev_name")));
@@ -751,8 +872,17 @@ function drawAdd(root){
 /* detalle: dashcam local (MJPEG + control) o cámara web (WebRTC) */
 function drawCamDetail(root,arg){
   if(arg.type==="web")return drawWebCam(root,arg.i);
+  // Una dashcam remota se controla igual que la local; solo cambia a donde apuntan las
+  // llamadas y que la clave viaja explicita (otro origen, por eso el servicio manda CORS).
+  var unit=arg.type==="dash"?cams()[arg.i]:null;
+  var BASE=unit?unit.url:"";
+  var AKEY=unit?unit.key:KEY;
+  function api(p,o){o=o||{};o.headers=Object.assign({},o.headers,{Authorization:"Bearer "+AKEY});return fetch(BASE+p,o);}
+  function j(p){return api(p).then(function(r){if(!r.ok)throw 0;return r.json();});}
+  function post(p){return api(p,{method:"POST"});}
+  var TITLE=unit?unit.name:t("this_dash");
   var recPill=el("span","pill","…"),batPill=el("span","pill","--%");
-  var bar=appbar(t("this_dash"),[recPill,batPill]);
+  var bar=appbar(TITLE,[recPill,batPill]);
   var back=icoBtn("back",null,function(){go("home");});
   bar.replaceChild(back,bar.firstChild);
   root.appendChild(bar);
@@ -760,7 +890,7 @@ function drawCamDetail(root,arg){
   var g=el("div","grid2");var left=el("div");
   var vcard=el("div","glass");vcard.style.padding="14px";
   var vp=el("div","viewport");
-  var img=el("img");img.src="/stream?k="+encodeURIComponent(KEY);vp.appendChild(img);
+  var img=el("img");img.src=BASE+"/stream?k="+encodeURIComponent(AKEY);vp.appendChild(img);
   var hGps=el("span","hud bl","—");hGps.classList.add("hidden");vp.appendChild(hGps);
   var ov=el("div","ovbtns");
   var bf=icoBtn("flip","ovbtn",function(){post("/camera/switch");});ov.appendChild(bf);
@@ -804,8 +934,8 @@ function drawCamDetail(root,arg){
   });
   left.appendChild(tabs);
   var box=el("div","glass");box.style.padding="12px";box.style.marginTop="12px";
-  if(tab==="clips")loadLocalClips(box);
-  else if(tab==="events")loadLocalEvents(box);
+  if(tab==="clips")loadLocalClips(box,BASE,AKEY);
+  else if(tab==="events")loadLocalEvents(box,BASE,AKEY);
   else box.classList.add("hidden");
   left.appendChild(box);
   g.appendChild(left);g.appendChild(el("div"));
@@ -827,12 +957,13 @@ function drawCamDetail(root,arg){
   }
   poll();every(2000,poll);
 }
-function loadLocalClips(box){
-  j("/clips").then(function(r){
+function loadLocalClips(box,BASE,AKEY){
+  BASE=BASE||"";AKEY=AKEY||KEY;
+  fetch(BASE+"/clips",{headers:{Authorization:"Bearer "+AKEY}}).then(function(r){return r.json();}).then(function(r){
     var l=r.clips||[];
     if(!l.length){box.appendChild(el("p","hint",t("no_clips")));return;}
     l.forEach(function(c){
-      var url="/clips/file/"+encodeURIComponent(c.name)+"?k="+encodeURIComponent(KEY);
+      var url=BASE+"/clips/file/"+encodeURIComponent(c.name)+"?k="+encodeURIComponent(AKEY);
       var r2=el("div","item");
       var n=el("span",null,c.name);r2.appendChild(n);
       if(c["protected"])r2.appendChild(el("span","badge",t("prot")));
@@ -842,8 +973,9 @@ function loadLocalClips(box){
     });
   });
 }
-function loadLocalEvents(box){
-  j("/events").then(function(r){
+function loadLocalEvents(box,BASE,AKEY){
+  BASE=BASE||"";AKEY=AKEY||KEY;
+  fetch(BASE+"/events",{headers:{Authorization:"Bearer "+AKEY}}).then(function(r){return r.json();}).then(function(r){
     var l=(r.events||[]).slice().reverse();
     if(!l.length){box.appendChild(el("p","hint",t("no_events")));return;}
     l.forEach(function(e){
