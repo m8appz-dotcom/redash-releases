@@ -1,7 +1,7 @@
 {
-  "versionCode": 63,
-  "versionName": "0.4.5",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.4.5/redash-0.4.5.apk",
-  "sha256": "1ab1dd2561088e53309153e5e176927faaf7dc50fa0765ddbb349490453710ae",
-  "notes": "La version web ahora es la misma app: al abrirla eliges rol (camara o visor) y puedes cambiar de modo desde el navegador, con la misma interfaz del telefono. Abrela desde Emparejar > Panel web."
+  "versionCode": 64,
+  "versionName": "0.4.6",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.4.6/redash-0.4.6.apk",
+  "sha256": "4357be3c0f4409294f9b68d1b0ff6330b53fb3b3aefbb1d0c662ef17d24162d5",
+  "notes": "La app web ahora se ve igual que la app: mismos iconos, misma tipografia y el logo oficial. Abrela desde Emparejar > Panel web."
 }
