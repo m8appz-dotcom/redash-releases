@@ -1,7 +1,7 @@
 {
-  "versionCode": 62,
-  "versionName": "0.4.4",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.4.4/redash-0.4.4.apk",
-  "sha256": "645ad711941a963f4b28327aeb0ecf9b6ca16d5bfeb9dfdae17cc3544119a4b2",
-  "notes": "La pantalla Emparejar ahora muestra la direccion del panel web: abrela en el navegador de tu computadora para ver y controlar tu dashcam desde ahi. Incluye toda la version web: viewer web servido por la dashcam y camara web para PCs."
+  "versionCode": 63,
+  "versionName": "0.4.5",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.4.5/redash-0.4.5.apk",
+  "sha256": "1ab1dd2561088e53309153e5e176927faaf7dc50fa0765ddbb349490453710ae",
+  "notes": "La version web ahora es la misma app: al abrirla eliges rol (camara o visor) y puedes cambiar de modo desde el navegador, con la misma interfaz del telefono. Abrela desde Emparejar > Panel web."
 }
