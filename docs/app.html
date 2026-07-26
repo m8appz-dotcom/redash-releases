@@ -741,12 +741,11 @@ function enterStealth(){
 function stealthOverlay(){
   var ov=document.createElement("div");ov.id="stealth";
   ov.style.cssText="position:fixed;inset:0;background:#000;z-index:100;display:flex;align-items:center;justify-content:center;cursor:none";
-  var hint=el("div",null,"ReDash \u00b7 "+stealthStatus()+" \u00b7 "+t("stealth_exit"));
+  // En sigilo NO se revela el estado (grabando/enlazado): solo el nombre y como salir.
+  var hint=el("div",null,"ReDash \u00b7 "+t("stealth_exit"));
   hint.style.cssText="color:rgba(255,255,255,.28);font-size:12px;text-align:center;transition:opacity 1s";
   ov.appendChild(hint);ov.onclick=askPin;
   document.addEventListener("keydown",stealthKey);document.body.appendChild(ov);
-  // el estado se refresca mientras el aviso es visible (antes de desvanecerse)
-  every(2000,function(){var e=document.getElementById("stealth");if(e&&hint.style.opacity!=="0")hint.textContent="ReDash \u00b7 "+stealthStatus()+" \u00b7 "+t("stealth_exit");});
   window.__exitStealth=askPin;   // desktop: reabrir desde la bandeja pide el PIN
   if(window.RD_DESKTOP&&RD_DESKTOP.setStealth)RD_DESKTOP.setStealth(true);
   setTimeout(function(){var e=document.getElementById("stealth");if(e)e.firstChild.style.opacity="0";},4000);

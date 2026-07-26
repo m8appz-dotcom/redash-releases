@@ -1,7 +1,7 @@
 {
-  "versionCode": 69,
-  "versionName": "0.5.1",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.1/redash-0.5.1.apk",
-  "sha256": "89ccbacd1313e80cc2ff3ba3bbd67a0362235281324cc98a4055cb8487e38bf7",
-  "notes": "Emparejar tu telefono ahora muestra el QR al instante en cuanto escribes el nombre y el token, sin esperar a enlazar. El modo sigilo pide un PIN de 4 digitos para salir y muestra el estado (grabando/enlazado). Mapas mas limpios y pantallas centradas."
+  "versionCode": 70,
+  "versionName": "0.5.2",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.2/redash-0.5.2.apk",
+  "sha256": "85fd6a5e6a24993242b81a038be54dda9092a6f4bb0c1fd5c3cfa59deb9d70a7",
+  "notes": "En modo sigilo, la app ya no revela su estado: al pasar el mouse por la bandeja solo dice ReDash (antes mostraba Stealth y si estaba grabando), y la pantalla negra solo indica como salir."
 }
