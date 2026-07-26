@@ -1,7 +1,7 @@
 {
-  "versionCode": 67,
-  "versionName": "0.4.9",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.4.9/redash-0.4.9.apk",
-  "sha256": "2f5be527b4f7d17999a20d378e25214bc07777b0165c97b0bb0a65f160ea629e",
-  "notes": "Buscar en la red ahora distingue lo que encuentra: las dashcams ReDash se anaden desde el navegador y las camaras IP quedan senaladas para anadirlas desde la app."
+  "versionCode": 68,
+  "versionName": "0.5.0",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.0/redash-0.5.0.apk",
+  "sha256": "116cbbf37a551308ab4f1386d12e28bef17e75230a54041ee78e45a8b485bcbc",
+  "notes": "El sender web y de Windows ahora igualan a la app movil: pantalla de Ajustes, QR para emparejar tu telefono al instante, cambio de estado cuando conecta, y modo sigilo. El escaner del telefono ya reconoce camaras web por QR."
 }
