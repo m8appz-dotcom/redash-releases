@@ -173,14 +173,21 @@
 <div class="wrap" id="root"></div>
 
 <script>
-(function(){["leaflet/leaflet.js","jsqr.js"].forEach(function(u){
+(function(){["leaflet/leaflet.js","jsqr.js","qrgen.js"].forEach(function(u){
   var s=document.createElement("script");s.src=u;s.async=false;document.head.appendChild(s);});})();
 </script>
 <script>
 "use strict";
 /* ============================ i18n ============================ */
 var I18N={
- es:{app:"ReDash",tagline:"Convierte un navegador en cámara o visor",choose:"ELIGE EL ROL DE ESTE NAVEGADOR",
+ es:{nav_settings:"Ajustes",set_capture:"CAPTURA",set_general:"GENERAL",
+  set_quality:"Calidad de video",set_audio:"Grabar audio",set_audio_hint:"Apagado por defecto. Grabar voces puede requerir consentimiento.",
+  set_sens:"Sensibilidad de movimiento",sens_low:"Baja",sens_med:"Media",sens_high:"Alta",
+  set_seg:"Duracion del segmento",set_keep:"Clips a conservar",
+  set_apply_hint:"Los ajustes se aplican al encender la camara. Reinicia la camara si ya estaba activa.",
+  qr_show_hint:"Escanea este codigo desde tu telefono: Anadir camara -> Escanear el QR.",
+  stealth_hint:"ReDash sigue grabando. Toca o pulsa Esc para salir.",nav_stealth:"Modo sigilo",
+  app:"ReDash",tagline:"Convierte un navegador en cámara o visor",choose:"ELIGE EL ROL DE ESTE NAVEGADOR",
   role_s:"Cámara / Dashcam",role_s_sub:"Este navegador graba, en bucle",role_v:"Visor",
   role_v_sub:"Mira y controla tus cámaras desde aquí",chooser_foot:"Tus videos se quedan en esta computadora.",
   dashcam:"Dashcam",viewer:"ReDash Visor",ready:"LISTA",offline:"SIN CONEXIÓN",live:"EN VIVO",
@@ -216,7 +223,14 @@ var I18N={
   impact:"IMPACTO detectado",motion_ev:"Movimiento detectado",protected_ok:"Clip protegido",
   about_txt:"La misma ReDash, en tu navegador. Todo se procesa aquí; nada se sube salvo el enlace que tú actives.",
   get_app:"Consigue la app de Android"},
- en:{app:"ReDash",tagline:"Turn a browser into a camera or a viewer",choose:"CHOOSE A ROLE FOR THIS BROWSER",
+ en:{nav_settings:"Settings",set_capture:"CAPTURE",set_general:"GENERAL",
+  set_quality:"Video quality",set_audio:"Record audio",set_audio_hint:"Off by default. Recording voices may require consent.",
+  set_sens:"Motion sensitivity",sens_low:"Low",sens_med:"Medium",sens_high:"High",
+  set_seg:"Segment length",set_keep:"Clips to keep",
+  set_apply_hint:"Settings apply when you turn on the camera. Restart the camera if it was already on.",
+  qr_show_hint:"Scan this code from your phone: Add camera -> Scan the QR.",
+  stealth_hint:"ReDash keeps recording. Tap or press Esc to exit.",nav_stealth:"Stealth mode",
+  app:"ReDash",tagline:"Turn a browser into a camera or a viewer",choose:"CHOOSE A ROLE FOR THIS BROWSER",
   role_s:"Camera / Dashcam",role_s_sub:"This browser records, on a loop",role_v:"Viewer",
   role_v_sub:"Watch and control your cameras from here",chooser_foot:"Your videos stay on this computer.",
   dashcam:"Dashcam",viewer:"ReDash Viewer",ready:"READY",offline:"OFFLINE",live:"LIVE",
@@ -353,6 +367,8 @@ function openDrawer(){
   d.appendChild(nav("home",t("nav_home"),function(){go("home");},screen==="home"));
   if(mode==="sender"){
     d.appendChild(nav("signal",t("nav_link"),function(){go("link");},screen==="link"));
+    d.appendChild(nav("cog",t("nav_settings"),function(){go("settings");},screen==="settings"));
+    d.appendChild(nav("power",t("nav_stealth"),function(){enterStealth();}));
   }else{
     d.appendChild(nav("plus",t("nav_add"),function(){go("add");},screen==="add"));
   }
@@ -380,7 +396,15 @@ function confirmSwitch(){
 /* ============================ MODO CÁMARA (sender) ============================ */
 var stream=null,facing="user",recOn=false,recStart=0,segStart=0,clips=[],events=[],
     motionOn=false,impactOn=false,protectNext=false,mediaRec=null,prevGrid=null,
-    lastMotionAt=0,lastImpactAt=0,SEG_MS=60000,MAX_CLIPS=6,motionScore=0;
+    lastMotionAt=0,lastImpactAt=0,motionScore=0;
+/* Ajustes (persisten en localStorage). Cada uno se lee al vuelo para que aplique enseguida. */
+function setg(k,d){return LS.get("rd_"+k,d);}
+function qWidth(){return {sd:640,hd:1280,fhd:1920}[setg("quality","hd")]||1280;}
+function audioOn(){return setg("audio","0")==="1";}
+function motionThresh(){return {low:11,med:6,high:3}[setg("sens","med")]||6;}
+function segMs(){return (parseInt(setg("seg","60"),10)||60)*1000;}
+function keepN(){return parseInt(setg("keep","6"),10)||6;}
+function videoConstraints(){return {video:{facingMode:facing,width:{ideal:qWidth()}},audio:audioOn()};}
 function addEvent(type,msg){events.unshift({t:Date.now(),type:type,msg:msg});if(events.length>60)events.pop();}
 function stopSender(){
   if(mediaRec&&mediaRec.state==="recording"){recOn=false;try{mediaRec.stop();}catch(e){}}
@@ -389,12 +413,16 @@ function stopSender(){
 }
 function drawSender(root){
   if(screen==="link"){drawLink(root);return;}
+  if(screen==="settings"){drawSettings(root);return;}
   if(screen==="about"){drawAbout(root);return;}
   if(screen==="map"){drawMapScreen(root,null);return;}
 
   var recPill=el("span","pill",recOn?"REC":t("ready"));
   var linkPill=el("span","pill",linkLabel());
-  root.appendChild(appbar("ReDash "+t("dashcam"),[recPill,linkPill]));
+  var bar=appbar("ReDash "+t("dashcam"),[recPill,linkPill]);
+  bar.appendChild(icoBtn("power","icobtn",function(){enterStealth();}));
+  bar.appendChild(icoBtn("cog","icobtn",function(){go("settings");}));
+  root.appendChild(bar);
 
   if(!stream){                       // portada: encender la cámara
     var card=el("div","glass");card.style.padding="34px";card.style.textAlign="center";
@@ -524,7 +552,7 @@ async function startCamera(errEl){
       new Promise(function(_,rej){setTimeout(function(){rej({name:"Hang"});},4000);})]);
     if(!list.filter(function(d){return d.kind==="videoinput";}).length){errEl.textContent=t("cam_none");return;}
   }catch(e){if(e&&e.name==="Hang"){errEl.textContent=t("cam_hang");return;}}
-  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1280}},audio:false});}
+  try{stream=await navigator.mediaDevices.getUserMedia(videoConstraints());}
   catch(e){errEl.textContent=t("cam_denied");return;}
   addEvent("system","Camera on");
   render();
@@ -533,7 +561,7 @@ async function flipCamera(){
   facing=facing==="user"?"environment":"user";
   if(stream)stream.getTracks().forEach(function(x){x.stop();});
   try{
-    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1280}},audio:false});
+    stream=await navigator.mediaDevices.getUserMedia(videoConstraints());
     if(pc){var s=pc.getSenders().find(function(x){return x.track&&x.track.kind==="video";});
       if(s)s.replaceTrack(stream.getVideoTracks()[0]);}
     render();
@@ -555,7 +583,7 @@ function startSeg(){
     if(recOn)startSeg();
   };
   mediaRec.start();segStart=Date.now();
-  setTimeout(function(){if(mediaRec&&mediaRec.state==="recording")mediaRec.stop();},SEG_MS);
+  setTimeout(function(){if(mediaRec&&mediaRec.state==="recording")mediaRec.stop();},segMs());
 }
 function toggleRec(){
   recOn=!recOn;
@@ -567,7 +595,7 @@ function saveClip(blob){
   var prot=protectNext;protectNext=false;
   clips.unshift({url:URL.createObjectURL(blob),at:Date.now(),size:blob.size,prot:prot});
   var keep=[];clips.forEach(function(c){
-    if(c.prot||keep.length<MAX_CLIPS)keep.push(c);else URL.revokeObjectURL(c.url);
+    if(c.prot||keep.length<keepN())keep.push(c);else URL.revokeObjectURL(c.url);
   });
   clips=keep;
 }
@@ -603,7 +631,7 @@ function sampleMotion(){
   for(var i=0,p=0;i<d.length;i+=4,p++)grid[p]=(d[i]*30+d[i+1]*59+d[i+2]*11)/100;
   if(prevGrid){for(var k=0;k<grid.length;k++)score+=Math.abs(grid[k]-prevGrid[k]);score/=grid.length;}
   prevGrid=grid;motionScore=score;
-  if(motionOn&&score>6&&Date.now()-lastMotionAt>8000){
+  if(motionOn&&score>motionThresh()&&Date.now()-lastMotionAt>8000){
     lastMotionAt=Date.now();protectNext=true;
     if(!recOn)toggleRec();
     addEvent("motion","Motion detected");flash(t("motion_ev"));
@@ -619,12 +647,100 @@ function onImpact(e){
   }
 }
 
+/* ============================ ajustes (como la app movil) ============================ */
+function drawSettings(root){
+  var bar=appbar(t("nav_settings"));
+  bar.replaceChild(icoBtn("back",null,function(){go("home");}),bar.firstChild);
+  root.appendChild(bar);
+  var c=el("div","glass");c.style.padding="16px";c.style.maxWidth="520px";
+  function rowSelect(label,key,def,opts,onch){
+    var r=el("div");r.style.margin="0 0 14px";
+    r.appendChild(el("label",null,label));
+    var sel=document.createElement("select");
+    sel.style.cssText="width:100%;padding:11px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.35);color:var(--tx);font:600 14px inherit";
+    opts.forEach(function(o){var op=document.createElement("option");op.value=o[0];op.textContent=o[1];sel.appendChild(op);});
+    sel.value=setg(key,def);
+    sel.onchange=onch||function(){LS.set("rd_"+key,sel.value);};
+    r.appendChild(sel);c.appendChild(r);
+  }
+  function rowToggle(label,key){
+    var r=el("div","mode");r.style.margin="0 0 12px";
+    r.appendChild(el("div","nm",label));
+    var on=setg(key,"0")==="1";
+    var tag=el("div","tag",on?t("armed"):t("off"));r.appendChild(tag);
+    if(on)r.classList.add("on");
+    r.onclick=function(){on=!on;LS.set("rd_"+key,on?"1":"0");r.classList.toggle("on",on);tag.textContent=on?t("armed"):t("off");};
+    c.appendChild(r);
+  }
+  c.appendChild(el("p","kick",t("set_capture")));
+  rowSelect(t("set_quality"),"quality","hd",[["sd","480p"],["hd","720p"],["fhd","1080p"]]);
+  rowToggle(t("set_audio"),"audio");
+  c.appendChild(el("p","hint",t("set_audio_hint")));
+  rowSelect(t("set_sens"),"sens","med",[["low",t("sens_low")],["med",t("sens_med")],["high",t("sens_high")]]);
+  rowSelect(t("set_seg"),"seg","60",[["30","30 s"],["60","60 s"],["180","180 s"]]);
+  rowSelect(t("set_keep"),"keep","6",[["3","3"],["6","6"],["12","12"]]);
+  c.appendChild(el("p","kick",t("set_general")));
+  rowSelect(t("nav_lang"),"lang_sel",lang,[["es","Espanol"],["en","English"]],function(){
+    lang=this.value;LS.set("redash_lang",lang);localStorage.setItem("redash_lang",lang);render();});
+  var sig=el("div");sig.style.margin="0 0 6px";
+  sig.appendChild(el("label",null,t("signal")));
+  var iU=el("input");iU.value=LS.get("rd_url",DEFAULT_SIGNAL);iU.onchange=function(){LS.set("rd_url",iU.value.trim()||DEFAULT_SIGNAL);};
+  sig.appendChild(iU);c.appendChild(sig);
+  c.appendChild(el("p","hint",t("set_apply_hint")));
+  root.appendChild(c);
+}
+
+/* ============================ modo sigilo ============================ */
+function enterStealth(){
+  if(document.getElementById("stealth"))return;
+  var ov=document.createElement("div");ov.id="stealth";
+  ov.style.cssText="position:fixed;inset:0;background:#000;z-index:100;display:flex;align-items:center;justify-content:center;cursor:none";
+  var hint=el("div",null,t("stealth_hint"));
+  hint.style.cssText="color:rgba(255,255,255,.22);font-size:12px;transition:opacity 1s";
+  ov.appendChild(hint);ov.onclick=exitStealth;
+  document.addEventListener("keydown",stealthKey);
+  document.body.appendChild(ov);
+  window.__exitStealth=exitStealth;
+  if(window.RD_DESKTOP&&RD_DESKTOP.setStealth)RD_DESKTOP.setStealth(true);
+  setTimeout(function(){if(document.getElementById("stealth"))hint.style.opacity="0";},4000);
+}
+function stealthKey(e){if(e.key==="Escape")exitStealth();}
+function exitStealth(){
+  var ov=document.getElementById("stealth");if(ov)ov.remove();
+  document.removeEventListener("keydown",stealthKey);
+  if(window.RD_DESKTOP&&RD_DESKTOP.setStealth)RD_DESKTOP.setStealth(false);
+}
+
 /* ============================ enlace WebRTC (publica) ============================ */
 var DEFAULT_SIGNAL="wss://archie-ubuntu.tailb235ab.ts.net:10000";
 var ws=null,pc=null,iceServers=[],linkState="off",retry=null;
 function linkLabel(){return linkState==="off"?t("link_off"):linkState==="live"?t("link_live"):t("link_wait");}
 function drawLink(root){
-  root.appendChild(appbar(t("nav_link")));
+  var bar=appbar(t("nav_link"));
+  bar.replaceChild(icoBtn("back",null,function(){go("home");}),bar.firstChild);
+  root.appendChild(bar);
+  // Ya enlazado: se muestra el QR para que el telefono lo escanee y el estado en vivo.
+  if(linkState!=="off"&&LS.get("rd_dev","")&&LS.get("rd_tok","")){
+    var qc=el("div","glass");qc.style.cssText="padding:18px;max-width:420px;text-align:center";
+    var st=el("div","pill "+(linkState==="live"?"ok":""),linkLabel());
+    st.style.cssText="display:inline-block;margin-bottom:14px";qc.appendChild(st);
+    var payload="redash://webcam?d="+encodeURIComponent(LS.get("rd_dev",""))+
+      "&k="+encodeURIComponent(LS.get("rd_tok",""))+"&s="+encodeURIComponent(LS.get("rd_url",DEFAULT_SIGNAL));
+    var box=el("div");box.style.cssText="background:#fff;padding:12px;border-radius:14px;display:inline-block;line-height:0";
+    try{
+      var qr=qrcode(0,"M");qr.addData(payload);qr.make();
+      var im=document.createElement("img");im.src=qr.createDataURL(5,0);
+      im.width=200;im.height=200;im.alt="QR";box.appendChild(im);
+    }catch(e){box.style.lineHeight="1.4";box.style.color="#000";box.style.fontSize="11px";box.textContent=payload;}
+    qc.appendChild(box);
+    qc.appendChild(el("p","hint",t("qr_show_hint")));
+    var un=el("button","btn ghost",t("unlink"));un.style.marginTop="14px";
+    un.onclick=function(){linkDown();go("home");};
+    qc.appendChild(un);
+    root.appendChild(qc);
+    every(1500,function(){var s=linkLabel();if(st.textContent!==s){st.textContent=s;st.className="pill "+(linkState==="live"?"ok":"");}});
+    return;
+  }
   var c=el("div","glass");c.style.padding="16px";c.style.maxWidth="480px";
   c.appendChild(el("p","hint",t("link_help")));
   var d=el("div");d.style.marginTop="14px";
@@ -1156,6 +1272,22 @@ function drawAbout(root){
   root.appendChild(c);
 }
 
+
+/* ============================ desktop: estado a la bandeja ============================ */
+function startTrayReport(){
+  var last="";
+  setInterval(function(){
+    var s;
+    if(mode!=="sender"){ s="Viewer"; }
+    else if(recOn&&linkState==="live"){ s="Recording · linked"; }
+    else if(recOn){ s="Recording"; }
+    else if(linkState==="live"){ s="Linked · idle"; }
+    else if(stream){ s="Camera on"; }
+    else { s="Idle"; }
+    if(s!==last){ last=s; try{ RD_DESKTOP.setStatus(s); }catch(e){} }
+  },2000);
+}
+
 /* ============================ arranque ============================ */
 // ¿Nos sirve una dashcam? Si /status responde (aunque sea 401) hay API local detrás.
 fetch("/status").then(function(r){hasLocal=(r.status===401||r.ok);}).catch(function(){hasLocal=false;})
@@ -1164,8 +1296,12 @@ fetch("/status").then(function(r){hasLocal=(r.status===401||r.ok);}).catch(funct
      return fetch("/status",{headers:{Authorization:"Bearer "+KEY}}).then(function(r){if(!r.ok){KEY="";LS.set("rd_key","");}}).catch(function(){});
    }
  }).then(function(){
-   if(!mode&&hasLocal)mode="viewer";   // servida por una dashcam: el rol obvio es mirarla
+   if(!mode){
+     if(window.RD_DESKTOP)mode="sender";        // app de escritorio: es una camara
+     else if(hasLocal)mode="viewer";            // servida por una dashcam: mirarla
+   }
    render();
+   if(window.RD_DESKTOP)startTrayReport();
  });
 </script>
 </body></html>
