@@ -24,6 +24,8 @@
   body{background:var(--bg);color:var(--tx);min-height:100vh;
     font:15px/1.5 "Plus Jakarta Sans",system-ui,Segoe UI,Roboto,sans-serif;letter-spacing:-.01em}
   .wrap{max-width:1060px;margin:0 auto;padding:16px 16px 40px}
+  /* las pantallas de una columna se centran para no dejar hueco a la derecha */
+  #root > [style*="max-width"]{margin-left:auto;margin-right:auto}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
   .ic{width:22px;height:22px;flex:none;display:block}
   .icobtn .ic{width:21px;height:21px}
@@ -187,6 +189,9 @@ var I18N={
   set_apply_hint:"Los ajustes se aplican al encender la camara. Reinicia la camara si ya estaba activa.",
   qr_show_hint:"Escanea este codigo desde tu telefono: Anadir camara -> Escanear el QR.",
   stealth_hint:"ReDash sigue grabando. Toca o pulsa Esc para salir.",nav_stealth:"Modo sigilo",
+  stealth_exit:"toca para salir",st_rec:"Grabando",st_rec_link:"Grabando + enlazado",st_link:"Enlazado",st_idle:"Inactivo",
+  pin_set:"Crea un PIN de 4 digitos",pin_confirm:"Confirma el PIN",pin_enter:"Ingresa el PIN para salir",pin_wrong:"PIN incorrecto",
+
   app:"ReDash",tagline:"Convierte un navegador en cámara o visor",choose:"ELIGE EL ROL DE ESTE NAVEGADOR",
   role_s:"Cámara / Dashcam",role_s_sub:"Este navegador graba, en bucle",role_v:"Visor",
   role_v_sub:"Mira y controla tus cámaras desde aquí",chooser_foot:"Tus videos se quedan en esta computadora.",
@@ -230,6 +235,9 @@ var I18N={
   set_apply_hint:"Settings apply when you turn on the camera. Restart the camera if it was already on.",
   qr_show_hint:"Scan this code from your phone: Add camera -> Scan the QR.",
   stealth_hint:"ReDash keeps recording. Tap or press Esc to exit.",nav_stealth:"Stealth mode",
+  stealth_exit:"tap to exit",st_rec:"Recording",st_rec_link:"Recording + linked",st_link:"Linked",st_idle:"Idle",
+  pin_set:"Create a 4-digit PIN",pin_confirm:"Confirm the PIN",pin_enter:"Enter PIN to exit",pin_wrong:"Wrong PIN",
+
   app:"ReDash",tagline:"Turn a browser into a camera or a viewer",choose:"CHOOSE A ROLE FOR THIS BROWSER",
   role_s:"Camera / Dashcam",role_s_sub:"This browser records, on a loop",role_v:"Viewer",
   role_v_sub:"Watch and control your cameras from here",chooser_foot:"Your videos stay on this computer.",
@@ -690,23 +698,70 @@ function drawSettings(root){
   root.appendChild(c);
 }
 
-/* ============================ modo sigilo ============================ */
+/* ============================ modo sigilo (con PIN) ============================ */
+function stealthStatus(){
+  if(recOn&&linkState==="live")return t("st_rec_link");
+  if(recOn)return t("st_rec");
+  if(linkState==="live")return t("st_link");
+  return t("st_idle");
+}
+function stealthPad(prompt,onDone){
+  var ov=document.createElement("div");ov.id="stealthpad";
+  ov.style.cssText="position:fixed;inset:0;background:#000;z-index:101;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;cursor:default";
+  var lbl=el("div",null,prompt);lbl.style.cssText="color:#A7AABC;font-size:14px";
+  var dots=el("div");dots.style.cssText="display:flex;gap:12px";var entry="";
+  function paintDots(){dots.replaceChildren();for(var i=0;i<4;i++){var x=el("div");x.style.cssText="width:13px;height:13px;border-radius:50%;border:2px solid #A78BFA;background:"+(i<entry.length?"#A78BFA":"transparent");dots.appendChild(x);}}
+  paintDots();
+  var grid=el("div");grid.style.cssText="display:grid;grid-template-columns:repeat(3,66px);gap:12px";
+  ["1","2","3","4","5","6","7","8","9","","0","<"].forEach(function(k){
+    var bt=el("button",null,k==="<"?"\u232B":k);
+    bt.style.cssText="height:62px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;font:600 20px inherit;cursor:pointer"+(k===""?";visibility:hidden":"");
+    bt.onclick=function(){
+      if(k==="<")entry=entry.slice(0,-1);else if(entry.length<4)entry+=k;
+      paintDots();
+      if(entry.length===4){var v=entry;entry="";paintDots();onDone(v,ov,lbl);}
+    };
+    grid.appendChild(bt);
+  });
+  ov.appendChild(lbl);ov.appendChild(dots);ov.appendChild(grid);document.body.appendChild(ov);
+}
 function enterStealth(){
-  if(document.getElementById("stealth"))return;
+  if(document.getElementById("stealth")||document.getElementById("stealthpad"))return;
+  if(!LS.get("rd_pin","")){
+    var first="";
+    stealthPad(t("pin_set"),function(v,ov,lbl){
+      if(!first){first=v;lbl.textContent=t("pin_confirm");}
+      else if(v===first){LS.set("rd_pin",v);ov.remove();stealthOverlay();}
+      else{first="";lbl.textContent=t("pin_set");}
+    });
+    return;
+  }
+  stealthOverlay();
+}
+function stealthOverlay(){
   var ov=document.createElement("div");ov.id="stealth";
   ov.style.cssText="position:fixed;inset:0;background:#000;z-index:100;display:flex;align-items:center;justify-content:center;cursor:none";
-  var hint=el("div",null,t("stealth_hint"));
-  hint.style.cssText="color:rgba(255,255,255,.22);font-size:12px;transition:opacity 1s";
-  ov.appendChild(hint);ov.onclick=exitStealth;
-  document.addEventListener("keydown",stealthKey);
-  document.body.appendChild(ov);
-  window.__exitStealth=exitStealth;
+  var hint=el("div",null,"ReDash \u00b7 "+stealthStatus()+" \u00b7 "+t("stealth_exit"));
+  hint.style.cssText="color:rgba(255,255,255,.28);font-size:12px;text-align:center;transition:opacity 1s";
+  ov.appendChild(hint);ov.onclick=askPin;
+  document.addEventListener("keydown",stealthKey);document.body.appendChild(ov);
+  // el estado se refresca mientras el aviso es visible (antes de desvanecerse)
+  every(2000,function(){var e=document.getElementById("stealth");if(e&&hint.style.opacity!=="0")hint.textContent="ReDash \u00b7 "+stealthStatus()+" \u00b7 "+t("stealth_exit");});
+  window.__exitStealth=askPin;   // desktop: reabrir desde la bandeja pide el PIN
   if(window.RD_DESKTOP&&RD_DESKTOP.setStealth)RD_DESKTOP.setStealth(true);
-  setTimeout(function(){if(document.getElementById("stealth"))hint.style.opacity="0";},4000);
+  setTimeout(function(){var e=document.getElementById("stealth");if(e)e.firstChild.style.opacity="0";},4000);
 }
-function stealthKey(e){if(e.key==="Escape")exitStealth();}
+function stealthKey(e){if(e.key==="Escape")askPin();}
+function askPin(){
+  if(document.getElementById("stealthpad"))return;
+  stealthPad(t("pin_enter"),function(v,ov,lbl){
+    if(v===LS.get("rd_pin","")){ov.remove();exitStealth();}
+    else lbl.textContent=t("pin_wrong");
+  });
+}
 function exitStealth(){
   var ov=document.getElementById("stealth");if(ov)ov.remove();
+  var p=document.getElementById("stealthpad");if(p)p.remove();
   document.removeEventListener("keydown",stealthKey);
   if(window.RD_DESKTOP&&RD_DESKTOP.setStealth)RD_DESKTOP.setStealth(false);
 }
@@ -719,49 +774,49 @@ function drawLink(root){
   var bar=appbar(t("nav_link"));
   bar.replaceChild(icoBtn("back",null,function(){go("home");}),bar.firstChild);
   root.appendChild(bar);
-  // Ya enlazado: se muestra el QR para que el telefono lo escanee y el estado en vivo.
-  if(linkState!=="off"&&LS.get("rd_dev","")&&LS.get("rd_tok","")){
-    var qc=el("div","glass");qc.style.cssText="padding:18px;max-width:420px;text-align:center";
-    var st=el("div","pill "+(linkState==="live"?"ok":""),linkLabel());
-    st.style.cssText="display:inline-block;margin-bottom:14px";qc.appendChild(st);
-    var payload="redash://webcam?d="+encodeURIComponent(LS.get("rd_dev",""))+
-      "&k="+encodeURIComponent(LS.get("rd_tok",""))+"&s="+encodeURIComponent(LS.get("rd_url",DEFAULT_SIGNAL));
-    var box=el("div");box.style.cssText="background:#fff;padding:12px;border-radius:14px;display:inline-block;line-height:0";
-    try{
-      var qr=qrcode(0,"M");qr.addData(payload);qr.make();
-      var im=document.createElement("img");im.src=qr.createDataURL(5,0);
-      im.width=200;im.height=200;im.alt="QR";box.appendChild(im);
-    }catch(e){box.style.lineHeight="1.4";box.style.color="#000";box.style.fontSize="11px";box.textContent=payload;}
-    qc.appendChild(box);
-    qc.appendChild(el("p","hint",t("qr_show_hint")));
-    var un=el("button","btn ghost",t("unlink"));un.style.marginTop="14px";
-    un.onclick=function(){linkDown();go("home");};
-    qc.appendChild(un);
-    root.appendChild(qc);
-    every(1500,function(){var s=linkLabel();if(st.textContent!==s){st.textContent=s;st.className="pill "+(linkState==="live"?"ok":"");}});
-    return;
-  }
-  var c=el("div","glass");c.style.padding="16px";c.style.maxWidth="480px";
+  var c=el("div","glass");c.style.cssText="padding:16px;max-width:480px";
   c.appendChild(el("p","hint",t("link_help")));
   var d=el("div");d.style.marginTop="14px";
   d.appendChild(el("label",null,t("dev_name")));
   var iDev=el("input");iDev.value=LS.get("rd_dev","");iDev.placeholder="oficina";d.appendChild(iDev);
   d.appendChild(el("label",null,t("token")));
-  var iTok=el("input");iTok.type="password";iTok.value=LS.get("rd_tok","");d.appendChild(iTok);
+  var iTok=el("input");iTok.value=LS.get("rd_tok","");d.appendChild(iTok);
   d.appendChild(el("label",null,t("signal")));
   var iUrl=el("input");iUrl.value=LS.get("rd_url",DEFAULT_SIGNAL);d.appendChild(iUrl);
   c.appendChild(d);
+  // QR EN VIVO: aparece en cuanto hay nombre + token, sin esperar a enlazar.
+  var qrWrap=el("div");qrWrap.style.cssText="text-align:center;margin:8px 0 4px";
+  var stPill=el("div","pill");stPill.style.cssText="display:inline-block;margin-bottom:10px";
+  var qrBox=el("div");qrBox.style.cssText="background:#fff;padding:10px;border-radius:14px;display:inline-block;line-height:0";
+  var qrHint=el("p","hint",t("qr_show_hint"));
+  qrWrap.appendChild(stPill);qrWrap.appendChild(document.createElement("br"));qrWrap.appendChild(qrBox);qrWrap.appendChild(qrHint);
+  c.appendChild(qrWrap);
+  function paintQR(){
+    var dev=iDev.value.trim(),tok=iTok.value.trim();
+    stPill.textContent=linkLabel();stPill.className="pill "+(linkState==="live"?"ok":"");
+    if(!dev||!tok){qrWrap.style.display="none";return;}
+    qrWrap.style.display="block";
+    var payload="redash://webcam?d="+encodeURIComponent(dev)+"&k="+encodeURIComponent(tok)+
+      "&s="+encodeURIComponent((iUrl.value.trim()||DEFAULT_SIGNAL).replace(/\/$/,""));
+    qrBox.replaceChildren();
+    try{var qr=qrcode(0,"M");qr.addData(payload);qr.make();
+      var im=document.createElement("img");im.src=qr.createDataURL(4,0);im.width=190;im.height=190;im.alt="QR";qrBox.appendChild(im);}
+    catch(e){qrBox.style.lineHeight="1.4";qrBox.style.color="#000";qrBox.style.fontSize="10px";qrBox.textContent=payload;}
+  }
+  iDev.oninput=iTok.oninput=iUrl.oninput=paintQR;
+  paintQR();
   var err=el("p","err");
   var b=el("button","btn "+(linkState==="off"?"pri":"ghost"),linkState==="off"?t("link"):t("unlink"));
   b.onclick=function(){
-    if(linkState!=="off"){linkDown();go("home");return;}
+    if(linkState!=="off"){linkDown();b.className="btn pri";b.textContent=t("link");paintQR();return;}
     var dev=iDev.value.trim(),tok=iTok.value.trim(),url=(iUrl.value.trim()||DEFAULT_SIGNAL).replace(/\/$/,"");
     if(!dev||!tok){err.textContent=t("need_fields");return;}
     LS.set("rd_dev",dev);LS.set("rd_tok",tok);LS.set("rd_url",url);
-    linkUp(err);go("home");
+    linkUp(err);b.className="btn ghost";b.textContent=t("unlink");paintQR();
   };
   c.appendChild(b);c.appendChild(err);
   root.appendChild(c);
+  every(1500,function(){var s=linkLabel();if(stPill.textContent!==s){stPill.textContent=s;stPill.className="pill "+(linkState==="live"?"ok":"");}});
 }
 function linkUp(errEl){
   var dev=LS.get("rd_dev",""),tok=LS.get("rd_tok",""),url=LS.get("rd_url",DEFAULT_SIGNAL);
@@ -1214,8 +1269,8 @@ function drawMapScreen(root,remote){
   root.appendChild(card);
   map=null;
   setTimeout(function(){
-    map=L.map("map",{zoomControl:true}).setView([0,0],2);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap contributors"}).addTo(map);
+    map=L.map("map",{zoomControl:true,attributionControl:false}).setView([0,0],2);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(map);
     if(remote&&hasLocal){
       every(3000,function(){
         j("/status").then(function(s){if(s.latitude!==undefined)setLive(+s.latitude,+s.longitude);});
