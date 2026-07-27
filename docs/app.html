@@ -195,7 +195,7 @@ var I18N={
   pair_regen:"Generar un codigo nuevo",have_token:"Ya tengo un token",
   stealth_hint:"ReDash sigue grabando. Toca o pulsa Esc para salir.",nav_stealth:"Modo sigilo",
   stealth_exit:"toca para salir",st_rec:"Grabando",st_rec_link:"Grabando + enlazado",st_link:"Enlazado",st_idle:"Inactivo",
-  pin_set:"Crea un PIN de 4 digitos",pin_confirm:"Confirma el PIN",pin_enter:"Ingresa el PIN para salir",pin_wrong:"PIN incorrecto",
+  pin_set:"Crea un PIN de 4 digitos",pin_confirm:"Confirma el PIN",pin_enter:"Ingresa tu PIN",pin_wrong:"PIN incorrecto",
 
   app:"ReDash",tagline:"Convierte un navegador en cámara o visor",choose:"ELIGE EL ROL DE ESTE NAVEGADOR",
   role_s:"Cámara / Dashcam",role_s_sub:"Este navegador graba, en bucle",role_v:"Visor",
@@ -246,7 +246,7 @@ var I18N={
   pair_regen:"Generate a new code",have_token:"I already have a token",
   stealth_hint:"ReDash keeps recording. Tap or press Esc to exit.",nav_stealth:"Stealth mode",
   stealth_exit:"tap to exit",st_rec:"Recording",st_rec_link:"Recording + linked",st_link:"Linked",st_idle:"Idle",
-  pin_set:"Create a 4-digit PIN",pin_confirm:"Confirm the PIN",pin_enter:"Enter PIN to exit",pin_wrong:"Wrong PIN",
+  pin_set:"Create a 4-digit PIN",pin_confirm:"Confirm the PIN",pin_enter:"Enter your PIN",pin_wrong:"Wrong PIN",
 
   app:"ReDash",tagline:"Turn a browser into a camera or a viewer",choose:"CHOOSE A ROLE FOR THIS BROWSER",
   role_s:"Camera / Dashcam",role_s_sub:"This browser records, on a loop",role_v:"Viewer",
@@ -406,7 +406,14 @@ function confirmSwitch(){
   var row=el("div","dlgbtns");
   var no=el("button","btn ghost sm",t("cancel"));no.onclick=function(){render();};
   var si=el("button","btn pri sm",t("yes"));
-  si.onclick=function(){stopSender();setMode(mode==="sender"?"viewer":"sender");};
+  si.onclick=function(){
+    var toViewer=mode==="sender";
+    var doSwitch=function(){stopSender();setMode(toViewer?"viewer":"sender");};
+    // Pasar de cámara a viewer exige el PIN (el mismo del sigilo): que nadie apague la cámara
+    // cambiando de modo. Volver a cámara no lo pide.
+    if(toViewer)requirePin(doSwitch,function(){render();});
+    else doSwitch();
+  };
   row.appendChild(no);row.appendChild(si);c.appendChild(row);
   root.appendChild(c);
 }
@@ -706,7 +713,7 @@ function stealthStatus(){
   if(linkState==="live")return t("st_link");
   return t("st_idle");
 }
-function stealthPad(prompt,onDone){
+function stealthPad(prompt,onDone,onCancel){
   var ov=document.createElement("div");ov.id="stealthpad";
   ov.style.cssText="position:fixed;inset:0;background:#000;z-index:101;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;cursor:default";
   var lbl=el("div",null,prompt);lbl.style.cssText="color:#A7AABC;font-size:14px";
@@ -724,7 +731,25 @@ function stealthPad(prompt,onDone){
     };
     grid.appendChild(bt);
   });
-  ov.appendChild(lbl);ov.appendChild(dots);ov.appendChild(grid);document.body.appendChild(ov);
+  ov.appendChild(lbl);ov.appendChild(dots);ov.appendChild(grid);
+  if(onCancel){var cx=el("div",null,t("cancel"));cx.style.cssText="color:#8b88a0;cursor:pointer;font-size:13px";cx.onclick=function(){ov.remove();onCancel();};ov.appendChild(cx);}
+  document.body.appendChild(ov);
+}
+// Pide el PIN (el mismo del sigilo). Si aún no existe, lo crea (crear+confirmar) y continúa.
+function requirePin(onOk,onCancel){
+  if(!LS.get("rd_pin","")){
+    var first="";
+    stealthPad(t("pin_set"),function(v,ov,lbl){
+      if(!first){first=v;lbl.textContent=t("pin_confirm");}
+      else if(v===first){LS.set("rd_pin",v);ov.remove();onOk();}
+      else{first="";lbl.textContent=t("pin_set");}
+    },onCancel);
+    return;
+  }
+  stealthPad(t("pin_enter"),function(v,ov,lbl){
+    if(v===LS.get("rd_pin","")){ov.remove();onOk();}
+    else lbl.textContent=t("pin_wrong");
+  },onCancel);
 }
 function enterStealth(){
   if(document.getElementById("stealth")||document.getElementById("stealthpad"))return;

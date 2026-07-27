@@ -1,7 +1,7 @@
 {
-  "versionCode": 73,
-  "versionName": "0.5.5",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.5/redash-0.5.5.apk",
-  "sha256": "a64dc20f852fe38d27254ceb7da92f4581d23ce8b103669afac33790af93f4e9",
-  "notes": "Emparejar sin escribir nada: en el sender web/PC tocas 'Generar QR de emparejado' y lo escaneas con el telefono. Cero tokens que teclear."
+  "versionCode": 74,
+  "versionName": "0.5.6",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.6/redash-0.5.6.apk",
+  "sha256": "2cfbdf9b4b721f3c114c769dd2749f8758d1c15978e671ba94f984cdf514273c",
+  "notes": "Pasar de camara a viewer ahora pide el PIN (el mismo del modo sigilo), para que nadie apague la camara cambiando de modo."
 }
