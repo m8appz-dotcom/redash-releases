@@ -426,8 +426,11 @@ function drawSender(root){
   if(screen==="map"){drawMapScreen(root,null);return;}
 
   var recPill=el("span","pill",recOn?"REC":t("ready"));
-  var linkPill=el("span","pill",linkLabel());
+  var linkPill=el("span","pill",linkLabel());linkPill.style.cursor="pointer";linkPill.title=t("nav_link");
+  linkPill.onclick=function(){go("link");};
   var bar=appbar("ReDash "+t("dashcam"),[recPill,linkPill]);
+  // Emparejar el telefono se abre desde la barra de arriba (boton de enlace + la pastilla de estado).
+  bar.appendChild(icoBtn("signal","icobtn",function(){go("link");}));
   bar.appendChild(icoBtn("power","icobtn",function(){enterStealth();}));
   bar.appendChild(icoBtn("cog","icobtn",function(){go("settings");}));
   root.appendChild(bar);
@@ -444,8 +447,8 @@ function drawSender(root){
     root.appendChild(card);return;
   }
 
-  var g=el("div","grid2");
-  /* --- columna del video --- */
+  var g=el("div");g.style.maxWidth="720px";g.style.margin="0 auto";
+  /* --- columna del video (una sola columna; emparejar vive en la barra de arriba) --- */
   var left=el("div");
   var vcard=el("div","glass");vcard.style.padding="14px";
   var vp=el("div","viewport");
@@ -508,18 +511,6 @@ function drawSender(root){
   else listBox.classList.add("hidden");
   left.appendChild(listBox);
   g.appendChild(left);
-
-  /* --- columna lateral: enlace --- */
-  var right=el("div");
-  var lcard=el("div","glass");lcard.style.padding="14px";
-  lcard.appendChild(el("p","kick",t("nav_link")));
-  lcard.appendChild(el("p","hint",t("link_help")));
-  var lb=el("button","btn "+(linkState==="off"?"pri":"ghost"),linkState==="off"?t("link"):t("unlink"));
-  lb.style.marginTop="12px";
-  lb.onclick=function(){linkState==="off"?go("link"):linkDown();};
-  lcard.appendChild(lb);
-  right.appendChild(lcard);
-  g.appendChild(right);
   root.appendChild(g);
 
   /* tick */

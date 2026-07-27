@@ -1,7 +1,7 @@
 {
-  "versionCode": 70,
-  "versionName": "0.5.2",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.2/redash-0.5.2.apk",
-  "sha256": "85fd6a5e6a24993242b81a038be54dda9092a6f4bb0c1fd5c3cfa59deb9d70a7",
-  "notes": "En modo sigilo, la app ya no revela su estado: al pasar el mouse por la bandeja solo dice ReDash (antes mostraba Stealth y si estaba grabando), y la pantalla negra solo indica como salir."
+  "versionCode": 71,
+  "versionName": "0.5.3",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.3/redash-0.5.3.apk",
+  "sha256": "d1356646e9372258b8577dd4b7e9da3976706381e0b662684e0d9fd2a62fd3e2",
+  "notes": "Emparejar el telefono ahora se abre desde la barra de arriba (boton de enlace y la pastilla de estado), con el QR a la vista. La home queda en una sola columna, sin la tarjeta lateral."
 }
