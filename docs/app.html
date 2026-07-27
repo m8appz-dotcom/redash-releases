@@ -221,7 +221,7 @@ var I18N={
   dl:"Descargar",prot:"P",add_web:"Cámara web",add_web_sub:"Otro navegador publicando con ReDash",
   this_dash:"Esta dashcam",web_cam:"Cámara web",dev_name:"NOMBRE DEL DISPOSITIVO",token:"TOKEN",
   signal:"SERVIDOR DE ENLACE",link:"Enlazar",unlink:"Desenlazar",link_off:"sin enlazar",
-  link_wait:"esperando visor",link_live:"visor conectado",link_help:"Usa el mismo token y nombre que tenga tu app en Alertas / Nube.",
+  link_wait:"esperando visor",link_live:"visor conectado",link_help:"Usa el mismo token que tu app tiene en Alertas / Nube. Escanea el QR con tu telefono.",
   need_fields:"Escribe el nombre del dispositivo y el token.",link_bad:"Token rechazado por el servidor.",
   add:"Añadir",key_label:"CLAVE API",key_sub:"La que muestra la pantalla Emparejar de tu dashcam",
   enter:"Entrar",bad_key:"Clave incorrecta o dashcam fuera de línea",panic_on:"PÁNICO · clip protegido",
@@ -267,7 +267,7 @@ var I18N={
   dl:"Download",prot:"P",add_web:"Web camera",add_web_sub:"Another browser publishing with ReDash",
   this_dash:"This dashcam",web_cam:"Web camera",dev_name:"DEVICE NAME",token:"TOKEN",
   signal:"SIGNALING SERVER",link:"Link",unlink:"Unlink",link_off:"not linked",
-  link_wait:"waiting for viewer",link_live:"viewer connected",link_help:"Use the same token and name your app has under Alerts / Cloud.",
+  link_wait:"waiting for viewer",link_live:"viewer connected",link_help:"Use the same token your app has under Alerts / Cloud. Scan the QR with your phone.",
   need_fields:"Enter the device name and token.",link_bad:"Token rejected by the server.",
   add:"Add",key_label:"API KEY",key_sub:"The one shown on your dashcam's Pairing screen",
   enter:"Sign in",bad_key:"Wrong key or dashcam offline",panic_on:"PANIC · clip protected",
@@ -764,44 +764,43 @@ function drawLink(root){
   var bar=appbar(t("nav_link"));
   bar.replaceChild(icoBtn("back",null,function(){go("home");}),bar.firstChild);
   root.appendChild(bar);
+  // El nombre de la sala (deviceId) se autogenera UNA vez; el usuario solo pone el token, y solo una vez.
+  var dev=LS.get("rd_dev","");
+  if(!dev){dev="web-"+Math.random().toString(36).slice(2,8);LS.set("rd_dev",dev);}
   var c=el("div","glass");c.style.cssText="padding:16px;max-width:480px";
   c.appendChild(el("p","hint",t("link_help")));
   var d=el("div");d.style.marginTop="14px";
-  d.appendChild(el("label",null,t("dev_name")));
-  var iDev=el("input");iDev.value=LS.get("rd_dev","");iDev.placeholder="oficina";d.appendChild(iDev);
   d.appendChild(el("label",null,t("token")));
-  var iTok=el("input");iTok.value=LS.get("rd_tok","");d.appendChild(iTok);
-  d.appendChild(el("label",null,t("signal")));
-  var iUrl=el("input");iUrl.value=LS.get("rd_url",DEFAULT_SIGNAL);d.appendChild(iUrl);
+  var iTok=el("input");iTok.value=LS.get("rd_tok","");iTok.placeholder="•••••";d.appendChild(iTok);
   c.appendChild(d);
-  // QR EN VIVO: aparece en cuanto hay nombre + token, sin esperar a enlazar.
-  var qrWrap=el("div");qrWrap.style.cssText="text-align:center;margin:8px 0 4px";
+  // QR EN VIVO: aparece en cuanto hay token, sin esperar a enlazar.
+  var qrWrap=el("div");qrWrap.style.cssText="text-align:center;margin:10px 0 4px";
   var stPill=el("div","pill");stPill.style.cssText="display:inline-block;margin-bottom:10px";
   var qrBox=el("div");qrBox.style.cssText="background:#fff;padding:10px;border-radius:14px;display:inline-block;line-height:0";
   var qrHint=el("p","hint",t("qr_show_hint"));
   qrWrap.appendChild(stPill);qrWrap.appendChild(document.createElement("br"));qrWrap.appendChild(qrBox);qrWrap.appendChild(qrHint);
   c.appendChild(qrWrap);
   function paintQR(){
-    var dev=iDev.value.trim(),tok=iTok.value.trim();
+    var tok=iTok.value.trim();
     stPill.textContent=linkLabel();stPill.className="pill "+(linkState==="live"?"ok":"");
-    if(!dev||!tok){qrWrap.style.display="none";return;}
+    if(!tok){qrWrap.style.display="none";return;}
     qrWrap.style.display="block";
     var payload="redash://webcam?d="+encodeURIComponent(dev)+"&k="+encodeURIComponent(tok)+
-      "&s="+encodeURIComponent((iUrl.value.trim()||DEFAULT_SIGNAL).replace(/\/$/,""));
+      "&s="+encodeURIComponent(LS.get("rd_url",DEFAULT_SIGNAL));
     qrBox.replaceChildren();
     try{var qr=qrcode(0,"M");qr.addData(payload);qr.make();
       var im=document.createElement("img");im.src=qr.createDataURL(4,0);im.width=190;im.height=190;im.alt="QR";qrBox.appendChild(im);}
     catch(e){qrBox.style.lineHeight="1.4";qrBox.style.color="#000";qrBox.style.fontSize="10px";qrBox.textContent=payload;}
   }
-  iDev.oninput=iTok.oninput=iUrl.oninput=paintQR;
+  iTok.oninput=paintQR;
   paintQR();
   var err=el("p","err");
   var b=el("button","btn "+(linkState==="off"?"pri":"ghost"),linkState==="off"?t("link"):t("unlink"));
   b.onclick=function(){
     if(linkState!=="off"){linkDown();b.className="btn pri";b.textContent=t("link");paintQR();return;}
-    var dev=iDev.value.trim(),tok=iTok.value.trim(),url=(iUrl.value.trim()||DEFAULT_SIGNAL).replace(/\/$/,"");
-    if(!dev||!tok){err.textContent=t("need_fields");return;}
-    LS.set("rd_dev",dev);LS.set("rd_tok",tok);LS.set("rd_url",url);
+    var tok=iTok.value.trim();
+    if(!tok){err.textContent=t("need_fields");return;}
+    LS.set("rd_tok",tok);
     linkUp(err);b.className="btn ghost";b.textContent=t("unlink");paintQR();
   };
   c.appendChild(b);c.appendChild(err);
