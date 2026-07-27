@@ -1,7 +1,7 @@
 {
-  "versionCode": 74,
-  "versionName": "0.5.6",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.6/redash-0.5.6.apk",
-  "sha256": "2cfbdf9b4b721f3c114c769dd2749f8758d1c15978e671ba94f984cdf514273c",
-  "notes": "Pasar de camara a viewer ahora pide el PIN (el mismo del modo sigilo), para que nadie apague la camara cambiando de modo."
+  "versionCode": 75,
+  "versionName": "0.5.7",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.7/redash-0.5.7.apk",
+  "sha256": "7ff75f218c8bf2337faa2c88d0597f4deef2e53c6baaaefdefa9faf5d654126b",
+  "notes": "Nueva pantalla de Licencia: muestra tu plan y permite activar una clave de ReDash Cloud."
 }

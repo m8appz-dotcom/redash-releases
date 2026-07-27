@@ -193,6 +193,16 @@ var I18N={
   pair_new:"Generar QR de emparejado",pair_wait:"Generando...",
   pair_fail:"No se pudo generar. Escribe el token manualmente.",
   pair_regen:"Generar un codigo nuevo",have_token:"Ya tengo un token",
+  nav_license:"Licencia",plan_free:"Plan gratis",plan_pro:"ReDash Cloud",
+  plan_free_body:"Grabas sin limite y ves tu camara en tu propia red. Fuera de casa conecta cuando la red lo permite; ReDash Cloud lo hace siempre.",
+  plan_pro_body:"Tu plan esta activo. Acceso remoto garantizado desde donde estes.",
+  perk_remote:"Acceso remoto garantizado, tambien en redes dificiles",
+  perk_alerts:"Alertas al instante por Telegram o webhook",
+  perk_multi:"Todas las camaras que quieras: telefonos, PCs y camaras IP",
+  lic_key:"Clave de licencia",lic_activate:"Activar",lic_active:"Clave activa:",
+  lic_need_pair:"Primero empareja esta camara.",lic_bad:"Esa clave no es valida.",
+  lic_expired:"Esa clave ya vencio.",lic_limit:"Esa clave ya se uso en el maximo de equipos.",
+  lic_slow:"Demasiados intentos. Espera un minuto.",
   stealth_hint:"ReDash sigue grabando. Toca o pulsa Esc para salir.",nav_stealth:"Modo sigilo",
   stealth_exit:"toca para salir",st_rec:"Grabando",st_rec_link:"Grabando + enlazado",st_link:"Enlazado",st_idle:"Inactivo",
   pin_set:"Crea un PIN de 4 digitos",pin_confirm:"Confirma el PIN",pin_enter:"Ingresa tu PIN",pin_wrong:"PIN incorrecto",
@@ -244,6 +254,16 @@ var I18N={
   pair_new:"Generate pairing QR",pair_wait:"Generating...",
   pair_fail:"Could not generate. Enter the token manually.",
   pair_regen:"Generate a new code",have_token:"I already have a token",
+  nav_license:"License",plan_free:"Free plan",plan_pro:"ReDash Cloud",
+  plan_free_body:"Record without limits and watch your camera on your own network. Away from home it connects when the network allows; ReDash Cloud makes it always work.",
+  plan_pro_body:"Your plan is active. Guaranteed remote access from anywhere.",
+  perk_remote:"Guaranteed remote access, even on difficult networks",
+  perk_alerts:"Instant alerts via Telegram or webhook",
+  perk_multi:"As many cameras as you want: phones, PCs and IP cameras",
+  lic_key:"License key",lic_activate:"Activate",lic_active:"Active key:",
+  lic_need_pair:"Pair this camera first.",lic_bad:"That key is not valid.",
+  lic_expired:"That key has expired.",lic_limit:"That key is already used on the maximum devices.",
+  lic_slow:"Too many attempts. Wait a minute.",
   stealth_hint:"ReDash keeps recording. Tap or press Esc to exit.",nav_stealth:"Stealth mode",
   stealth_exit:"tap to exit",st_rec:"Recording",st_rec_link:"Recording + linked",st_link:"Linked",st_idle:"Idle",
   pin_set:"Create a 4-digit PIN",pin_confirm:"Confirm the PIN",pin_enter:"Enter your PIN",pin_wrong:"Wrong PIN",
@@ -386,6 +406,7 @@ function openDrawer(){
   if(mode==="sender"){
     d.appendChild(nav("signal",t("nav_link"),function(){go("link");},screen==="link"));
     d.appendChild(nav("cog",t("nav_settings"),function(){go("settings");},screen==="settings"));
+    d.appendChild(nav("shield",t("nav_license"),function(){go("license");},screen==="license"));
     d.appendChild(nav("power",t("nav_stealth"),function(){enterStealth();}));
   }else{
     d.appendChild(nav("plus",t("nav_add"),function(){go("add");},screen==="add"));
@@ -438,6 +459,7 @@ function stopSender(){
 }
 function drawSender(root){
   if(screen==="link"){drawLink(root);return;}
+  if(screen==="license"){drawLicense(root);return;}
   if(screen==="settings"){drawSettings(root);return;}
   if(screen==="about"){drawAbout(root);return;}
   if(screen==="map"){drawMapScreen(root,null);return;}
@@ -794,8 +816,62 @@ function exitStealth(){
 /* ============================ enlace WebRTC (publica) ============================ */
 var DEFAULT_SIGNAL="wss://archie-ubuntu.tailb235ab.ts.net:10000";
 var ws=null,pc=null,iceServers=[],linkState="off",retry=null;
+// El plan lo dicta el servidor en hello-ok; "pro" por defecto para no mostrar una app
+// degradada mientras el muro de pago esté apagado.
+var plan=LS.get("rd_plan","pro");
 function linkLabel(){return linkState==="off"?t("link_off"):linkState==="live"?t("link_live"):t("link_wait");}
-function pairUrl(){return LS.get("rd_url",DEFAULT_SIGNAL).replace(/^ws/,"http").replace(/\/$/,"")+"/api/v1/pair/new";}
+function apiBase(){return LS.get("rd_url",DEFAULT_SIGNAL).replace(/^ws/,"http").replace(/\/$/,"");}
+function pairUrl(){return apiBase()+"/api/v1/pair/new";}
+function drawLicense(root){
+  var bar=appbar(t("nav_license"));
+  bar.replaceChild(icoBtn("back",null,function(){go("home");}),bar.firstChild);
+  root.appendChild(bar);
+  var c=el("div","glass");c.style.cssText="padding:18px;max-width:460px";
+  var pro=plan==="pro";
+  var p=el("div","pill "+(pro?"ok":""),pro?t("plan_pro"):t("plan_free"));
+  p.style.cssText="display:inline-block;margin-bottom:12px";c.appendChild(p);
+  c.appendChild(el("p","hint",pro?t("plan_pro_body"):t("plan_free_body")));
+  // Qué incluye el plan de pago, sin letra chica.
+  var ul=el("div");ul.style.cssText="margin:14px 0;display:flex;flex-direction:column;gap:8px";
+  [t("perk_remote"),t("perk_alerts"),t("perk_multi")].forEach(function(txt){
+    var row=el("div");row.style.cssText="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:#A7AABC";
+    var dot=el("span",null,"•");dot.style.color="#A78BFA";row.appendChild(dot);
+    row.appendChild(el("span",null,txt));ul.appendChild(row);
+  });
+  c.appendChild(ul);
+  var err=el("p","err");
+  if(pro){
+    var k=LS.get("rd_lic","");
+    if(k)c.appendChild(el("p","hint",t("lic_active")+" "+k.slice(0,9)+"••••"));
+  }else{
+    c.appendChild(el("label",null,t("lic_key")));
+    var iKey=el("input");iKey.placeholder="RDSH-XXXX-XXXX-XXXX";c.appendChild(iKey);
+    var b=el("button","btn pri",t("lic_activate"));b.style.marginTop="10px";
+    b.onclick=function(){
+      var key=iKey.value.trim(),dev=LS.get("rd_dev","");
+      if(!key){err.textContent=t("need_fields");return;}
+      if(!dev){err.textContent=t("lic_need_pair");return;}
+      b.disabled=true;b.textContent=t("pair_wait");err.textContent="";
+      fetch(apiBase()+"/api/v1/license/activate",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({key:key,deviceId:dev}),
+      }).then(function(r){return r.json();}).then(function(j){
+        if(!j||!j.ok)throw new Error(j&&j.error||"fail");
+        LS.set("rd_lic",key);plan=j.plan||"pro";LS.set("rd_plan",plan);
+        // Reconectar para que el servidor entregue el relay del plan nuevo.
+        if(linkState!=="off"){linkDown(true);linkUp(err);}
+        render();
+      }).catch(function(e){
+        b.disabled=false;b.textContent=t("lic_activate");
+        err.textContent=({unknown_key:t("lic_bad"),expired:t("lic_expired"),
+          activation_limit:t("lic_limit"),rate_limited:t("lic_slow")})[e.message]||t("lic_bad");
+      });
+    };
+    c.appendChild(b);
+  }
+  c.appendChild(err);
+  root.appendChild(c);
+}
 function drawLink(root){
   var bar=appbar(t("nav_link"));
   bar.replaceChild(icoBtn("back",null,function(){go("home");}),bar.firstChild);
@@ -866,7 +942,7 @@ function linkUp(errEl){
   ws.onopen=function(){ws.send(JSON.stringify({type:"hello",role:"sender",deviceId:dev,token:tok}));};
   ws.onmessage=function(ev){
     var m;try{m=JSON.parse(ev.data);}catch(e){return;}
-    if(m.type==="hello-ok")iceServers=m.iceServers||[];
+    if(m.type==="hello-ok"){iceServers=m.iceServers||[];plan=m.plan||"pro";LS.set("rd_plan",plan);}
     else if(m.type==="offer")onOffer(m.sdp);
     else if(m.type==="ice"&&pc)pc.addIceCandidate({candidate:m.candidate,sdpMid:m.sdpMid,sdpMLineIndex:m.sdpMLineIndex}).catch(function(){});
     else if(m.type==="peer-left"){teardownPc();linkState="wait";}
