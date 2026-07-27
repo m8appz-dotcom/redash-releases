@@ -1,7 +1,7 @@
 {
-  "versionCode": 72,
-  "versionName": "0.5.4",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.4/redash-0.5.4.apk",
-  "sha256": "deface0509cc5a7c3345ed795e465607084bb4accad30a6f797a77e8f5350b77",
-  "notes": "Emparejar el sender es mas simple: el nombre se genera solo y solo pides el token una vez. El QR aparece al escribirlo."
+  "versionCode": 73,
+  "versionName": "0.5.5",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.5/redash-0.5.5.apk",
+  "sha256": "a64dc20f852fe38d27254ceb7da92f4581d23ce8b103669afac33790af93f4e9",
+  "notes": "Emparejar sin escribir nada: en el sender web/PC tocas 'Generar QR de emparejado' y lo escaneas con el telefono. Cero tokens que teclear."
 }

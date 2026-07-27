@@ -188,6 +188,11 @@ var I18N={
   set_seg:"Duracion del segmento",set_keep:"Clips a conservar",
   set_apply_hint:"Los ajustes se aplican al encender la camara. Reinicia la camara si ya estaba activa.",
   qr_show_hint:"Escanea este codigo desde tu telefono: Anadir camara -> Escanear el QR.",
+  link_intro:"Genera un codigo y escanealo con tu telefono. Sin tokens ni configuracion.",
+  link_scan:"Escanealo con tu telefono para conectar. Luego toca Enlazar.",
+  pair_new:"Generar QR de emparejado",pair_wait:"Generando...",
+  pair_fail:"No se pudo generar. Escribe el token manualmente.",
+  pair_regen:"Generar un codigo nuevo",have_token:"Ya tengo un token",
   stealth_hint:"ReDash sigue grabando. Toca o pulsa Esc para salir.",nav_stealth:"Modo sigilo",
   stealth_exit:"toca para salir",st_rec:"Grabando",st_rec_link:"Grabando + enlazado",st_link:"Enlazado",st_idle:"Inactivo",
   pin_set:"Crea un PIN de 4 digitos",pin_confirm:"Confirma el PIN",pin_enter:"Ingresa el PIN para salir",pin_wrong:"PIN incorrecto",
@@ -234,6 +239,11 @@ var I18N={
   set_seg:"Segment length",set_keep:"Clips to keep",
   set_apply_hint:"Settings apply when you turn on the camera. Restart the camera if it was already on.",
   qr_show_hint:"Scan this code from your phone: Add camera -> Scan the QR.",
+  link_intro:"Generate a code and scan it with your phone. No tokens, no setup.",
+  link_scan:"Scan it with your phone to connect. Then tap Link.",
+  pair_new:"Generate pairing QR",pair_wait:"Generating...",
+  pair_fail:"Could not generate. Enter the token manually.",
+  pair_regen:"Generate a new code",have_token:"I already have a token",
   stealth_hint:"ReDash keeps recording. Tap or press Esc to exit.",nav_stealth:"Stealth mode",
   stealth_exit:"tap to exit",st_rec:"Recording",st_rec_link:"Recording + linked",st_link:"Linked",st_idle:"Idle",
   pin_set:"Create a 4-digit PIN",pin_confirm:"Confirm the PIN",pin_enter:"Enter PIN to exit",pin_wrong:"Wrong PIN",
@@ -760,52 +770,68 @@ function exitStealth(){
 var DEFAULT_SIGNAL="wss://archie-ubuntu.tailb235ab.ts.net:10000";
 var ws=null,pc=null,iceServers=[],linkState="off",retry=null;
 function linkLabel(){return linkState==="off"?t("link_off"):linkState==="live"?t("link_live"):t("link_wait");}
+function pairUrl(){return LS.get("rd_url",DEFAULT_SIGNAL).replace(/^ws/,"http").replace(/\/$/,"")+"/api/v1/pair/new";}
 function drawLink(root){
   var bar=appbar(t("nav_link"));
   bar.replaceChild(icoBtn("back",null,function(){go("home");}),bar.firstChild);
   root.appendChild(bar);
-  // El nombre de la sala (deviceId) se autogenera UNA vez; el usuario solo pone el token, y solo una vez.
-  var dev=LS.get("rd_dev","");
-  if(!dev){dev="web-"+Math.random().toString(36).slice(2,8);LS.set("rd_dev",dev);}
-  var c=el("div","glass");c.style.cssText="padding:16px;max-width:480px";
-  c.appendChild(el("p","hint",t("link_help")));
-  var d=el("div");d.style.marginTop="14px";
-  d.appendChild(el("label",null,t("token")));
-  var iTok=el("input");iTok.value=LS.get("rd_tok","");iTok.placeholder="•••••";d.appendChild(iTok);
-  c.appendChild(d);
-  // QR EN VIVO: aparece en cuanto hay token, sin esperar a enlazar.
-  var qrWrap=el("div");qrWrap.style.cssText="text-align:center;margin:10px 0 4px";
+  var c=el("div","glass");c.style.cssText="padding:16px;max-width:460px";
+  var err=el("p","err");
+  // QR (visible cuando ya hay credenciales, sea por auto-provision o token manual).
+  var qrWrap=el("div");qrWrap.style.cssText="text-align:center;margin:6px 0 4px";
   var stPill=el("div","pill");stPill.style.cssText="display:inline-block;margin-bottom:10px";
   var qrBox=el("div");qrBox.style.cssText="background:#fff;padding:10px;border-radius:14px;display:inline-block;line-height:0";
-  var qrHint=el("p","hint",t("qr_show_hint"));
-  qrWrap.appendChild(stPill);qrWrap.appendChild(document.createElement("br"));qrWrap.appendChild(qrBox);qrWrap.appendChild(qrHint);
-  c.appendChild(qrWrap);
+  qrWrap.appendChild(stPill);qrWrap.appendChild(document.createElement("br"));qrWrap.appendChild(qrBox);qrWrap.appendChild(el("p","hint",t("qr_show_hint")));
   function paintQR(){
-    var tok=iTok.value.trim();
+    var dev=LS.get("rd_dev",""),tok=LS.get("rd_tok","");
     stPill.textContent=linkLabel();stPill.className="pill "+(linkState==="live"?"ok":"");
-    if(!tok){qrWrap.style.display="none";return;}
+    if(!dev||!tok){qrWrap.style.display="none";return;}
     qrWrap.style.display="block";
-    var payload="redash://webcam?d="+encodeURIComponent(dev)+"&k="+encodeURIComponent(tok)+
-      "&s="+encodeURIComponent(LS.get("rd_url",DEFAULT_SIGNAL));
+    var payload="redash://webcam?d="+encodeURIComponent(dev)+"&k="+encodeURIComponent(tok)+"&s="+encodeURIComponent(LS.get("rd_url",DEFAULT_SIGNAL));
     qrBox.replaceChildren();
-    try{var qr=qrcode(0,"M");qr.addData(payload);qr.make();
-      var im=document.createElement("img");im.src=qr.createDataURL(4,0);im.width=190;im.height=190;im.alt="QR";qrBox.appendChild(im);}
-    catch(e){qrBox.style.lineHeight="1.4";qrBox.style.color="#000";qrBox.style.fontSize="10px";qrBox.textContent=payload;}
+    try{var qr=qrcode(0,"M");qr.addData(payload);qr.make();var im=document.createElement("img");im.src=qr.createDataURL(4,0);im.width=196;im.height=196;im.alt="QR";qrBox.appendChild(im);}
+    catch(e){qrBox.style.cssText="color:#000;font-size:10px;word-break:break-all";qrBox.textContent=payload;}
   }
-  iTok.oninput=paintQR;
-  paintQR();
-  var err=el("p","err");
-  var b=el("button","btn "+(linkState==="off"?"pri":"ghost"),linkState==="off"?t("link"):t("unlink"));
-  b.onclick=function(){
-    if(linkState!=="off"){linkDown();b.className="btn pri";b.textContent=t("link");paintQR();return;}
-    var tok=iTok.value.trim();
-    if(!tok){err.textContent=t("need_fields");return;}
-    LS.set("rd_tok",tok);
-    linkUp(err);b.className="btn ghost";b.textContent=t("unlink");paintQR();
-  };
-  c.appendChild(b);c.appendChild(err);
+
+  if(LS.get("rd_tok","")){
+    // Ya emparejado: escanea el QR y publica con un toque.
+    c.appendChild(el("p","hint",t("link_scan")));
+    c.appendChild(qrWrap);paintQR();
+    var b=el("button","btn "+(linkState==="off"?"pri":"ghost"),linkState==="off"?t("link"):t("unlink"));b.style.marginTop="12px";
+    b.onclick=function(){
+      if(linkState!=="off"){linkDown();b.className="btn pri";b.textContent=t("link");}
+      else{linkUp(err);b.className="btn ghost";b.textContent=t("unlink");}
+      paintQR();
+    };
+    c.appendChild(b);c.appendChild(err);
+    var re=el("button","btn ghost",t("pair_regen"));re.style.marginTop="8px";
+    re.onclick=function(){if(linkState!=="off")linkDown();LS.set("rd_tok","");LS.set("rd_dev","");render();};
+    c.appendChild(re);
+  }else{
+    // Sin credenciales: un toque genera el QR (el control plane provisiona una sala). Cero tipeo.
+    c.appendChild(el("p","hint",t("link_intro")));
+    var gen=el("button","btn pri",t("pair_new"));gen.style.margin="6px 0";
+    gen.onclick=function(){
+      gen.disabled=true;gen.textContent=t("pair_wait");err.textContent="";
+      fetch(pairUrl(),{method:"POST"}).then(function(r){return r.json();}).then(function(j){
+        if(!j||!j.ok||!j.token)throw 0;
+        LS.set("rd_dev",j.deviceId);LS.set("rd_tok",j.token);render();
+      }).catch(function(){gen.disabled=false;gen.textContent=t("pair_new");err.textContent=t("pair_fail");manual.style.display="block";});
+    };
+    c.appendChild(gen);c.appendChild(err);
+    // Fallback: pegar un token existente (p.ej. el de Alertas/Nube).
+    var tog=el("p","hint");var link=el("span",null,t("have_token"));link.style.cssText="cursor:pointer;text-decoration:underline";
+    var manual=el("div");manual.style.cssText="display:none;margin-top:10px";
+    link.onclick=function(){manual.style.display=manual.style.display==="none"?"block":"none";};
+    tog.appendChild(link);c.appendChild(tog);
+    manual.appendChild(el("label",null,t("token")));
+    var iTok=el("input");iTok.placeholder="•••••";manual.appendChild(iTok);
+    var mb=el("button","btn ghost",t("link"));mb.style.marginTop="8px";
+    mb.onclick=function(){var tok=iTok.value.trim();if(!tok){err.textContent=t("need_fields");return;}LS.set("rd_dev","web-"+Math.random().toString(36).slice(2,8));LS.set("rd_tok",tok);render();};
+    manual.appendChild(mb);c.appendChild(manual);
+  }
   root.appendChild(c);
-  every(1500,function(){var s=linkLabel();if(stPill.textContent!==s){stPill.textContent=s;stPill.className="pill "+(linkState==="live"?"ok":"");}});
+  every(1500,function(){var s=linkLabel();if(stPill.textContent!==s)paintQR();});
 }
 function linkUp(errEl){
   var dev=LS.get("rd_dev",""),tok=LS.get("rd_tok",""),url=LS.get("rd_url",DEFAULT_SIGNAL);
