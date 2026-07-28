@@ -3,5 +3,7 @@
   "versionName": "0.5.7",
   "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.7/redash-0.5.7.apk",
   "sha256": "7ff75f218c8bf2337faa2c88d0597f4deef2e53c6baaaefdefa9faf5d654126b",
-  "notes": "Nueva pantalla de Licencia: muestra tu plan y permite activar una clave de ReDash Cloud."
+  "notes": "Nueva pantalla de Licencia: muestra tu plan y permite activar una clave de ReDash Cloud.",
+  "desktopVersion": "0.2.7",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.2.7/ReDash-0.2.7-win-x64.zip"
 }

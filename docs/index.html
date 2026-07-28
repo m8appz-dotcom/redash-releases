@@ -68,7 +68,7 @@
         <a id="dl-hero" href="https://github.com/m8appz-dotcom/redash-releases/releases/latest" class="bg-primary-container text-on-primary-container font-cta text-cta px-xl py-sm rounded-lg hover:opacity-90 transition-all active:scale-95 text-center flex justify-center items-center gap-2">
           <span class="material-symbols-outlined">download</span><span data-i18n="cta_download">Download APK</span>
         </a>
-        <a href="demo.html" class="border-2 border-primary-container text-primary-container font-cta text-cta px-lg py-sm rounded-lg hover:bg-primary-container/10 transition-all active:scale-95 text-center flex justify-center items-center gap-2"><span class="material-symbols-outlined">play_circle</span><span data-i18n="cta_try">Try in browser</span></a>
+        <a href="app.html" class="border-2 border-primary-container text-primary-container font-cta text-cta px-lg py-sm rounded-lg hover:bg-primary-container/10 transition-all active:scale-95 text-center flex justify-center items-center gap-2"><span class="material-symbols-outlined">play_circle</span><span data-i18n="cta_try">Try in browser</span></a>
       </div>
       <div class="flex items-center gap-2 text-on-surface-variant/70 font-body-sm text-body-sm mt-xs">
         <span class="material-symbols-outlined text-base">android</span>
@@ -147,6 +147,15 @@
         <a id="dl-main" href="https://github.com/m8appz-dotcom/redash-releases/releases/latest" class="bg-primary-container text-on-primary-container font-cta text-cta px-xl py-md rounded-lg hover:opacity-90 hover:-translate-y-1 transition-all active:scale-95 shadow-[0_0_20px_rgba(157,128,254,0.3)] text-center flex items-center gap-2">
           <span class="material-symbols-outlined">download</span><span data-i18n="cta_download">Download APK</span>
         </a>
+        <!-- La PC como cámara: mismo producto, otro equipo. Se avisa lo de SmartScreen ANTES
+             de descargar; toparse con la alerta sin aviso es lo que hace abandonar la instalación. -->
+        <div class="mt-lg w-full max-w-md border-t border-white/10 pt-lg">
+          <p class="font-body-md text-body-md text-on-surface-variant mb-sm" data-i18n="dl_win_sub">Do you have a PC with a webcam? Turn it into another camera.</p>
+          <a id="dl-win" href="https://github.com/m8appz-dotcom/redash-releases/releases/latest" class="border-2 border-primary-container text-primary-container font-cta text-cta px-lg py-sm rounded-lg hover:bg-primary-container/10 transition-all active:scale-95 text-center flex justify-center items-center gap-2">
+            <span class="material-symbols-outlined">desktop_windows</span><span data-i18n="dl_win_cta">Download for Windows</span>
+          </a>
+          <p class="font-body-sm text-body-sm text-on-surface-variant/60 mt-sm" data-i18n="dl_win_note">Windows will say “unrecognized app”: click More info → Run anyway. We don’t have a signing certificate yet, and we’d rather tell you than have it surprise you.</p>
+        </div>
         <details class="mt-md w-full max-w-md text-left">
           <summary class="cursor-pointer text-center list-none font-body-sm text-body-sm text-on-surface-variant/60 hover:text-primary transition-colors select-none" data-i18n="dl_details">View details</summary>
           <div class="mt-sm bg-background/60 border border-white/10 rounded-lg p-sm">
@@ -213,6 +222,8 @@
       feat_title:"Engineered for Utility",feat_sub:"Powerful features packed into your existing hardware.",
       inst_title:"How to install",inst_sub:"It is not on Google Play on purpose — you install it directly.",
       dl_available:"Available",dl_title:"Ready to hit the road?",
+      dl_win_sub:"Do you have a PC with a webcam? Turn it into another camera.",dl_win_cta:"Download for Windows",
+      dl_win_note:"Windows will say “unrecognized app”: click More info → Run anyway. We don’t have a signing certificate yet, and we’d rather tell you than have it surprise you.",
       dl_details:"View details",dl_checksum_label:"Checksum (SHA-256)",
       nav_pricing:"Pricing",price_title:"One payment. Yours forever.",
       price_sub:"No subscription, no ads, no account. Buy it once and keep it, updates included.",
@@ -229,6 +240,8 @@
       feat_title:"Diseñada para la utilidad",feat_sub:"Funciones potentes empacadas en el hardware que ya tienes.",
       inst_title:"Cómo instalar",inst_sub:"No está en Google Play a propósito, se instala directo.",
       dl_available:"Disponible",dl_title:"¿Listo para la carretera?",
+      dl_win_sub:"¿Tienes una PC con cámara? Conviértela en otra cámara.",dl_win_cta:"Descargar para Windows",
+      dl_win_note:"Windows dirá “aplicación no reconocida”: toca Más información → Ejecutar de todos modos. Todavía no tenemos certificado de firma, y preferimos avisarte a que te tome por sorpresa.",
       dl_details:"Ver detalles",dl_checksum_label:"Checksum (SHA-256)",
       nav_pricing:"Precio",price_title:"Un solo pago. Tuyo para siempre.",
       price_sub:"Sin suscripción, sin publicidad, sin cuenta. Lo compras una vez y es tuyo, con actualizaciones incluidas.",
@@ -291,6 +304,9 @@
       document.getElementById('ver').textContent = 'v'+v.versionName;
       if(v.sha256) document.getElementById('sha').textContent = v.sha256;
       if(v.apkUrl){ document.getElementById('dl-hero').href=v.apkUrl; document.getElementById('dl-main').href=v.apkUrl; }
+      // El ZIP de escritorio se publica como release aparte (no es el "latest"), así que su
+      // enlace sale del mismo version.json: publicar una versión nueva no deja la web obsoleta.
+      if(v.desktopUrl) document.getElementById('dl-win').href=v.desktopUrl;
     }).catch(()=>{});
 </script>
 </body>
