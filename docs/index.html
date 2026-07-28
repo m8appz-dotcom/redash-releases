@@ -299,8 +299,13 @@
   setLang(saved);
 
   // ---- Datos reales desde el mismo version.json que consume la app ----
-  fetch('https://raw.githubusercontent.com/m8appz-dotcom/redash-releases/main/version.json')
-    .then(r=>r.json()).then(v=>{
+  // Se lee la copia del PROPIO sitio: se publica en el mismo commit que esta página, así que
+  // siempre está en sincronía y sin el retraso de CDN que tiene raw.githubusercontent
+  // (con el que la web mostraba enlaces viejos durante minutos). El raw queda de respaldo.
+  fetch('version.json')
+    .then(r=>r.ok?r.json():Promise.reject())
+    .catch(()=>fetch('https://raw.githubusercontent.com/m8appz-dotcom/redash-releases/main/version.json').then(r=>r.json()))
+    .then(v=>{
       document.getElementById('ver').textContent = 'v'+v.versionName;
       if(v.sha256) document.getElementById('sha').textContent = v.sha256;
       if(v.apkUrl){ document.getElementById('dl-hero').href=v.apkUrl; document.getElementById('dl-main').href=v.apkUrl; }
