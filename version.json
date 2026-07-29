@@ -1,9 +1,9 @@
 {
-  "versionCode": 75,
-  "versionName": "0.5.7",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.7/redash-0.5.7.apk",
-  "sha256": "7ff75f218c8bf2337faa2c88d0597f4deef2e53c6baaaefdefa9faf5d654126b",
-  "notes": "Nueva pantalla de Licencia: muestra tu plan y permite activar una clave de ReDash Cloud.",
-  "desktopVersion": "0.2.7",
-  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.2.7/ReDash-0.2.7-win-x64.zip"
+  "versionCode": 76,
+  "versionName": "0.5.8",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.8/redash-0.5.8.apk",
+  "sha256": "d9b5c36711c73bd772c53570472cd5ec6739c15dc219d2a5b535f41de1756339",
+  "notes": "Escuchar y hablar por la camara desde el visor, tambien en la web y en Windows. Escuchar en vivo es un ajuste aparte de grabar audio: oir no guarda nada.",
+  "desktopVersion": "0.2.8",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.2.8/ReDash-0.2.8-win-x64.zip"
 }

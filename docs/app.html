@@ -184,6 +184,8 @@
 var I18N={
  es:{nav_settings:"Ajustes",set_capture:"CAPTURA",set_general:"GENERAL",
   set_quality:"Calidad de video",set_audio:"Grabar audio",set_audio_hint:"Apagado por defecto. Grabar voces puede requerir consentimiento.",
+  set_listen:"Permitir escuchar en vivo",set_listen_hint:"Deja que oigas esta camara desde el visor. No guarda nada: para eso esta Grabar audio.",
+  listen:"Escuchar",listen_on:"Escuchando",talk:"Hablar",talk_on:"Hablando",mic_denied:"Sin permiso del microfono",
   set_sens:"Sensibilidad de movimiento",sens_low:"Baja",sens_med:"Media",sens_high:"Alta",
   set_seg:"Duracion del segmento",set_keep:"Clips a conservar",
   set_apply_hint:"Los ajustes se aplican al encender la camara. Reinicia la camara si ya estaba activa.",
@@ -245,6 +247,8 @@ var I18N={
   get_app:"Consigue la app de Android"},
  en:{nav_settings:"Settings",set_capture:"CAPTURE",set_general:"GENERAL",
   set_quality:"Video quality",set_audio:"Record audio",set_audio_hint:"Off by default. Recording voices may require consent.",
+  set_listen:"Allow live listening",set_listen_hint:"Lets you hear this camera from the viewer. Nothing is stored: that is what Record audio does.",
+  listen:"Listen",listen_on:"Listening",talk:"Talk",talk_on:"Talking",mic_denied:"Microphone permission denied",
   set_sens:"Motion sensitivity",sens_low:"Low",sens_med:"Medium",sens_high:"High",
   set_seg:"Segment length",set_keep:"Clips to keep",
   set_apply_hint:"Settings apply when you turn on the camera. Restart the camera if it was already on.",
@@ -447,10 +451,15 @@ var stream=null,facing="user",recOn=false,recStart=0,segStart=0,clips=[],events=
 function setg(k,d){return LS.get("rd_"+k,d);}
 function qWidth(){return {sd:640,hd:1280,fhd:1920}[setg("quality","hd")]||1280;}
 function audioOn(){return setg("audio","0")==="1";}
+// Escuchar en vivo y GRABAR voces son cosas distintas: lo primero lo oye solo el dueño en el
+// momento, lo segundo queda almacenado. Por eso el micrófono se captura si cualquiera de las
+// dos está activa, pero el clip solo lleva audio si el usuario activó la grabación.
+function listenOn(){return setg("listen","1")==="1";}
+function micNeeded(){return audioOn()||listenOn();}
 function motionThresh(){return {low:11,med:6,high:3}[setg("sens","med")]||6;}
 function segMs(){return (parseInt(setg("seg","60"),10)||60)*1000;}
 function keepN(){return parseInt(setg("keep","6"),10)||6;}
-function videoConstraints(){return {video:{facingMode:facing,width:{ideal:qWidth()}},audio:audioOn()};}
+function videoConstraints(){return {video:{facingMode:facing,width:{ideal:qWidth()}},audio:micNeeded()};}
 function addEvent(type,msg){events.unshift({t:Date.now(),type:type,msg:msg});if(events.length>60)events.pop();}
 function stopSender(){
   if(mediaRec&&mediaRec.state==="recording"){recOn=false;try{mediaRec.stop();}catch(e){}}
@@ -614,7 +623,10 @@ function pickMime(){
 function startSeg(){
   if(!stream)return;
   var chunks=[],mime=pickMime();
-  mediaRec=new MediaRecorder(stream,mime?{mimeType:mime}:undefined);
+  // El micro puede estar capturando solo para "escuchar en vivo". Si el usuario NO activó
+  // grabar audio, el clip se arma con la pista de video sola: su voz no queda guardada.
+  var recStream=audioOn()?stream:new MediaStream(stream.getVideoTracks());
+  mediaRec=new MediaRecorder(recStream,mime?{mimeType:mime}:undefined);
   mediaRec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data);};
   mediaRec.onstop=function(){
     if(chunks.length)saveClip(new Blob(chunks,{type:mime||"video/webm"}));
@@ -701,10 +713,10 @@ function drawSettings(root){
     sel.onchange=onch||function(){LS.set("rd_"+key,sel.value);};
     r.appendChild(sel);c.appendChild(r);
   }
-  function rowToggle(label,key){
+  function rowToggle(label,key,def){
     var r=el("div","mode");r.style.margin="0 0 12px";
     r.appendChild(el("div","nm",label));
-    var on=setg(key,"0")==="1";
+    var on=setg(key,def||"0")==="1";
     var tag=el("div","tag",on?t("armed"):t("off"));r.appendChild(tag);
     if(on)r.classList.add("on");
     r.onclick=function(){on=!on;LS.set("rd_"+key,on?"1":"0");r.classList.toggle("on",on);tag.textContent=on?t("armed"):t("off");};
@@ -712,6 +724,8 @@ function drawSettings(root){
   }
   c.appendChild(el("p","kick",t("set_capture")));
   rowSelect(t("set_quality"),"quality","hd",[["sd","480p"],["hd","720p"],["fhd","1080p"]]);
+  rowToggle(t("set_listen"),"listen","1");
+  c.appendChild(el("p","hint",t("set_listen_hint")));
   rowToggle(t("set_audio"),"audio");
   c.appendChild(el("p","hint",t("set_audio_hint")));
   rowSelect(t("set_sens"),"sens","med",[["low",t("sens_low")],["med",t("sens_med")],["high",t("sens_high")]]);
@@ -955,7 +969,20 @@ async function onOffer(sdp){
   teardownPc();
   if(!stream)return;                          // sin cámara no hay nada que publicar
   pc=new RTCPeerConnection({iceServers:iceServers});
-  stream.getTracks().forEach(function(tr){pc.addTrack(tr,stream);});
+  // El video siempre; el audio solo si el dueño permitió escuchar en vivo.
+  stream.getTracks().forEach(function(tr){
+    if(tr.kind==="audio"&&!listenOn())return;
+    pc.addTrack(tr,stream);
+  });
+  // TALK: lo que habla el visor se reproduce aquí. El elemento va oculto y sin controles;
+  // solo suena. Si el navegador bloquea el autoplay, se reintenta y si no, se ignora.
+  pc.ontrack=function(e){
+    if(e.track.kind!=="audio")return;
+    var a=document.getElementById("talkaudio");
+    if(!a){a=document.createElement("audio");a.id="talkaudio";a.autoplay=true;a.style.display="none";document.body.appendChild(a);}
+    a.srcObject=e.streams[0];
+    var p=a.play();if(p&&p.catch)p.catch(function(){});
+  };
   pc.onicecandidate=function(e){
     if(e.candidate&&ws&&ws.readyState===1)ws.send(JSON.stringify({type:"ice",
       candidate:e.candidate.candidate,sdpMid:e.candidate.sdpMid,sdpMLineIndex:e.candidate.sdpMLineIndex}));
@@ -968,7 +995,11 @@ async function onOffer(sdp){
   var a=await pc.createAnswer();await pc.setLocalDescription(a);
   ws.send(JSON.stringify({type:"answer",sdp:a.sdp}));
 }
-function teardownPc(){if(pc){try{pc.close();}catch(e){}pc=null;}}
+function teardownPc(){
+  if(pc){try{pc.close();}catch(e){}pc=null;}
+  var a=document.getElementById("talkaudio");   // si no, la voz del visor seguiría sonando
+  if(a){a.srcObject=null;a.remove();}
+}
 function linkDown(silent){
   clearTimeout(retry);teardownPc();
   if(ws){try{ws.close();}catch(e){}ws=null;}
@@ -1322,7 +1353,7 @@ function loadLocalEvents(box,BASE,AKEY){
   });
 }
 /* cámara web remota (WebRTC, rol viewer) */
-var vws=null,vpc=null;
+var vws=null,vpc=null,audioTx=null,micStream=null;
 function drawWebCam(root,i){
   var cam=cams()[i];if(!cam)return go("home");
   var pill=el("span","pill","…");
@@ -1334,6 +1365,31 @@ function drawWebCam(root,i){
   var vp=el("div","viewport");
   var vid=el("video");vid.autoplay=true;vid.muted=true;vid.playsInline=true;vp.appendChild(vid);
   card.appendChild(vp);
+  // Escuchar / Hablar. El video nace muted porque el navegador exige silencio para
+  // autoreproducir; tocar "Escuchar" ES el gesto del usuario que permite quitarlo.
+  var row=el("div");row.style.cssText="display:flex;gap:10px;margin-top:12px";
+  var bListen=el("button","btn ghost",t("listen"));
+  bListen.onclick=function(){
+    vid.muted=!vid.muted;
+    var p=vid.play();if(p&&p.catch)p.catch(function(){});
+    bListen.className="btn "+(vid.muted?"ghost":"pri");
+    bListen.textContent=vid.muted?t("listen"):t("listen_on");
+  };
+  var bTalk=el("button","btn ghost",t("talk"));
+  bTalk.onclick=async function(){
+    if(!audioTx)return;
+    if(micStream){   // colgar: se suelta el micro de verdad, no solo se silencia
+      try{await audioTx.sender.replaceTrack(null);}catch(e){}
+      micStream.getTracks().forEach(function(x){x.stop();});micStream=null;
+      bTalk.className="btn ghost";bTalk.textContent=t("talk");return;
+    }
+    try{
+      micStream=await navigator.mediaDevices.getUserMedia({audio:true});
+      await audioTx.sender.replaceTrack(micStream.getAudioTracks()[0]);
+      bTalk.className="btn pri";bTalk.textContent=t("talk_on");
+    }catch(e){ micStream=null; flash(t("mic_denied")); }
+  };
+  row.appendChild(bListen);row.appendChild(bTalk);card.appendChild(row);
   var info=el("p","hint",t("web_cam")+" · "+cam.device);info.style.marginTop="10px";card.appendChild(info);
   var del=el("button","btn ghost");del.appendChild(ico("close"));del.style.marginTop="12px";del.style.maxWidth="120px";
   del.onclick=function(){var l=cams();l.splice(i,1);saveCams(l);closeWebCam();go("home");};
@@ -1356,6 +1412,10 @@ function drawWebCam(root,i){
     if(vpc)try{vpc.close();}catch(e){}
     vpc=new RTCPeerConnection({iceServers:ice});
     vpc.addTransceiver("video",{direction:"recvonly"});
+    // Un solo transceptor de audio sirve para ambos sentidos: recibe (escuchar) y envía
+    // (hablar). Se crea sendrecv desde el inicio y el micrófono se engancha después con
+    // replaceTrack, así activar Hablar no obliga a renegociar la sesión.
+    audioTx=vpc.addTransceiver("audio",{direction:"sendrecv"});
     vpc.ontrack=function(e){vid.srcObject=e.streams[0];};
     vpc.onicecandidate=function(e){if(e.candidate&&vws.readyState===1)vws.send(JSON.stringify({type:"ice",
       candidate:e.candidate.candidate,sdpMid:e.candidate.sdpMid,sdpMLineIndex:e.candidate.sdpMLineIndex}));};
@@ -1370,6 +1430,10 @@ function drawWebCam(root,i){
 function closeWebCam(){
   if(vpc){try{vpc.close();}catch(e){}vpc=null;}
   if(vws){try{vws.close();}catch(e){}vws=null;}
+  // Soltar el micrófono explícitamente: cerrar la conexión no apaga el indicador de
+  // grabación del navegador, y dejarlo encendido asusta con razón.
+  if(micStream){micStream.getTracks().forEach(function(x){x.stop();});micStream=null;}
+  audioTx=null;
 }
 
 /* ============================ mapa ============================ */
