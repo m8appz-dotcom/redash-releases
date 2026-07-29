@@ -225,6 +225,8 @@ var I18N={
   cam_on:"Encender cámara",cam_denied:"Permiso de cámara denegado. Actívalo en el candado de la barra de direcciones.",
   cam_none:"No se detectó ninguna cámara.",cam_hang:"La cámara no responde — puede que otra app la esté usando.",
   no_clips:"Aún no hay clips",no_events:"Aún no hay eventos",no_trips:"Aún no hay viajes",no_cams:"Aún no hay cámaras",
+  trip_rec:"Grabar viaje",trip_stop:"Terminar viaje",gps_no:"Este equipo no da ubicacion",
+  upd_ready:"Hay una version nueva:",upd_get:"Descargar",
   qr_manual:"O pega aquí el enlace del QR",
   scan_dash:"Dashcam ReDash",
   only_app:"Cámara IP — añádela desde la app",
@@ -288,6 +290,8 @@ var I18N={
   cam_on:"Turn on camera",cam_denied:"Camera permission denied. Enable it from the padlock in the address bar.",
   cam_none:"No camera detected.",cam_hang:"The camera is not responding — another app may be using it.",
   no_clips:"No clips yet",no_events:"No events yet",no_trips:"No trips yet",no_cams:"No cameras yet",
+  trip_rec:"Record trip",trip_stop:"End trip",gps_no:"This device has no location",
+  upd_ready:"A new version is available:",upd_get:"Download",
   qr_manual:"Or paste the QR link here",
   scan_dash:"ReDash dashcam",
   only_app:"IP camera — add it from the app",
@@ -1438,6 +1442,65 @@ function closeWebCam(){
 
 /* ============================ mapa ============================ */
 var map=null,liveMk=null,trail=null,tA=null,tB=null,shownTrip=null;
+
+/* --------- viajes grabados en el propio navegador (móvil o portátil) ---------
+   El teléfono tiene GPS real y un portátil en el auto también se mueve, así que el
+   recorrido se graba aquí mismo, sin depender de la dashcam Android. */
+var geoWatch=null,tripPts=[],tripOn=false;
+function localTrips(){try{return JSON.parse(localStorage.getItem("rd_trips")||"[]");}catch(e){return [];}}
+function saveLocalTrips(l){try{localStorage.setItem("rd_trips",JSON.stringify(l.slice(-10)));}catch(e){}}
+/** Metros entre dos coordenadas (haversine). */
+function metros(a,b,c,d){
+  var R=6371000,p=Math.PI/180,dLat=(c-a)*p,dLon=(d-b)*p;
+  var x=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a*p)*Math.cos(c*p)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  return 2*R*Math.asin(Math.sqrt(x));
+}
+function tripKm(pts){
+  var k=0;for(var i=1;i<pts.length;i++)k+=metros(pts[i-1].la,pts[i-1].lo,pts[i].la,pts[i].lo);
+  return k/1000;
+}
+function startTrip(onPoint){
+  if(!navigator.geolocation)return false;
+  tripPts=[];tripOn=true;
+  geoWatch=navigator.geolocation.watchPosition(function(p){
+    var la=p.coords.latitude,lo=p.coords.longitude,last=tripPts[tripPts.length-1];
+    // Solo se guarda si de verdad se movió: parado, el GPS "baila" y llenaría el
+    // almacenamiento con miles de puntos del mismo sitio.
+    if(last&&metros(last.la,last.lo,la,lo)<8)return;
+    tripPts.push({t:Date.now(),la:la,lo:lo,sp:p.coords.speed||0});
+    if(tripPts.length>5000)tripPts.shift();
+    if(onPoint)onPoint(la,lo);
+  },function(){},{enableHighAccuracy:true,maximumAge:2000,timeout:15000});
+  return true;
+}
+function stopTrip(){
+  if(geoWatch!==null){navigator.geolocation.clearWatch(geoWatch);geoWatch=null;}
+  tripOn=false;
+  if(tripPts.length>1){
+    var l=localTrips();
+    l.push({id:"t"+Date.now(),at:tripPts[0].t,end:tripPts[tripPts.length-1].t,km:tripKm(tripPts),pts:tripPts});
+    saveLocalTrips(l);
+  }
+  tripPts=[];
+}
+/** GPX 1.1 estándar: se abre en Google Earth, Strava, OsmAnd, etc. */
+function tripGpx(tr){
+  var head='<?xml version="1.0" encoding="UTF-8"?>\n'
+    +'<gpx version="1.1" creator="ReDash" xmlns="http://www.topografix.com/GPX/1/1">\n'
+    +"<trk><name>ReDash "+new Date(tr.at).toISOString()+"</name><trkseg>\n";
+  var body=tr.pts.map(function(p){
+    return '<trkpt lat="'+p.la.toFixed(6)+'" lon="'+p.lo.toFixed(6)+'"><time>'
+      +new Date(p.t).toISOString()+"</time></trkpt>";
+  }).join("\n");
+  return head+body+"\n</trkseg></trk></gpx>\n";
+}
+function downloadGpx(tr){
+  var b=new Blob([tripGpx(tr)],{type:"application/gpx+xml"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(b);
+  a.download="redash-"+new Date(tr.at).toISOString().replace(/[:.]/g,"-")+".gpx";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+}
 function drawMapScreen(root,remote){
   var bar=appbar(t("tab_map"));
   var back=icoBtn("back",null,function(){go("home");});
@@ -1457,8 +1520,27 @@ function drawMapScreen(root,remote){
       });
       j("/trips").then(function(r){renderTrips(chips,r.trips||[]);});
     }else if(navigator.geolocation){
-      navigator.geolocation.watchPosition(function(p){setLive(p.coords.latitude,p.coords.longitude);},function(){},{enableHighAccuracy:true});
-      chips.appendChild(el("p","hint",t("no_trips")));
+      // Solo un vigilante de GPS a la vez: mientras se graba, el del viaje también mueve
+      // el marcador. Dos watchPosition simultáneos gastarían batería para nada.
+      var liveWatch=navigator.geolocation.watchPosition(
+        function(p){setLive(p.coords.latitude,p.coords.longitude);},function(){},{enableHighAccuracy:true});
+      var b=el("button","btn "+(tripOn?"pri":"ghost"),tripOn?t("trip_stop"):t("trip_rec"));
+      b.style.marginBottom="10px";
+      b.onclick=function(){
+        if(tripOn){
+          stopTrip();
+          liveWatch=navigator.geolocation.watchPosition(
+            function(p){setLive(p.coords.latitude,p.coords.longitude);},function(){},{enableHighAccuracy:true});
+          b.className="btn ghost";b.textContent=t("trip_rec");
+        }else{
+          if(liveWatch!==null){navigator.geolocation.clearWatch(liveWatch);liveWatch=null;}
+          if(!startTrip(function(la,lo){setLive(la,lo);})){flash(t("gps_no"));return;}
+          b.className="btn pri";b.textContent=t("trip_stop");
+        }
+        renderLocalTrips(chips);
+      };
+      card.insertBefore(b,chips);
+      renderLocalTrips(chips);
     }
   },60);
 }
@@ -1466,6 +1548,31 @@ function setLive(lat,lon){
   if(!map)return;
   if(!liveMk){liveMk=L.circleMarker([lat,lon],{radius:8,color:"#afa9ec",weight:2,fillColor:"#7f77dd",fillOpacity:1}).addTo(map);map.setView([lat,lon],16);}
   else liveMk.setLatLng([lat,lon]);
+}
+/** Viajes grabados en este navegador: tocar dibuja la ruta, el botón baja el GPX. */
+function renderLocalTrips(box){
+  box.replaceChildren();
+  var l=localTrips().slice().reverse();
+  if(!l.length){box.appendChild(el("p","hint",t("no_trips")));return;}
+  l.forEach(function(tr){
+    var row=el("div");row.style.cssText="display:flex;gap:8px;align-items:center;margin-bottom:6px";
+    var c=el("div","chip"+(shownTrip===tr.id?" on":""),
+      new Date(tr.at).toLocaleString()+" · "+tr.km.toFixed(1)+" km");
+    c.style.cursor="pointer";
+    c.onclick=function(){
+      if(shownTrip===tr.id){shownTrip=null;if(trail){map.removeLayer(trail);trail=null;}renderLocalTrips(box);return;}
+      shownTrip=tr.id;
+      if(trail)map.removeLayer(trail);
+      var pts=tr.pts.map(function(p){return [p.la,p.lo];});
+      trail=L.polyline(pts,{color:"#A78BFA",weight:4}).addTo(map);
+      if(pts.length)map.fitBounds(trail.getBounds(),{padding:[20,20]});
+      renderLocalTrips(box);
+    };
+    var g=el("button","btn ghost","GPX");
+    g.style.cssText="max-width:76px;padding:6px 10px;font-size:12px";
+    g.onclick=function(e){e.stopPropagation();downloadGpx(tr);};
+    row.appendChild(c);row.appendChild(g);box.appendChild(row);
+  });
 }
 function renderTrips(box,trips){
   box.replaceChildren();
@@ -1522,6 +1629,21 @@ function startTrayReport(){
     if(s!==last){ last=s; try{ RD_DESKTOP.setStatus(s); }catch(e){} }
   },2000);
 }
+// Aviso de versión nueva en el escritorio. Una barra discreta arriba: esta app vive meses
+// en la bandeja y de otro modo el usuario nunca se enteraría de que publicamos algo.
+window.__onUpdate=function(info){
+  if(document.getElementById("updbar")||!info)return;
+  var b=document.createElement("div");b.id="updbar";
+  b.style.cssText="position:fixed;left:0;right:0;top:0;z-index:90;background:#A78BFA;color:#191B24;"
+    +"display:flex;gap:12px;align-items:center;justify-content:center;padding:8px 14px;font-size:13px;font-weight:600";
+  b.appendChild(document.createTextNode(t("upd_ready")+" "+info.version));
+  var a=document.createElement("a");a.href=info.url;a.target="_blank";a.rel="noopener";
+  a.textContent=t("upd_get");
+  a.style.cssText="background:#191B24;color:#fff;padding:5px 12px;border-radius:8px;text-decoration:none";
+  var x=document.createElement("span");x.textContent="✕";x.style.cssText="cursor:pointer;opacity:.6";
+  x.onclick=function(){b.remove();};
+  b.appendChild(a);b.appendChild(x);document.body.appendChild(b);
+};
 
 /* ============================ arranque ============================ */
 // ¿Nos sirve una dashcam? Si /status responde (aunque sea 401) hay API local detrás.

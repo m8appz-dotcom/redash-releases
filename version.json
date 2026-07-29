@@ -1,9 +1,9 @@
 {
-  "versionCode": 76,
-  "versionName": "0.5.8",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.8/redash-0.5.8.apk",
-  "sha256": "d9b5c36711c73bd772c53570472cd5ec6739c15dc219d2a5b535f41de1756339",
-  "notes": "Escuchar y hablar por la camara desde el visor, tambien en la web y en Windows. Escuchar en vivo es un ajuste aparte de grabar audio: oir no guarda nada.",
-  "desktopVersion": "0.2.8",
-  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.2.8/ReDash-0.2.8-win-x64.zip"
+  "versionCode": 77,
+  "versionName": "0.5.9",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.9/redash-0.5.9.apk",
+  "sha256": "c645317fd7608cbfebeacca62484c43b9241b71c57e339053e6e52310c8b4aa5",
+  "notes": "Graba tus recorridos desde el navegador (movil o portatil) y exportalos en GPX. La app de Windows ahora avisa cuando hay una version nueva.",
+  "desktopVersion": "0.2.9",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.2.9/ReDash-0.2.9-win-x64.zip"
 }
