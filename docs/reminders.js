@@ -61,6 +61,19 @@
     return Math.min(10, Math.max(0.5, Math.round(f * 1000) / 1000));
   }
 
+  /**
+   * Que aviso corresponde ahora: 'soon' (90%), 'overdue' (100%) o null.
+   * `rem.notified` recuerda el ultimo escalon avisado en ESTE ciclo (0 / 90 / 100) y se
+   * reinicia al marcar el servicio como hecho. Sin esa memoria, la app avisaria lo mismo
+   * en cada arranque hasta que el usuario silenciara las notificaciones para siempre.
+   */
+  function nextNotice(rem, state) {
+    var hecho = rem.notified || 0;
+    if (state.overdue) return hecho >= 100 ? null : 'overdue';
+    if (state.pct >= 0.9) return hecho >= 90 ? null : 'soon';
+    return null;
+  }
+
   /* Valores de arranque. El usuario los edita: son un punto de partida razonable,
      no una recomendacion del fabricante de su auto. */
   var PRESETS = [
@@ -73,7 +86,8 @@
     { type: 'license',   km: 0,     days: 1825 },
   ];
 
-  var api = { kmSince: kmSince, dueState: dueState, calibrate: calibrate, PRESETS: PRESETS, DIA: DIA };
+  var api = { kmSince: kmSince, dueState: dueState, calibrate: calibrate,
+              nextNotice: nextNotice, PRESETS: PRESETS, DIA: DIA };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else raiz.RD_REM = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

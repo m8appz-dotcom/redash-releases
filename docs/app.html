@@ -232,6 +232,7 @@ var I18N={
   no_clips:"Aún no hay clips",no_events:"Aún no hay eventos",no_trips:"Aún no hay viajes",no_cams:"Aún no hay cámaras",
   trip_rec:"Grabar viaje",trip_stop:"Terminar viaje",gps_no:"Este equipo no da ubicacion",
   nav_veh:"Mi vehiculo",days:"dias",
+  parked:"Aqui dejaste el auto",parked_at:"Estacionado:",park_go:"Como llegar al auto",
   veh_empty:"Agrega un recordatorio y la app te avisa por kilometros o por tiempo, lo que llegue primero.",
   rem_add:"Agregar recordatorio",rem_done:"Ya lo hice",rem_reset:"Listo, contador reiniciado",
   rem_left:"Faltan",rem_since:"Vencido hace",rem_overdue:"VENCIDO",
@@ -313,6 +314,7 @@ var I18N={
   no_clips:"No clips yet",no_events:"No events yet",no_trips:"No trips yet",no_cams:"No cameras yet",
   trip_rec:"Record trip",trip_stop:"End trip",gps_no:"This device has no location",
   nav_veh:"My vehicle",days:"days",
+  parked:"You left the car here",parked_at:"Parked:",park_go:"Get back to the car",
   veh_empty:"Add a reminder and the app warns you by distance or by time, whichever comes first.",
   rem_add:"Add reminder",rem_done:"Just did it",rem_reset:"Done, counter reset",
   rem_left:"Left:",rem_since:"Overdue by",rem_overdue:"OVERDUE",
@@ -1395,6 +1397,30 @@ function saveVeh(v){LS.set("rd_veh",JSON.stringify(v));}
 function remKm(r){return RD_REM.kmSince(localTrips(),r.lastAt,veh().factor||1);}
 function remState(r){return RD_REM.dueState(r,Date.now(),remKm(r));}
 /** El más urgente que ya pasó del 90%, o null. Lo usa la banda de la home. */
+/**
+ * Revisa los recordatorios y notifica los que cruzaron un escalón. Se apoya en la
+ * notificación del sistema (nativa en el escritorio, del navegador en móvil) porque el
+ * aviso tiene que llegar aunque la app esté minimizada en la bandeja.
+ * Los datos NO salen del dispositivo: no se manda nada a ningún servidor.
+ */
+function checkRemNotices(){
+  if(typeof RD_REM==="undefined")return;
+  var l=rems(),cambio=false;
+  l.forEach(function(r){
+    var aviso=RD_REM.nextNotice(r,RD_REM.dueState(r,Date.now(),remKm(r)));
+    if(!aviso)return;
+    r.notified=aviso==="overdue"?100:90;cambio=true;
+    var titulo=(aviso==="overdue"?t("rem_overdue_b"):t("rem_soon_b"))+" "+(r.name||t("rem_"+r.type));
+    try{
+      if(window.Notification&&Notification.permission==="granted")
+        new Notification("ReDash",{body:titulo,tag:"rd-"+r.id});
+    }catch(e){}
+  });
+  if(cambio)saveRems(l);
+}
+function askNotifyPerm(){
+  try{ if(window.Notification&&Notification.permission==="default")Notification.requestPermission(); }catch(e){}
+}
 function remUrgente(){
   var peor=null;
   rems().forEach(function(r){
@@ -1444,6 +1470,7 @@ function drawVehicle(root){
       var l=rems();
       l[i].history=(l[i].history||[]).concat([{at:l[i].lastAt,km:Math.round(km)}]).slice(-12);
       l[i].lastAt=Date.now();
+      l[i].notified=0;   // ciclo nuevo: vuelve a poder avisar
       saveRems(l);flash(t("rem_reset"));render();
     };
     var quitar=el("button","btn ghost","✕");
@@ -1463,8 +1490,10 @@ function drawVehicle(root){
     var b=el("div","chip",t("rem_"+p.type));b.style.cursor="pointer";
     b.onclick=function(){
       var l=rems();
-      l.push({id:"r"+Date.now(),type:p.type,name:t("rem_"+p.type),km:p.km,days:p.days,lastAt:Date.now(),history:[]});
-      saveRems(l);render();
+      l.push({id:"r"+Date.now(),type:p.type,name:t("rem_"+p.type),km:p.km,days:p.days,lastAt:Date.now(),notified:0,history:[]});
+      saveRems(l);
+      askNotifyPerm();   // el alta es el momento natural para pedirlo, no al abrir la app
+      render();
     };
     grid.appendChild(b);
   });
@@ -1733,6 +1762,9 @@ function startTrip(onPoint,onError){
 function stopTrip(){
   if(geoWatch!==null){navigator.geolocation.clearWatch(geoWatch);geoWatch=null;}
   tripOn=false;
+  // Donde terminó el viaje = donde quedó el auto. Se guarda solo aquí, sin pedir nada extra.
+  var ult=tripPts[tripPts.length-1];
+  if(ult)try{localStorage.setItem("rd_park",JSON.stringify({la:ult.la,lo:ult.lo,at:ult.t}));}catch(e){}
   if(tripPts.length>1){
     var l=localTrips();
     l.push({id:"t"+Date.now(),at:tripPts[0].t,end:tripPts[tripPts.length-1].t,km:tripKm(tripPts),pts:tripPts});
@@ -1806,6 +1838,20 @@ function drawMapScreen(root,remote){
       };
       card.insertBefore(b,chips);
       card.insertBefore(gpsWarn,chips);
+      // ¿Dónde estacioné? Marcador del último punto del viaje anterior + cómo llegar.
+      var park=null;try{park=JSON.parse(localStorage.getItem("rd_park")||"null");}catch(e){}
+      if(park&&park.la){
+        L.marker([park.la,park.lo]).addTo(map).bindPopup(t("parked"));
+        var pb=el("button","btn ghost",t("park_go"));
+        pb.style.cssText="margin-bottom:10px;font-size:13px;padding:8px 12px";
+        pb.onclick=function(){
+          map.setView([park.la,park.lo],17);
+          // Se abre el navegador del sistema: Maps/Waze hacen la guía mejor que nosotros.
+          window.open("https://www.google.com/maps/dir/?api=1&destination="+park.la+","+park.lo,"_blank");
+        };
+        card.insertBefore(pb,chips);
+        card.insertBefore(el("p","hint",t("parked_at")+" "+new Date(park.at).toLocaleString()),chips);
+      }
       renderLocalTrips(chips);
     }
   },60);
@@ -1925,6 +1971,10 @@ fetch("/status").then(function(r){hasLocal=(r.status===401||r.ok);}).catch(funct
    }
    render();
    if(window.RD_DESKTOP)startTrayReport();
+   // Los recordatorios se revisan al abrir y cada 6 h: en el escritorio la app vive meses
+   // en la bandeja y de otro modo el aviso solo llegaria al reiniciarla.
+   setTimeout(checkRemNotices,4000);
+   setInterval(checkRemNotices,6*3600*1000);
  });
 </script>
 </body></html>
