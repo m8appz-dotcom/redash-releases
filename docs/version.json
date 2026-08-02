@@ -1,9 +1,9 @@
 {
-  "versionCode": 82,
-  "versionName": "0.7.2",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.7.2/redash-0.7.2.apk",
-  "sha256": "7d50f06675a5e31d0472efd825623899d434f36a9a1e2240aaeaf03573dccd93",
-  "notes": "Mi vehiculo ahora es una pantalla nativa de la app: los kilometros salen de los viajes que la dashcam ya graba, sin depender del panel web.",
+  "versionCode": 83,
+  "versionName": "0.7.3",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.7.3/redash-0.7.3.apk",
+  "sha256": "78301a7d3cdae1aeffb8dc4a5a7a65fb1b040fb559f3ffbd0ae009b37fa0291d",
+  "notes": "Mi vehiculo: ahora puedes ajustar el contador con tu odometro real, para que los kilometros no se queden cortos.",
   "desktopVersion": "0.4.1",
   "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.1/ReDash-0.4.1-win-x64.zip"
 }
