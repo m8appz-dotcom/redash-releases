@@ -1,9 +1,9 @@
 {
-  "versionCode": 79,
-  "versionName": "0.6.1",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.6.1/redash-0.6.1.apk",
-  "sha256": "d401799a6f30e9eb2b71074a6096a5ee1e0ab60fae2b030a7e78517f0c9a703e",
-  "notes": "Si la ubicacion no esta disponible, grabar un viaje ahora avisa en vez de fallar en silencio. En PC se advierte que la ubicacion es aproximada.",
-  "desktopVersion": "0.3.1",
-  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.3.1/ReDash-0.3.1-win-x64.zip"
+  "versionCode": 80,
+  "versionName": "0.7.0",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.7.0/redash-0.7.0.apk",
+  "sha256": "60e30d99302828e6adf63a06a2eb184535cc0da13ec4fc82d6872863a056af88",
+  "notes": "Nuevo: Mi vehiculo. Recordatorios de aceite, matricula, seguro y mas, que avisan por kilometros o por tiempo, lo que llegue primero. Los km salen de tus viajes grabados.",
+  "desktopVersion": "0.4.0",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.0/ReDash-0.4.0-win-x64.zip"
 }

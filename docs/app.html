@@ -155,6 +155,11 @@
   .leaflet-tile{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.65)}
   .leaflet-control-attribution{background:rgba(18,20,29,.8)!important;color:#8b88a0!important}
   .chips{display:flex;gap:8px;overflow-x:auto;padding:10px 2px}
+  /* barra de avance de un mantenimiento: verde -> ambar -> rojo segun se acerca */
+  .prog{height:7px;border-radius:99px;background:rgba(255,255,255,.10);overflow:hidden;margin:8px 0 6px}
+  .prog>i{display:block;height:100%;border-radius:99px;background:#6EE7B7;transition:width .3s}
+  .prog.warn>i{background:#FBBF24}
+  .prog.late>i{background:#F87171}
   .chip{white-space:nowrap;font:600 12px inherit;color:var(--tx2);background:rgba(255,255,255,.07);
     border:1px solid var(--line);border-radius:99px;padding:7px 13px;cursor:pointer}
   .chip.on{background:linear-gradient(135deg,#C4B5FD,#A78BFA);color:var(--on-pri);border-color:transparent}
@@ -175,7 +180,7 @@
 <div class="wrap" id="root"></div>
 
 <script>
-(function(){["leaflet/leaflet.js","jsqr.js","qrgen.js"].forEach(function(u){
+(function(){["leaflet/leaflet.js","jsqr.js","qrgen.js","reminders.js"].forEach(function(u){
   var s=document.createElement("script");s.src=u;s.async=false;document.head.appendChild(s);});})();
 </script>
 <script>
@@ -225,7 +230,17 @@ var I18N={
   cam_on:"Encender cámara",cam_denied:"Permiso de cámara denegado. Actívalo en el candado de la barra de direcciones.",
   cam_none:"No se detectó ninguna cámara.",cam_hang:"La cámara no responde — puede que otra app la esté usando.",
   no_clips:"Aún no hay clips",no_events:"Aún no hay eventos",no_trips:"Aún no hay viajes",no_cams:"Aún no hay cámaras",
-  trip_rec:"Grabar viaje",trip_stop:"Terminar viaje",gps_no:"Este equipo no da ubicacion",gps_denied:"Permiso de ubicacion denegado",
+  trip_rec:"Grabar viaje",trip_stop:"Terminar viaje",gps_no:"Este equipo no da ubicacion",
+  nav_veh:"Mi vehiculo",days:"dias",
+  veh_empty:"Agrega un recordatorio y la app te avisa por kilometros o por tiempo, lo que llegue primero.",
+  rem_add:"Agregar recordatorio",rem_done:"Ya lo hice",rem_reset:"Listo, contador reiniciado",
+  rem_left:"Faltan",rem_since:"Vencido hace",rem_overdue:"VENCIDO",
+  rem_soon_b:"Se acerca:",rem_overdue_b:"Vencido:",
+  rem_oil:"Cambio de aceite",rem_tires:"Rotacion de llantas",rem_brakes:"Pastillas de freno",
+  rem_filter:"Filtros",rem_plate:"Matricula",rem_insurance:"Seguro",rem_license:"Licencia de conducir",
+  veh_odo:"Ajustar con tu odometro",
+  veh_odo_hint:"La app solo cuenta los viajes que grabo, asi que se queda corta. Dile cuantos km hiciste de verdad y corrige el calculo.",
+  veh_seen:"Vistos:",veh_factor:"factor",veh_calibrate:"Ajustar",veh_calibrated:"Ajustado, factor",gps_denied:"Permiso de ubicacion denegado",
   gps_desktop:"En una PC la ubicacion es aproximada (cientos de km): sirve para el mapa, no para trazar una ruta. Usa el telefono para grabar viajes.",
   add_ip:"Camara IP (RTSP)",add_ip_sub:"Camaras de seguridad y NVR de otras marcas",ip_cam:"Camara IP",add:"Agregar",
   ip_bad_url:"La direccion debe empezar con rtsp://",connecting:"conectando",
@@ -296,7 +311,17 @@ var I18N={
   cam_on:"Turn on camera",cam_denied:"Camera permission denied. Enable it from the padlock in the address bar.",
   cam_none:"No camera detected.",cam_hang:"The camera is not responding — another app may be using it.",
   no_clips:"No clips yet",no_events:"No events yet",no_trips:"No trips yet",no_cams:"No cameras yet",
-  trip_rec:"Record trip",trip_stop:"End trip",gps_no:"This device has no location",gps_denied:"Location permission denied",
+  trip_rec:"Record trip",trip_stop:"End trip",gps_no:"This device has no location",
+  nav_veh:"My vehicle",days:"days",
+  veh_empty:"Add a reminder and the app warns you by distance or by time, whichever comes first.",
+  rem_add:"Add reminder",rem_done:"Just did it",rem_reset:"Done, counter reset",
+  rem_left:"Left:",rem_since:"Overdue by",rem_overdue:"OVERDUE",
+  rem_soon_b:"Coming up:",rem_overdue_b:"Overdue:",
+  rem_oil:"Oil change",rem_tires:"Tire rotation",rem_brakes:"Brake pads",
+  rem_filter:"Filters",rem_plate:"Registration",rem_insurance:"Insurance",rem_license:"Driver license",
+  veh_odo:"Adjust with your odometer",
+  veh_odo_hint:"The app only counts trips it recorded, so it falls short. Tell it how many km you really drove and it fixes the math.",
+  veh_seen:"Seen:",veh_factor:"factor",veh_calibrate:"Adjust",veh_calibrated:"Adjusted, factor",gps_denied:"Location permission denied",
   gps_desktop:"On a PC the location is a rough estimate (hundreds of km): fine for the map, not for tracing a route. Use your phone to record trips.",
   add_ip:"IP camera (RTSP)",add_ip_sub:"Third-party security cameras and NVRs",ip_cam:"IP camera",add:"Add",
   ip_bad_url:"The address must start with rtsp://",connecting:"connecting",
@@ -427,6 +452,7 @@ function openDrawer(){
     d.appendChild(nav("signal",t("nav_link"),function(){go("link");},screen==="link"));
     d.appendChild(nav("cog",t("nav_settings"),function(){go("settings");},screen==="settings"));
     d.appendChild(nav("shield",t("nav_license"),function(){go("license");},screen==="license"));
+    d.appendChild(nav("gps",t("nav_veh"),function(){go("vehicle");},screen==="vehicle"));
     d.appendChild(nav("power",t("nav_stealth"),function(){enterStealth();}));
   }else{
     d.appendChild(nav("plus",t("nav_add"),function(){go("add");},screen==="add"));
@@ -485,6 +511,7 @@ function stopSender(){
 function drawSender(root){
   if(screen==="link"){drawLink(root);return;}
   if(screen==="license"){drawLicense(root);return;}
+  if(screen==="vehicle"){drawVehicle(root);return;}
   if(screen==="settings"){drawSettings(root);return;}
   if(screen==="about"){drawAbout(root);return;}
   if(screen==="map"){drawMapScreen(root,null);return;}
@@ -498,6 +525,20 @@ function drawSender(root){
   bar.appendChild(icoBtn("power","icobtn",function(){enterStealth();}));
   bar.appendChild(icoBtn("cog","icobtn",function(){go("settings");}));
   root.appendChild(bar);
+
+  // Banda de mantenimiento: un recordatorio que nadie ve no sirve de nada, así que si algo
+  // pasó del 90% aparece en la home, no escondido en su pantalla.
+  var urg=remUrgente();
+  if(urg){
+    var band=el("div");
+    band.style.cssText="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;"
+      +"margin-bottom:12px;cursor:pointer;font-size:13px;font-weight:600;"
+      +(urg.s.overdue?"background:rgba(248,113,113,.16);color:#F87171":"background:rgba(251,191,36,.16);color:#FBBF24");
+    band.appendChild(document.createTextNode(
+      (urg.s.overdue?t("rem_overdue_b"):t("rem_soon_b"))+" "+(urg.r.name||t("rem_"+urg.r.type))));
+    band.onclick=function(){go("vehicle");};
+    root.appendChild(band);
+  }
 
   if(!stream){                       // portada: encender la cámara
     var card=el("div","glass");card.style.padding="34px";card.style.textAlign="center";
@@ -1344,6 +1385,109 @@ function drawIpCam(root,i){
     pill.textContent=t("off");pill.className="pill";
     err.textContent=msg==="no_ffmpeg"?t("ip_need_ffmpeg"):(msg||"").slice(0,160);
   });
+}
+/* ==================== mantenimiento del vehículo ==================== */
+function rems(){try{return JSON.parse(LS.get("rd_rems","[]"));}catch(e){return [];}}
+function saveRems(l){LS.set("rd_rems",JSON.stringify(l));}
+function veh(){try{return JSON.parse(LS.get("rd_veh",'{"factor":1}'));}catch(e){return {factor:1};}}
+function saveVeh(v){LS.set("rd_veh",JSON.stringify(v));}
+/** Km recorridos desde el último servicio de ESE recordatorio, ya calibrados. */
+function remKm(r){return RD_REM.kmSince(localTrips(),r.lastAt,veh().factor||1);}
+function remState(r){return RD_REM.dueState(r,Date.now(),remKm(r));}
+/** El más urgente que ya pasó del 90%, o null. Lo usa la banda de la home. */
+function remUrgente(){
+  var peor=null;
+  rems().forEach(function(r){
+    var s=remState(r);
+    if(s.pct>=0.9&&(!peor||s.pct>peor.s.pct))peor={r:r,s:s};
+  });
+  return peor;
+}
+function drawVehicle(root){
+  var bar=appbar(t("nav_veh"));
+  bar.replaceChild(icoBtn("back",null,function(){go("home");}),bar.firstChild);
+  root.appendChild(bar);
+  var wrap=el("div");wrap.style.cssText="max-width:560px;margin:0 auto";
+  var lista=rems();
+
+  if(!lista.length){
+    var vacio=el("div","glass");vacio.style.cssText="padding:22px;text-align:center";
+    vacio.appendChild(el("p","hint",t("veh_empty")));
+    wrap.appendChild(vacio);
+  }
+  lista.forEach(function(r,i){
+    var s=remState(r),km=remKm(r);
+    var c=el("div","glass");c.style.cssText="padding:14px;margin-bottom:10px";
+    var top=el("div");top.style.cssText="display:flex;align-items:center;gap:8px";
+    top.appendChild(el("b",null,r.name||t("rem_"+r.type)));
+    top.appendChild(el("div","spacer"));
+    var pill=el("div","pill "+(s.overdue?"":(s.pct>=0.9?"":"ok")),
+      s.overdue?t("rem_overdue"):Math.round(s.pct*100)+"%");
+    if(s.overdue)pill.style.cssText="background:rgba(248,113,113,.18);color:#F87171";
+    else if(s.pct>=0.9)pill.style.cssText="background:rgba(251,191,36,.18);color:#FBBF24";
+    top.appendChild(pill);c.appendChild(top);
+
+    var p=el("div","prog"+(s.overdue?" late":(s.pct>=0.9?" warn":"")));
+    var fill=el("i");fill.style.width=Math.min(100,Math.round(s.pct*100))+"%";
+    p.appendChild(fill);c.appendChild(p);
+
+    // Qué falta, en el criterio que manda (km o fecha)
+    var det=[];
+    if(r.km>0)det.push(s.remainingKm+" km");
+    if(r.days>0)det.push(s.remainingDays+" "+t("days"));
+    c.appendChild(el("p","hint",(s.overdue?t("rem_since"):t("rem_left"))+" "+det.join(" · ")));
+
+    var row=el("div");row.style.cssText="display:flex;gap:8px;margin-top:10px";
+    var hecho=el("button","btn ghost",t("rem_done"));
+    hecho.style.cssText="padding:8px 12px;font-size:13px";
+    hecho.onclick=function(){
+      var l=rems();
+      l[i].history=(l[i].history||[]).concat([{at:l[i].lastAt,km:Math.round(km)}]).slice(-12);
+      l[i].lastAt=Date.now();
+      saveRems(l);flash(t("rem_reset"));render();
+    };
+    var quitar=el("button","btn ghost","✕");
+    quitar.style.cssText="padding:8px 12px;font-size:13px;max-width:52px";
+    quitar.onclick=function(){var l=rems();l.splice(i,1);saveRems(l);render();};
+    row.appendChild(hecho);row.appendChild(el("div","spacer"));row.appendChild(quitar);
+    c.appendChild(row);
+    wrap.appendChild(c);
+  });
+
+  // --- agregar ---
+  var add=el("div","glass");add.style.cssText="padding:14px;margin-bottom:10px";
+  add.appendChild(el("p","kick",t("rem_add")));
+  var grid=el("div");grid.style.cssText="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px";
+  RD_REM.PRESETS.forEach(function(p){
+    if(lista.some(function(x){return x.type===p.type;}))return;   // ya lo tiene
+    var b=el("div","chip",t("rem_"+p.type));b.style.cursor="pointer";
+    b.onclick=function(){
+      var l=rems();
+      l.push({id:"r"+Date.now(),type:p.type,name:t("rem_"+p.type),km:p.km,days:p.days,lastAt:Date.now(),history:[]});
+      saveRems(l);render();
+    };
+    grid.appendChild(b);
+  });
+  add.appendChild(grid);
+  wrap.appendChild(add);
+
+  // --- calibración por odómetro ---
+  var cal=el("div","glass");cal.style.cssText="padding:14px";
+  cal.appendChild(el("p","kick",t("veh_odo")));
+  cal.appendChild(el("p","hint",t("veh_odo_hint")));
+  var vistos=RD_REM.kmSince(localTrips(),0,1);
+  cal.appendChild(el("p","hint",t("veh_seen")+" "+vistos.toFixed(0)+" km · "+t("veh_factor")+" "+(veh().factor||1)));
+  var iOdo=el("input");iOdo.type="number";iOdo.placeholder="1000";cal.appendChild(iOdo);
+  var bCal=el("button","btn ghost",t("veh_calibrate"));bCal.style.marginTop="10px";
+  bCal.onclick=function(){
+    var real=parseFloat(iOdo.value);
+    if(!(real>0)){flash(t("need_fields"));return;}
+    var v=veh();v.factor=RD_REM.calibrate(vistos,real);saveVeh(v);
+    flash(t("veh_calibrated")+" "+v.factor);render();
+  };
+  cal.appendChild(bCal);
+  wrap.appendChild(cal);
+  root.appendChild(wrap);
 }
 /* detalle: dashcam local (MJPEG + control) o cámara web (WebRTC) */
 function drawCamDetail(root,arg){
