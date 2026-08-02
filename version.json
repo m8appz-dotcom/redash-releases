@@ -1,9 +1,9 @@
 {
-  "versionCode": 81,
-  "versionName": "0.7.1",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.7.1/redash-0.7.1.apk",
-  "sha256": "031658c8bedbc0bb65e5037321ea2eae13cfb65d524a6c765547ff65e7992114",
-  "notes": "Los recordatorios ahora te notifican aunque la app este cerrada, sin repetirse. Y al terminar un viaje se guarda donde quedo el auto, con boton para volver.",
+  "versionCode": 82,
+  "versionName": "0.7.2",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.7.2/redash-0.7.2.apk",
+  "sha256": "7d50f06675a5e31d0472efd825623899d434f36a9a1e2240aaeaf03573dccd93",
+  "notes": "Mi vehiculo ahora es una pantalla nativa de la app: los kilometros salen de los viajes que la dashcam ya graba, sin depender del panel web.",
   "desktopVersion": "0.4.1",
   "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.1/ReDash-0.4.1-win-x64.zip"
 }
