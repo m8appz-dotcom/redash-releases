@@ -27,11 +27,49 @@
   }
 
   /**
+   * Mes que la ANT asigna segun el ultimo digito de la placa (Ecuador):
+   * febrero(1) ... octubre(9) y noviembre(0). Diciembre es solo para rezagados.
+   * Acepta el digito suelto o la placa completa. Devuelve 0 si no hay digito.
+   */
+  function plateMonth(placa) {
+    var s = String(placa == null ? "" : placa);
+    var digitos = s.replace(/[^0-9]/g, "");
+    if (!digitos) return 0;
+    var d = Number(digitos.charAt(digitos.length - 1));
+    return d === 0 ? 11 : d + 1;   // el 0 rompe la formula: va a noviembre
+  }
+
+  /** Fin del ultimo dia del mes `m` (1-12) del ano `y`: hasta ahi hay plazo. */
+  function finDeMes(y, m) {
+    return new Date(y, m, 0, 23, 59, 59, 999).getTime();
+  }
+
+  /**
    * Estado de un recordatorio.
-   * Devuelve { pct, by: 'km'|'date'|'none', overdue, remainingKm, remainingDays }.
+   * Devuelve { pct, by: 'km'|'date'|'month'|'none', overdue, remainingKm, remainingDays }.
    * `pct` puede pasar de 1: cuanto se paso importa tanto como que se paso.
    */
   function dueState(rem, now, km) {
+    // Modo mes fijo (matricula): no vence "cada N dias" sino al terminar SU mes. Tras hacer
+    // el tramite el plazo salta al ano siguiente, en vez de quedar vencido para siempre.
+    if (rem.month > 0) {
+      var y = new Date(rem.lastAt).getFullYear();
+      // Si el tramite se hizo YA DENTRO de su mes (o despues), ese ano quedo cumplido y el
+      // proximo plazo es el del ano siguiente. Sin esto, matricularse el 20 de febrero
+      // dejaria el recordatorio "vencido" el 1 de marzo, que es exactamente al reves.
+      var inicioMes = new Date(y, rem.month - 1, 1).getTime();
+      var limite = finDeMes(rem.lastAt >= inicioMes ? y + 1 : y, rem.month);
+      var total = limite - rem.lastAt;
+      var pasado = now - rem.lastAt;
+      var p = total > 0 ? pasado / total : 1;
+      return {
+        pct: Math.round(p * 1000) / 1000,
+        by: 'month',
+        overdue: now > limite,
+        remainingKm: 0,
+        remainingDays: Math.max(0, Math.ceil((limite - now) / DIA)),
+      };
+    }
     var porKm = rem.km > 0 ? (km / rem.km) : -1;
     var dias = (now - rem.lastAt) / DIA;
     var porFecha = rem.days > 0 ? (dias / rem.days) : -1;
@@ -81,12 +119,14 @@
     { type: 'tires',     km: 10000, days: 0   },
     { type: 'brakes',    km: 20000, days: 0   },
     { type: 'filter',    km: 15000, days: 365 },
-    { type: 'plate',     km: 0,     days: 365 },
+    // La matricula NO vence 'cada 365 dias': la ANT asigna un mes segun el ultimo digito
+    // de la placa. El mes se completa al darla de alta, preguntando la placa.
+    { type: 'plate',     km: 0,     days: 0,   month: 0 },
     { type: 'insurance', km: 0,     days: 365 },
     { type: 'license',   km: 0,     days: 1825 },
   ];
 
-  var api = { kmSince: kmSince, dueState: dueState, calibrate: calibrate,
+  var api = { kmSince: kmSince, dueState: dueState, calibrate: calibrate, plateMonth: plateMonth,
               nextNotice: nextNotice, PRESETS: PRESETS, DIA: DIA };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else raiz.RD_REM = api;

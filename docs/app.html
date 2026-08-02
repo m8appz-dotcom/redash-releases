@@ -232,6 +232,8 @@ var I18N={
   no_clips:"Aún no hay clips",no_events:"Aún no hay eventos",no_trips:"Aún no hay viajes",no_cams:"Aún no hay cámaras",
   trip_rec:"Grabar viaje",trip_stop:"Terminar viaje",gps_no:"Este equipo no da ubicacion",
   nav_veh:"Mi vehiculo",days:"dias",
+  plate_ask:"Ultimo digito de tu placa (o la placa completa). La ANT asigna el mes de matriculacion segun ese digito.",
+  plate_bad:"No encontre ningun numero en la placa",plate_set:"Te toca en",rem_missed:"Se paso tu mes:",
   parked:"Aqui dejaste el auto",parked_at:"Estacionado:",park_go:"Como llegar al auto",
   veh_empty:"Agrega un recordatorio y la app te avisa por kilometros o por tiempo, lo que llegue primero.",
   rem_add:"Agregar recordatorio",rem_done:"Ya lo hice",rem_reset:"Listo, contador reiniciado",
@@ -314,6 +316,8 @@ var I18N={
   no_clips:"No clips yet",no_events:"No events yet",no_trips:"No trips yet",no_cams:"No cameras yet",
   trip_rec:"Record trip",trip_stop:"End trip",gps_no:"This device has no location",
   nav_veh:"My vehicle",days:"days",
+  plate_ask:"Last digit of your plate (or the whole plate). Ecuador assigns your registration month by that digit.",
+  plate_bad:"No number found in the plate",plate_set:"Your month is",rem_missed:"You missed your month:",
   parked:"You left the car here",parked_at:"Parked:",park_go:"Get back to the car",
   veh_empty:"Add a reminder and the app warns you by distance or by time, whichever comes first.",
   rem_add:"Add reminder",rem_done:"Just did it",rem_reset:"Done, counter reset",
@@ -888,6 +892,8 @@ function exitStealth(){
 
 /* ============================ enlace WebRTC (publica) ============================ */
 var DEFAULT_SIGNAL="wss://archie-ubuntu.tailb235ab.ts.net:10000";
+var MESES={es:["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"],
+           en:["January","February","March","April","May","June","July","August","September","October","November","December"]};
 var ws=null,pc=null,iceServers=[],linkState="off",retry=null;
 // El plan lo dicta el servidor en hello-ok; "pro" por defecto para no mostrar una app
 // degradada mientras el muro de pago esté apagado.
@@ -1458,10 +1464,17 @@ function drawVehicle(root){
     p.appendChild(fill);c.appendChild(p);
 
     // Qué falta, en el criterio que manda (km o fecha)
-    var det=[];
-    if(r.km>0)det.push(s.remainingKm+" km");
-    if(r.days>0)det.push(s.remainingDays+" "+t("days"));
-    c.appendChild(el("p","hint",(s.overdue?t("rem_since"):t("rem_left"))+" "+det.join(" · ")));
+    // En modo mes fijo la frase es otra: no "faltan X" sino "te toca en <mes>".
+    if(r.month>0){
+      c.appendChild(el("p","hint",s.overdue
+        ? t("rem_missed")+" "+MESES[lang][r.month-1]
+        : t("plate_set")+" "+MESES[lang][r.month-1]+" · "+s.remainingDays+" "+t("days")));
+    }else{
+      var det=[];
+      if(r.km>0)det.push(s.remainingKm+" km");
+      if(r.days>0)det.push(s.remainingDays+" "+t("days"));
+      c.appendChild(el("p","hint",(s.overdue?t("rem_since"):t("rem_left"))+" "+det.join(" · ")));
+    }
 
     var row=el("div");row.style.cssText="display:flex;gap:8px;margin-top:10px";
     var hecho=el("button","btn ghost",t("rem_done"));
@@ -1489,10 +1502,21 @@ function drawVehicle(root){
     if(lista.some(function(x){return x.type===p.type;}))return;   // ya lo tiene
     var b=el("div","chip",t("rem_"+p.type));b.style.cursor="pointer";
     b.onclick=function(){
+      var mes=p.month||0;
+      // La matrícula no vence "cada N días": la ANT asigna un mes según el último dígito de
+      // la placa. Sin ese dato el recordatorio no puede calcular nada, así que se pregunta aquí.
+      if(p.type==="plate"){
+        var placa=prompt(t("plate_ask"),"");
+        if(placa===null)return;                       // canceló: no se agrega a medias
+        mes=RD_REM.plateMonth(placa);
+        if(!mes){flash(t("plate_bad"));return;}
+      }
       var l=rems();
-      l.push({id:"r"+Date.now(),type:p.type,name:t("rem_"+p.type),km:p.km,days:p.days,lastAt:Date.now(),notified:0,history:[]});
+      l.push({id:"r"+Date.now(),type:p.type,name:t("rem_"+p.type),km:p.km,days:p.days,
+              month:mes,lastAt:Date.now(),notified:0,history:[]});
       saveRems(l);
       askNotifyPerm();   // el alta es el momento natural para pedirlo, no al abrir la app
+      if(mes)flash(t("plate_set")+" "+MESES[lang][mes-1]);
       render();
     };
     grid.appendChild(b);
