@@ -1,9 +1,9 @@
 {
-  "versionCode": 85,
-  "versionName": "0.8.1",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.1/redash-0.8.1.apk",
-  "sha256": "7db3d1cecedbe005b32556a45c9b920629c3d27a89122a6d3523d9c133fe7a47",
-  "notes": "Boton 'Buscar cerca' en los mantenimientos de taller: abre el mapa buscando lubricadora, vulcanizadora o taller junto a donde estuviste.",
-  "desktopVersion": "0.4.3",
-  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.3/ReDash-0.4.3-win-x64.zip"
+  "versionCode": 86,
+  "versionName": "0.8.2",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.2/redash-0.8.2.apk",
+  "sha256": "646e453baf39540e68bc6b8a988a3989b4c83c6f275f00bcdedc119acc4cb824",
+  "notes": "Cada recordatorio te lleva a donde resolverlo: 'Buscar cerca' abre el mapa con talleres junto a ti, y 'Donde hacerlo' busca el tramite vigente en tu pais.",
+  "desktopVersion": "0.4.4",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.4/ReDash-0.4.4-win-x64.zip"
 }

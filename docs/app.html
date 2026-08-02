@@ -231,7 +231,9 @@ var I18N={
   cam_none:"No se detectó ninguna cámara.",cam_hang:"La cámara no responde — puede que otra app la esté usando.",
   no_clips:"Aún no hay clips",no_events:"Aún no hay eventos",no_trips:"Aún no hay viajes",no_cams:"Aún no hay cámaras",
   trip_rec:"Grabar viaje",trip_stop:"Terminar viaje",gps_no:"Este equipo no da ubicacion",
-  nav_veh:"Mi vehiculo",days:"dias",find_near:"Buscar cerca",
+  nav_veh:"Mi vehiculo",days:"dias",find_near:"Buscar cerca",find_how:"Donde hacerlo",
+  q_plate:"matriculacion vehicular revision tecnica",q_insurance:"seguro vehicular obligatorio",
+  q_license:"renovar licencia de conducir",
   plate_ask:"Ultimo digito de tu placa (o la placa completa). La ANT asigna el mes de matriculacion segun ese digito.",
   plate_bad:"No encontre ningun numero en la placa",plate_set:"Te toca en",rem_missed:"Se paso tu mes:",
   parked:"Aqui dejaste el auto",parked_at:"Estacionado:",park_go:"Como llegar al auto",
@@ -315,7 +317,9 @@ var I18N={
   cam_none:"No camera detected.",cam_hang:"The camera is not responding — another app may be using it.",
   no_clips:"No clips yet",no_events:"No events yet",no_trips:"No trips yet",no_cams:"No cameras yet",
   trip_rec:"Record trip",trip_stop:"End trip",gps_no:"This device has no location",
-  nav_veh:"My vehicle",days:"days",find_near:"Find nearby",
+  nav_veh:"My vehicle",days:"days",find_near:"Find nearby",find_how:"Where to do it",
+  q_plate:"vehicle registration renewal",q_insurance:"car insurance renewal",
+  q_license:"renew driver license",
   plate_ask:"Last digit of your plate (or the whole plate). Ecuador assigns your registration month by that digit.",
   plate_bad:"No number found in the plate",plate_set:"Your month is",rem_missed:"You missed your month:",
   parked:"You left the car here",parked_at:"Parked:",park_go:"Get back to the car",
@@ -1437,6 +1441,18 @@ function askNotifyPerm(){
  */
 var BUSQUEDA={oil:"lubricadora cambio de aceite",tires:"vulcanizadora llantas",
               brakes:"taller mecanico frenos",filter:"taller mecanico filtros"};
+/**
+ * Trámites: se busca en la web en vez de enlazar el sitio del organismo. A propósito.
+ * Un dominio quemado en el APK manda a donde ya no es cuando el organismo se muda —o peor,
+ * si el dominio caduca y lo compra otro— y aquí se trata de pagar impuestos. El buscador
+ * localiza por país solo, así que esto sirve igual en cualquier país sin mantener una lista,
+ * y siempre encuentra el sitio VIGENTE. El término va en los textos porque cambia por idioma.
+ */
+var TRAMITE={plate:"q_plate",insurance:"q_insurance",license:"q_license"};
+function buscarTramite(tipo){
+  var clave=TRAMITE[tipo];if(!clave)return;
+  window.open("https://www.google.com/search?q="+encodeURIComponent(t(clave)),"_blank","noopener");
+}
 function buscarCerca(tipo){
   var q=BUSQUEDA[tipo];if(!q)return;
   var park=null;try{park=JSON.parse(localStorage.getItem("rd_park")||"null");}catch(e){}
@@ -1516,6 +1532,12 @@ function drawVehicle(root){
       cerca.style.cssText="padding:8px 12px;font-size:13px";
       cerca.onclick=function(){buscarCerca(r.type);};
       row.appendChild(cerca);
+    }else if(TRAMITE[r.type]){
+      // Trámite: no hay taller al que ir, lo que falta es saber dónde y cómo hacerlo.
+      var como=el("button","btn ghost",t("find_how"));
+      como.style.cssText="padding:8px 12px;font-size:13px";
+      como.onclick=function(){buscarTramite(r.type);};
+      row.appendChild(como);
     }
     row.appendChild(el("div","spacer"));row.appendChild(quitar);
     c.appendChild(row);
