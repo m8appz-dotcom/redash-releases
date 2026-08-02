@@ -1,9 +1,9 @@
 {
-  "versionCode": 84,
-  "versionName": "0.8.0",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.0/redash-0.8.0.apk",
-  "sha256": "7675e3b26431c2687317f6cda0b2b51575581d0172c36594bd08a8a3c2a3c558",
-  "notes": "La matricula ahora usa el calendario de la ANT: dinos tu placa y la app calcula tu mes. Ademas, boton para guardar un clip en la galeria del telefono.",
-  "desktopVersion": "0.4.2",
-  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.2/ReDash-0.4.2-win-x64.zip"
+  "versionCode": 85,
+  "versionName": "0.8.1",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.1/redash-0.8.1.apk",
+  "sha256": "7db3d1cecedbe005b32556a45c9b920629c3d27a89122a6d3523d9c133fe7a47",
+  "notes": "Boton 'Buscar cerca' en los mantenimientos de taller: abre el mapa buscando lubricadora, vulcanizadora o taller junto a donde estuviste.",
+  "desktopVersion": "0.4.3",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.3/ReDash-0.4.3-win-x64.zip"
 }

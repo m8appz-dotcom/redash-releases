@@ -231,7 +231,7 @@ var I18N={
   cam_none:"No se detectó ninguna cámara.",cam_hang:"La cámara no responde — puede que otra app la esté usando.",
   no_clips:"Aún no hay clips",no_events:"Aún no hay eventos",no_trips:"Aún no hay viajes",no_cams:"Aún no hay cámaras",
   trip_rec:"Grabar viaje",trip_stop:"Terminar viaje",gps_no:"Este equipo no da ubicacion",
-  nav_veh:"Mi vehiculo",days:"dias",
+  nav_veh:"Mi vehiculo",days:"dias",find_near:"Buscar cerca",
   plate_ask:"Ultimo digito de tu placa (o la placa completa). La ANT asigna el mes de matriculacion segun ese digito.",
   plate_bad:"No encontre ningun numero en la placa",plate_set:"Te toca en",rem_missed:"Se paso tu mes:",
   parked:"Aqui dejaste el auto",parked_at:"Estacionado:",park_go:"Como llegar al auto",
@@ -315,7 +315,7 @@ var I18N={
   cam_none:"No camera detected.",cam_hang:"The camera is not responding — another app may be using it.",
   no_clips:"No clips yet",no_events:"No events yet",no_trips:"No trips yet",no_cams:"No cameras yet",
   trip_rec:"Record trip",trip_stop:"End trip",gps_no:"This device has no location",
-  nav_veh:"My vehicle",days:"days",
+  nav_veh:"My vehicle",days:"days",find_near:"Find nearby",
   plate_ask:"Last digit of your plate (or the whole plate). Ecuador assigns your registration month by that digit.",
   plate_bad:"No number found in the plate",plate_set:"Your month is",rem_missed:"You missed your month:",
   parked:"You left the car here",parked_at:"Parked:",park_go:"Get back to the car",
@@ -1427,6 +1427,25 @@ function checkRemNotices(){
 function askNotifyPerm(){
   try{ if(window.Notification&&Notification.permission==="default")Notification.requestPermission(); }catch(e){}
 }
+/**
+ * Qué buscar en el mapa para cada mantenimiento. Se abre una BÚSQUEDA, no un enlace fijo:
+ * los sitios se mudan y los negocios cierran, pero una búsqueda cerca de ti nunca se pudre
+ * y funciona igual en cualquier ciudad.
+ * Los trámites (matrícula, seguro, licencia) no están aquí a propósito: mandar a alguien a
+ * pagar impuestos a una URL desactualizada es un error caro, y esos enlaces necesitan
+ * mantenerse aparte.
+ */
+var BUSQUEDA={oil:"lubricadora cambio de aceite",tires:"vulcanizadora llantas",
+              brakes:"taller mecanico frenos",filter:"taller mecanico filtros"};
+function buscarCerca(tipo){
+  var q=BUSQUEDA[tipo];if(!q)return;
+  var park=null;try{park=JSON.parse(localStorage.getItem("rd_park")||"null");}catch(e){}
+  // Con la última posición conocida se centra el mapa ahí; sin ella, que el buscador use
+  // la ubicación del navegador.
+  var url="https://www.google.com/maps/search/"+encodeURIComponent(q)
+    +(park&&park.la?("/@"+park.la+","+park.lo+",14z"):"");
+  window.open(url,"_blank","noopener");
+}
 function remUrgente(){
   var peor=null;
   rems().forEach(function(r){
@@ -1489,7 +1508,16 @@ function drawVehicle(root){
     var quitar=el("button","btn ghost","✕");
     quitar.style.cssText="padding:8px 12px;font-size:13px;max-width:52px";
     quitar.onclick=function(){var l=rems();l.splice(i,1);saveRems(l);render();};
-    row.appendChild(hecho);row.appendChild(el("div","spacer"));row.appendChild(quitar);
+    row.appendChild(hecho);
+    // Solo para mantenimientos que se resuelven en un taller: para la matrícula o el seguro
+    // una búsqueda de "taller" no ayudaría en nada.
+    if(BUSQUEDA[r.type]){
+      var cerca=el("button","btn ghost",t("find_near"));
+      cerca.style.cssText="padding:8px 12px;font-size:13px";
+      cerca.onclick=function(){buscarCerca(r.type);};
+      row.appendChild(cerca);
+    }
+    row.appendChild(el("div","spacer"));row.appendChild(quitar);
     c.appendChild(row);
     wrap.appendChild(c);
   });
