@@ -225,7 +225,8 @@ var I18N={
   cam_on:"Encender cámara",cam_denied:"Permiso de cámara denegado. Actívalo en el candado de la barra de direcciones.",
   cam_none:"No se detectó ninguna cámara.",cam_hang:"La cámara no responde — puede que otra app la esté usando.",
   no_clips:"Aún no hay clips",no_events:"Aún no hay eventos",no_trips:"Aún no hay viajes",no_cams:"Aún no hay cámaras",
-  trip_rec:"Grabar viaje",trip_stop:"Terminar viaje",gps_no:"Este equipo no da ubicacion",
+  trip_rec:"Grabar viaje",trip_stop:"Terminar viaje",gps_no:"Este equipo no da ubicacion",gps_denied:"Permiso de ubicacion denegado",
+  gps_desktop:"En una PC la ubicacion es aproximada (cientos de km): sirve para el mapa, no para trazar una ruta. Usa el telefono para grabar viajes.",
   add_ip:"Camara IP (RTSP)",add_ip_sub:"Camaras de seguridad y NVR de otras marcas",ip_cam:"Camara IP",add:"Agregar",
   ip_bad_url:"La direccion debe empezar con rtsp://",connecting:"conectando",
   ip_desktop_only:"Las camaras IP solo funcionan en la app de Windows: el navegador no puede conectarse a RTSP.",
@@ -295,7 +296,8 @@ var I18N={
   cam_on:"Turn on camera",cam_denied:"Camera permission denied. Enable it from the padlock in the address bar.",
   cam_none:"No camera detected.",cam_hang:"The camera is not responding — another app may be using it.",
   no_clips:"No clips yet",no_events:"No events yet",no_trips:"No trips yet",no_cams:"No cameras yet",
-  trip_rec:"Record trip",trip_stop:"End trip",gps_no:"This device has no location",
+  trip_rec:"Record trip",trip_stop:"End trip",gps_no:"This device has no location",gps_denied:"Location permission denied",
+  gps_desktop:"On a PC the location is a rough estimate (hundreds of km): fine for the map, not for tracing a route. Use your phone to record trips.",
   add_ip:"IP camera (RTSP)",add_ip_sub:"Third-party security cameras and NVRs",ip_cam:"IP camera",add:"Add",
   ip_bad_url:"The address must start with rtsp://",connecting:"connecting",
   ip_desktop_only:"IP cameras only work in the Windows app: browsers cannot connect to RTSP.",
@@ -1564,7 +1566,7 @@ function tripKm(pts){
   var k=0;for(var i=1;i<pts.length;i++)k+=metros(pts[i-1].la,pts[i-1].lo,pts[i].la,pts[i].lo);
   return k/1000;
 }
-function startTrip(onPoint){
+function startTrip(onPoint,onError){
   if(!navigator.geolocation)return false;
   tripPts=[];tripOn=true;
   geoWatch=navigator.geolocation.watchPosition(function(p){
@@ -1575,7 +1577,13 @@ function startTrip(onPoint){
     tripPts.push({t:Date.now(),la:la,lo:lo,sp:p.coords.speed||0});
     if(tripPts.length>5000)tripPts.shift();
     if(onPoint)onPoint(la,lo);
-  },function(){},{enableHighAccuracy:true,maximumAge:2000,timeout:15000});
+  },function(e){
+    // Un fallo aquí NO puede pasar desapercibido: el usuario creería estar grabando su
+    // recorrido y al terminar no habría nada. Se corta la grabación y se avisa.
+    if(geoWatch!==null){navigator.geolocation.clearWatch(geoWatch);geoWatch=null;}
+    tripOn=false;
+    if(onError)onError(e&&e.code===1?t("gps_denied"):t("gps_no"));
+  },{enableHighAccuracy:true,maximumAge:2000,timeout:15000});
   return true;
 }
 function stopTrip(){
@@ -1631,6 +1639,10 @@ function drawMapScreen(root,remote){
         function(p){setLive(p.coords.latitude,p.coords.longitude);},function(){},{enableHighAccuracy:true});
       var b=el("button","btn "+(tripOn?"pri":"ghost"),tripOn?t("trip_stop"):t("trip_rec"));
       b.style.marginBottom="10px";
+      var gpsWarn=el("p","hint");gpsWarn.style.color="#f0a0a0";
+      // En una PC la ubicación es una estimación por IP (cientos de km): se avisa ANTES de
+      // que el usuario crea que va a grabar su ruta.
+      if(window.RD_DESKTOP)gpsWarn.textContent=t("gps_desktop");
       b.onclick=function(){
         if(tripOn){
           stopTrip();
@@ -1639,12 +1651,17 @@ function drawMapScreen(root,remote){
           b.className="btn ghost";b.textContent=t("trip_rec");
         }else{
           if(liveWatch!==null){navigator.geolocation.clearWatch(liveWatch);liveWatch=null;}
-          if(!startTrip(function(la,lo){setLive(la,lo);})){flash(t("gps_no"));return;}
+          var fallo=function(msg){
+            flash(msg);b.className="btn ghost";b.textContent=t("trip_rec");
+            gpsWarn.textContent=msg;
+          };
+          if(!startTrip(function(la,lo){setLive(la,lo);gpsWarn.textContent="";},fallo)){fallo(t("gps_no"));return;}
           b.className="btn pri";b.textContent=t("trip_stop");
         }
         renderLocalTrips(chips);
       };
       card.insertBefore(b,chips);
+      card.insertBefore(gpsWarn,chips);
       renderLocalTrips(chips);
     }
   },60);
