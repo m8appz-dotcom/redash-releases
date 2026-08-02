@@ -226,6 +226,11 @@ var I18N={
   cam_none:"No se detectó ninguna cámara.",cam_hang:"La cámara no responde — puede que otra app la esté usando.",
   no_clips:"Aún no hay clips",no_events:"Aún no hay eventos",no_trips:"Aún no hay viajes",no_cams:"Aún no hay cámaras",
   trip_rec:"Grabar viaje",trip_stop:"Terminar viaje",gps_no:"Este equipo no da ubicacion",
+  add_ip:"Camara IP (RTSP)",add_ip_sub:"Camaras de seguridad y NVR de otras marcas",ip_cam:"Camara IP",add:"Agregar",
+  ip_bad_url:"La direccion debe empezar con rtsp://",connecting:"conectando",
+  ip_desktop_only:"Las camaras IP solo funcionan en la app de Windows: el navegador no puede conectarse a RTSP.",
+  ip_need_ffmpeg:"Falta ffmpeg. Instalalo con: winget install ffmpeg (y reinicia ReDash).",
+  ip_codec:"Este equipo no puede reproducir el video de la camara.",
   upd_ready:"Hay una version nueva:",upd_get:"Descargar",
   qr_manual:"O pega aquí el enlace del QR",
   scan_dash:"Dashcam ReDash",
@@ -291,6 +296,11 @@ var I18N={
   cam_none:"No camera detected.",cam_hang:"The camera is not responding — another app may be using it.",
   no_clips:"No clips yet",no_events:"No events yet",no_trips:"No trips yet",no_cams:"No cameras yet",
   trip_rec:"Record trip",trip_stop:"End trip",gps_no:"This device has no location",
+  add_ip:"IP camera (RTSP)",add_ip_sub:"Third-party security cameras and NVRs",ip_cam:"IP camera",add:"Add",
+  ip_bad_url:"The address must start with rtsp://",connecting:"connecting",
+  ip_desktop_only:"IP cameras only work in the Windows app: browsers cannot connect to RTSP.",
+  ip_need_ffmpeg:"ffmpeg is missing. Install it with: winget install ffmpeg (then restart ReDash).",
+  ip_codec:"This device cannot play the camera video.",
   upd_ready:"A new version is available:",upd_get:"Download",
   qr_manual:"Or paste the QR link here",
   scan_dash:"ReDash dashcam",
@@ -1018,6 +1028,7 @@ function drawViewer(root){
   if(screen==="qr"){drawQr(root);return;}
   if(screen==="scan"){drawScan(root);return;}
   if(screen==="addweb"){drawAddWeb(root);return;}
+  if(screen==="addip"){drawAddIp(root);return;}
   if(screen==="about"){drawAbout(root);return;}
   if(screen==="cam"){drawCamDetail(root,screenArg);return;}
   if(screen==="map"){drawMapScreen(root,true);return;}
@@ -1047,7 +1058,7 @@ function drawViewer(root){
     c.appendChild(el("b",null,cam.name));
     c.appendChild(el("div","sub",cam.device||cam.url));
     var st=el("div","st",cam.type==="dash"?"…":t("web_cam"));c.appendChild(st);
-    c.onclick=function(){go("cam",cam.type==="dash"?{type:"dash",i:i}:{type:"web",i:i});};
+    c.onclick=function(){go("cam",{type:cam.type==="dash"?"dash":(cam.type==="ip"?"ip":"web"),i:i});};
     grid.appendChild(c);
     if(cam.type==="dash"){
       var ping=function(){
@@ -1105,7 +1116,35 @@ function drawAdd(root){
   box.appendChild(bigOption("grid",t("add_qr"),t("add_qr_sub"),function(){go("qr");}));
   box.appendChild(bigOption("signal",t("add_scan"),t("add_scan_sub"),function(){go("scan");}));
   box.appendChild(bigOption("cam",t("add_web"),t("add_web_sub"),function(){go("addweb");}));
+  // Solo en el escritorio: el navegador no puede hablar RTSP, así que ofrecerlo ahí
+  // sería prometer algo que no va a funcionar.
+  if(window.RD_DESKTOP)box.appendChild(bigOption("signal",t("add_ip"),t("add_ip_sub"),function(){go("addip");}));
   root.appendChild(box);
+}
+function drawAddIp(root){
+  var bar=appbar(t("add_ip"));
+  bar.replaceChild(icoBtn("back",null,function(){go("add");}),bar.firstChild);
+  root.appendChild(bar);
+  var c=el("div","glass");c.style.cssText="padding:16px;max-width:480px";
+  c.appendChild(el("p","hint",t("add_ip_sub")));
+  var d=el("div");d.style.marginTop="14px";
+  d.appendChild(el("label",null,t("dev_name")));
+  var iName=el("input");iName.placeholder=t("ip_cam");d.appendChild(iName);
+  d.appendChild(el("label",null,"URL RTSP"));
+  var iUrl=el("input");iUrl.placeholder="rtsp://usuario:clave@192.168.1.50:554/stream1";d.appendChild(iUrl);
+  c.appendChild(d);
+  var err=el("p","err");
+  var warn=el("p","hint");c.appendChild(warn);
+  if(window.RD_DESKTOP)RD_DESKTOP.rtspAvailable().then(function(ok){if(!ok)warn.textContent=t("ip_need_ffmpeg");});
+  var b=el("button","btn pri",t("add"));b.style.marginTop="12px";
+  b.onclick=function(){
+    var u=iUrl.value.trim();
+    if(!/^rtsps?:\/\//i.test(u)){err.textContent=t("ip_bad_url");return;}
+    var l=cams();l.push({name:iName.value.trim()||t("ip_cam"),type:"ip",url:u});saveCams(l);
+    go("home");
+  };
+  c.appendChild(b);c.appendChild(err);
+  root.appendChild(c);
 }
 
 /* --- escaneo de QR: BarcodeDetector nativo, sin librerias --- */
@@ -1239,9 +1278,75 @@ function drawAddWeb(root){
   c.appendChild(b);c.appendChild(err);
   root.appendChild(c);
 }
+/* --------- cámara IP por RTSP (solo escritorio: el navegador no abre esos sockets) --------- */
+var rtspId=null,rtspMs=null,rtspSb=null,rtspQ=[],rtspSeen=false;
+function closeRtsp(){
+  if(rtspId&&window.RD_DESKTOP&&RD_DESKTOP.rtspStop)RD_DESKTOP.rtspStop(rtspId);
+  rtspId=null;rtspMs=null;rtspSb=null;rtspQ=[];rtspSeen=false;
+}
+/** Vacía la cola en el SourceBuffer. appendBuffer es asíncrono: encimar dos llamadas lanza
+ *  InvalidStateError, por eso se encola y se sirve de a uno. */
+function rtspPump(){
+  if(!rtspSb||rtspSb.updating||!rtspQ.length)return;
+  try{ rtspSb.appendBuffer(rtspQ.shift()); }catch(e){ /* buffer lleno o cerrado */ }
+}
+function drawIpCam(root,i){
+  var cam=cams()[i];if(!cam){go("home");return;}
+  var pill=el("span","pill",t("connecting"));
+  var bar=appbar(cam.name||t("ip_cam"),[pill]);
+  bar.replaceChild(icoBtn("back",null,function(){closeRtsp();go("home");}),bar.firstChild);
+  root.appendChild(bar);
+  var card=el("div","glass");card.style.cssText="padding:14px;max-width:760px";
+  var vp=el("div","viewport");
+  var vid=el("video");vid.autoplay=true;vid.muted=true;vid.playsInline=true;vp.appendChild(vid);
+  card.appendChild(vp);
+  var err=el("p","err");card.appendChild(err);
+  card.appendChild(el("p","hint",cam.url));
+  var del=el("button","btn ghost");del.appendChild(ico("close"));del.style.cssText="margin-top:12px;max-width:120px";
+  del.onclick=function(){var l=cams();l.splice(i,1);saveCams(l);closeRtsp();go("home");};
+  card.appendChild(del);
+  root.appendChild(card);
+
+  closeRtsp();
+  if(!window.RD_DESKTOP){err.textContent=t("ip_desktop_only");pill.textContent=t("off");return;}
+  RD_DESKTOP.rtspAvailable().then(function(ok){
+    if(!ok){err.textContent=t("ip_need_ffmpeg");pill.textContent=t("off");return;}
+    rtspId="ip"+i+"_"+Date.now();
+    rtspMs=new MediaSource();vid.src=URL.createObjectURL(rtspMs);
+    rtspMs.addEventListener("sourceopen",function(){
+      // Perfil fijado en ffmpeg (baseline 3.1): por eso se puede declarar el códec sin sondear.
+      try{ rtspSb=rtspMs.addSourceBuffer('video/mp4; codecs="avc1.42E01F"'); }
+      catch(e){ err.textContent=t("ip_codec"); return; }
+      rtspSb.mode="sequence";
+      rtspSb.addEventListener("updateend",function(){
+        // La cámara emite indefinidamente: sin podar, el búfer creceria hasta agotar memoria.
+        try{
+          if(rtspSb.buffered.length&&vid.currentTime-rtspSb.buffered.start(0)>30&&!rtspSb.updating)
+            rtspSb.remove(rtspSb.buffered.start(0),vid.currentTime-15);
+        }catch(e){}
+        rtspPump();
+      });
+      RD_DESKTOP.rtspStart(rtspId,cam.url);
+    },{once:true});
+  });
+  RD_DESKTOP.onRtspData(function(id,chunk){
+    if(id!==rtspId||!rtspSb)return;
+    rtspQ.push(chunk);
+    if(rtspQ.length>120)rtspQ.splice(0,rtspQ.length-60); // si nos atrasamos, se prefiere el vivo
+    rtspPump();
+    if(!rtspSeen){rtspSeen=true;pill.textContent=t("live");pill.className="pill ok";
+      var p=vid.play();if(p&&p.catch)p.catch(function(){});}
+  });
+  RD_DESKTOP.onRtspError(function(id,msg){
+    if(id!==rtspId)return;
+    pill.textContent=t("off");pill.className="pill";
+    err.textContent=msg==="no_ffmpeg"?t("ip_need_ffmpeg"):(msg||"").slice(0,160);
+  });
+}
 /* detalle: dashcam local (MJPEG + control) o cámara web (WebRTC) */
 function drawCamDetail(root,arg){
   if(arg.type==="web")return drawWebCam(root,arg.i);
+  if(arg.type==="ip")return drawIpCam(root,arg.i);
   // Una dashcam remota se controla igual que la local; solo cambia a donde apuntan las
   // llamadas y que la clave viaja explicita (otro origen, por eso el servicio manda CORS).
   var unit=arg.type==="dash"?cams()[arg.i]:null;

@@ -1,9 +1,9 @@
 {
-  "versionCode": 77,
-  "versionName": "0.5.9",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.5.9/redash-0.5.9.apk",
-  "sha256": "c645317fd7608cbfebeacca62484c43b9241b71c57e339053e6e52310c8b4aa5",
-  "notes": "Graba tus recorridos desde el navegador (movil o portatil) y exportalos en GPX. La app de Windows ahora avisa cuando hay una version nueva.",
-  "desktopVersion": "0.2.9",
-  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.2.9/ReDash-0.2.9-win-x64.zip"
+  "versionCode": 78,
+  "versionName": "0.6.0",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.6.0/redash-0.6.0.apk",
+  "sha256": "1fc57ee06b38024a55f018caff069226daf4279f927a3fdfb5cb59ee39415291",
+  "notes": "La app de Windows ya reproduce camaras IP (RTSP): agregalas desde Anadir camara. El video va de la camara a tu PC, sin pasar por ningun servidor.",
+  "desktopVersion": "0.3.0",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.3.0/ReDash-0.3.0-win-x64.zip"
 }
