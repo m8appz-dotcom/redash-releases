@@ -246,7 +246,8 @@ var I18N={
   veh_odo:"Ajustar con tu odometro",
   veh_odo_hint:"Escribe lo que marca tu tablero. La app mantiene tu millaje al dia con los viajes grabados, y con dos lecturas se corrige sola.",
   veh_seen:"Vistos:",veh_factor:"factor",veh_calibrate:"Ajustar",veh_calibrated:"Ajustado, factor",
-  rem_last:"Ultimo:",veh_save:"Guardar lectura",veh_odo_now:"Ahora aprox.",veh_odo_saved:"guardado",
+  rem_last:"Ultimo:",veh_odo_kick:"ODOMETRO ESTIMADO",veh_reading:"lectura",
+  veh_no_reading:"Guarda tu primera lectura abajo",veh_history:"Historial",veh_save:"Guardar lectura",veh_odo_now:"Ahora aprox.",veh_odo_saved:"guardado",
   veh_odo_ok:"Odometro guardado",veh_odo_lower:"Esa lectura es menor que la anterior",gps_denied:"Permiso de ubicacion denegado",
   gps_desktop:"En una PC la ubicacion es aproximada (cientos de km): sirve para el mapa, no para trazar una ruta. Usa el telefono para grabar viajes.",
   add_ip:"Camara IP (RTSP)",add_ip_sub:"Camaras de seguridad y NVR de otras marcas",ip_cam:"Camara IP",add:"Agregar",
@@ -334,7 +335,8 @@ var I18N={
   veh_odo:"Adjust with your odometer",
   veh_odo_hint:"Type what your dashboard shows. The app keeps your mileage up to date with your recorded trips, and with two readings it corrects itself.",
   veh_seen:"Seen:",veh_factor:"factor",veh_calibrate:"Adjust",veh_calibrated:"Adjusted, factor",
-  rem_last:"Last:",veh_save:"Save reading",veh_odo_now:"Now about",veh_odo_saved:"saved",
+  rem_last:"Last:",veh_odo_kick:"ESTIMATED ODOMETER",veh_reading:"reading",
+  veh_no_reading:"Save your first reading below",veh_history:"History",veh_save:"Save reading",veh_odo_now:"Now about",veh_odo_saved:"saved",
   veh_odo_ok:"Odometer saved",veh_odo_lower:"That reading is lower than the previous one",gps_denied:"Location permission denied",
   gps_desktop:"On a PC the location is a rough estimate (hundreds of km): fine for the map, not for tracing a route. Use your phone to record trips.",
   add_ip:"IP camera (RTSP)",add_ip_sub:"Third-party security cameras and NVRs",ip_cam:"IP camera",add:"Add",
@@ -1481,12 +1483,54 @@ function drawVehicle(root){
   var wrap=el("div");wrap.style.cssText="max-width:560px;margin:0 auto";
   var lista=rems();
 
+  // ---- Héroe: la pantalla contesta primero "¿está bien mi auto?" ----
+  var V0=veh();
+  var estim0=V0.odoKm>0 ? V0.odoKm+RD_REM.kmSince(localTrips(),V0.odoAt||0,V0.factor||1) : 0;
+  // Salud = promedio de lo que le falta a cada mantenimiento. Un número honesto y explicable.
+  var salud=1;
+  if(lista.length){
+    var suma=0;
+    lista.forEach(function(r){suma+=Math.min(1,remState(r).pct);});
+    salud=1-suma/lista.length;
+  }
+  var colorS=salud>0.5?"#5EC9A0":(salud>0.2?"#FFB9A8":"#F79E8C");
+  var hero=el("div");
+  hero.style.cssText="display:flex;align-items:center;gap:12px;padding:15px 16px;margin-bottom:12px;"
+    +"border-radius:18px;border:1px solid rgba(167,139,250,.3);"
+    +"background:linear-gradient(145deg,rgba(167,139,250,.16),rgba(167,139,250,.03))";
+  var colIzq=el("div");colIzq.style.flex="1";
+  colIzq.appendChild(el("p","kick",t("veh_odo_kick")));
+  if(V0.odoKm>0){
+    var big=el("div",null,Math.round(estim0).toLocaleString()+" km");
+    big.style.cssText="font-size:27px;font-weight:800;letter-spacing:-.5px";colIzq.appendChild(big);
+    colIzq.appendChild(el("p","hint",t("veh_reading")+" "+Math.round(V0.odoKm).toLocaleString()
+      +" · "+new Date(V0.odoAt||Date.now()).toLocaleDateString()+" · "+t("veh_factor")+" "+(V0.factor||1)));
+  }else{
+    var nada=el("div",null,"—");nada.style.cssText="font-size:27px;font-weight:800;color:#6f7285";colIzq.appendChild(nada);
+    colIzq.appendChild(el("p","hint",t("veh_no_reading")));
+  }
+  hero.appendChild(colIzq);
+  // Anillo de salud con conic-gradient: el mismo dibujo que el nativo hace con un arco.
+  var ring=el("div");
+  ring.style.cssText="width:58px;height:58px;border-radius:50%;flex-shrink:0;position:relative;"
+    +"background:conic-gradient("+colorS+" 0 "+Math.round(salud*100)+"%, rgba(255,255,255,.09) "+Math.round(salud*100)+"% 100%)";
+  var hueco=el("div");hueco.style.cssText="position:absolute;inset:6px;border-radius:50%;background:var(--bg,#14161f);display:flex;align-items:center;justify-content:center";
+  hueco.appendChild(el("b",null,Math.round(salud*100)+"%"));
+  ring.appendChild(hueco);hero.appendChild(ring);
+  wrap.appendChild(hero);
+
+  // Orden por urgencia: lo que está por vencer, arriba. El índice original se conserva
+  // porque los botones mutan rems() por posición.
+  var orden=lista.map(function(_,idx){return idx;})
+    .sort(function(a,b){return remState(lista[b]).pct-remState(lista[a]).pct;});
+
   if(!lista.length){
     var vacio=el("div","glass");vacio.style.cssText="padding:22px;text-align:center";
     vacio.appendChild(el("p","hint",t("veh_empty")));
     wrap.appendChild(vacio);
   }
-  lista.forEach(function(r,i){
+  orden.forEach(function(i){
+    var r=lista[i];
     var s=remState(r),km=remKm(r);
     var c=el("div","glass");c.style.cssText="padding:14px;margin-bottom:10px";
     var top=el("div");top.style.cssText="display:flex;align-items:center;gap:8px";
@@ -1522,10 +1566,12 @@ function drawVehicle(root){
     hecho.style.cssText="padding:8px 12px;font-size:13px";
     hecho.onclick=function(){
       var l=rems();
-      l[i].history=(l[i].history||[]).concat([{at:l[i].lastAt,km:Math.round(km)}]).slice(-12);
+      var vv=veh();
+      var odoAhora=vv.odoKm>0?Math.round(vv.odoKm+RD_REM.kmSince(localTrips(),vv.odoAt||0,vv.factor||1)):0;
+      l[i].history=(l[i].history||[]).concat([{at:Date.now(),odo:odoAhora}]).slice(-12);
       l[i].lastAt=Date.now();
       l[i].notified=0;   // ciclo nuevo: vuelve a poder avisar
-      saveRems(l);flash(t("rem_reset"));render();
+      saveRems(l);render();flash(t("rem_reset"));
     };
     var quitar=el("button","btn ghost","✕");
     quitar.style.cssText="padding:8px 12px;font-size:13px;max-width:52px";
@@ -1549,6 +1595,28 @@ function drawVehicle(root){
     c.appendChild(row);
     wrap.appendChild(c);
   });
+
+  // ---- Historial: el activo del dashboard ----
+  var eventos=[];
+  lista.forEach(function(r){
+    (r.history||[]).forEach(function(hh){
+      eventos.push({n:r.name||t("rem_"+r.type),at:hh.at,odo:hh.odo||0});
+    });
+  });
+  eventos.sort(function(a,b){return b.at-a.at;});
+  if(eventos.length){
+    var hcard=el("div","glass");hcard.style.cssText="padding:14px;margin-bottom:10px";
+    hcard.appendChild(el("p","kick",t("veh_history")));
+    eventos.slice(0,6).forEach(function(ev){
+      var fila=el("div");fila.style.cssText="display:flex;gap:8px;margin-top:8px";
+      fila.appendChild(el("span","hint",ev.n));
+      fila.appendChild(el("div","spacer"));
+      var der=el("span","hint",new Date(ev.at).toLocaleDateString()+(ev.odo>0?" · "+ev.odo.toLocaleString()+" km":""));
+      der.style.color="#6f7285";fila.appendChild(der);
+      hcard.appendChild(fila);
+    });
+    wrap.appendChild(hcard);
+  }
 
   // --- agregar ---
   var add=el("div","glass");add.style.cssText="padding:14px;margin-bottom:10px";

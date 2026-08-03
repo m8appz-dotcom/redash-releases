@@ -1,9 +1,9 @@
 {
-  "versionCode": 88,
-  "versionName": "0.8.4",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.4/redash-0.8.4.apk",
-  "sha256": "4015b8a8ac8812ae64d62421f958951f2104792cdd342147c46ce3ceaf50eb43",
-  "notes": "El odometro ahora GUARDA tu lectura y muestra tu millaje estimado al dia; con dos lecturas se corrige solo. Ya lo hice muestra la fecha del ultimo servicio y su confirmacion.",
-  "desktopVersion": "0.4.5",
-  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.5/ReDash-0.4.5-win-x64.zip"
+  "versionCode": 89,
+  "versionName": "0.8.5",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.5/redash-0.8.5.apk",
+  "sha256": "969171b15c507114efbec62357bdc69612f3a302e3eb59e98c73b1b7728d395b",
+  "notes": "Mi vehiculo ahora es un dashboard: tu odometro estimado al dia, un anillo de salud del auto, los mantenimientos ordenados por urgencia y el historial de servicios con sus kilometros.",
+  "desktopVersion": "0.4.6",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.6/ReDash-0.4.6-win-x64.zip"
 }
