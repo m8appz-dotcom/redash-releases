@@ -4,6 +4,6 @@
   "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.9/redash-0.8.9.apk",
   "sha256": "e3ae8cc08d918764e32ae742f29302248109b5fbcfdd6a199c919d1f157161f9",
   "notes": "El panel web y la app de Windows tambien ven el vehiculo de cada dashcam, en solo lectura: nueva pestana Vehiculo junto a Clips y Eventos.",
-  "desktopVersion": "0.4.9",
-  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.9/ReDash-desktop-0.4.9-win.zip"
+  "desktopVersion": "0.4.10",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.10/ReDash-desktop-0.4.10-win.zip"
 }
