@@ -1,9 +1,9 @@
 {
-  "versionCode": 91,
-  "versionName": "0.8.7",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.7/redash-0.8.7.apk",
-  "sha256": "64bf4427fcc0d6ae89249e7c0447edcc5a00c81646bcb0e66fbc9f6d50fa985e",
-  "notes": "Al marcar un mantenimiento como hecho se pliega esa tarjeta y te quedas en Mi vehiculo, sin perder de vista el resto. Toca el titulo para volver a abrirla.",
+  "versionCode": 92,
+  "versionName": "0.8.8",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.8/redash-0.8.8.apk",
+  "sha256": "cf7ac11822338fb3436a3336e1012a61e77291d590709d736ab43f11c4f2253d",
+  "notes": "El Visor ya ve el vehiculo de cada camara: odometro, mantenimientos e historial, en solo lectura. El telefono que va en el carro sigue siendo el unico que los edita.",
   "desktopVersion": "0.4.8",
   "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.8/ReDash-desktop-0.4.8-win.zip"
 }
