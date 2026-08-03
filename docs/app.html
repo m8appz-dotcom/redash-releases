@@ -1405,6 +1405,9 @@ function drawIpCam(root,i){
   });
 }
 /* ==================== mantenimiento del vehículo ==================== */
+// Tarjetas plegadas de Mi vehículo. Es estado de interfaz, no del recordatorio: por eso vive
+// aquí y no en lo que se guarda.
+var remPlegadas={};
 function rems(){try{return JSON.parse(LS.get("rd_rems","[]"));}catch(e){return [];}}
 function saveRems(l){LS.set("rd_rems",JSON.stringify(l));}
 function veh(){try{return JSON.parse(LS.get("rd_veh",'{"factor":1}'));}catch(e){return {factor:1};}}
@@ -1533,7 +1536,10 @@ function drawVehicle(root){
     var r=lista[i];
     var s=remState(r),km=remKm(r);
     var c=el("div","glass");c.style.cssText="padding:14px;margin-bottom:10px";
-    var top=el("div");top.style.cssText="display:flex;align-items:center;gap:8px";
+    var plegada=!!remPlegadas[r.id];
+    var top=el("div");top.style.cssText="display:flex;align-items:center;gap:8px;cursor:pointer";
+    // Tocar el encabezado la despliega otra vez: nada queda escondido sin salida.
+    top.onclick=function(){remPlegadas[r.id]=!plegada;render();};
     top.appendChild(el("b",null,r.name||t("rem_"+r.type)));
     top.appendChild(el("div","spacer"));
     var pill=el("div","pill "+(s.overdue?"":(s.pct>=0.9?"":"ok")),
@@ -1561,7 +1567,7 @@ function drawVehicle(root){
       c.appendChild(el("p","hint",(s.overdue?t("rem_since"):t("rem_left"))+" "+det.join(" · ")));
     }
 
-    var row=el("div");row.style.cssText="display:flex;gap:8px;margin-top:10px";
+    var row=el("div");row.style.cssText=(plegada?"display:none":"display:flex")+";gap:8px;margin-top:10px";
     var hecho=el("button","btn ghost",t("rem_done"));
     hecho.style.cssText="padding:8px 12px;font-size:13px";
     hecho.onclick=function(){
@@ -1577,8 +1583,10 @@ function drawVehicle(root){
       l[i].lastAt=ahora;
       l[i].notified=0;   // ciclo nuevo: vuelve a poder avisar
       saveRems(l);
-      // Marcado el servicio, la pantalla ya cumplió: se vuelve a la home con el aviso.
-      go("home");flash(t("rem_reset"));
+      // Se pliega ESTA tarjeta: el servicio ya está hecho y sus botones no pintan nada.
+      // La pantalla se queda, que es donde el usuario sigue trabajando.
+      remPlegadas[l[i].id]=true;
+      render();flash(t("rem_reset"));
     };
     var quitar=el("button","btn ghost","✕");
     quitar.style.cssText="padding:8px 12px;font-size:13px;max-width:52px";

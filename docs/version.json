@@ -1,9 +1,9 @@
 {
-  "versionCode": 90,
-  "versionName": "0.8.6",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.6/redash-0.8.6.apk",
-  "sha256": "64c9ef11d2136706083df624932623f1e554ee7557ef34bcd7ef56b2ea2599e1",
-  "notes": "Al marcar un mantenimiento como hecho la pantalla se cierra sola y vuelve a la app, con la confirmacion a la vista. Y un doble toque ya no duplica el historial.",
-  "desktopVersion": "0.4.7",
-  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.7/ReDash-0.4.7-win-x64.zip"
+  "versionCode": 91,
+  "versionName": "0.8.7",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.7/redash-0.8.7.apk",
+  "sha256": "64bf4427fcc0d6ae89249e7c0447edcc5a00c81646bcb0e66fbc9f6d50fa985e",
+  "notes": "Al marcar un mantenimiento como hecho se pliega esa tarjeta y te quedas en Mi vehiculo, sin perder de vista el resto. Toca el titulo para volver a abrirla.",
+  "desktopVersion": "0.4.8",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.8/ReDash-desktop-0.4.8-win.zip"
 }
