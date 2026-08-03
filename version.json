@@ -1,9 +1,9 @@
 {
-  "versionCode": 86,
-  "versionName": "0.8.2",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.2/redash-0.8.2.apk",
-  "sha256": "646e453baf39540e68bc6b8a988a3989b4c83c6f275f00bcdedc119acc4cb824",
-  "notes": "Cada recordatorio te lleva a donde resolverlo: 'Buscar cerca' abre el mapa con talleres junto a ti, y 'Donde hacerlo' busca el tramite vigente en tu pais.",
+  "versionCode": 87,
+  "versionName": "0.8.3",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.3/redash-0.8.3.apk",
+  "sha256": "12aa339679680e9122b9c044babefba0eb7a3cde840a59f725397f5c307786bc",
+  "notes": "Mi vehiculo ya tiene boton de regreso y el titulo respira: antes no habia como salir de la pantalla salvo el gesto del sistema.",
   "desktopVersion": "0.4.4",
   "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.4/ReDash-0.4.4-win-x64.zip"
 }
