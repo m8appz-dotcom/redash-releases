@@ -1,9 +1,9 @@
 {
-  "versionCode": 92,
-  "versionName": "0.8.8",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.8/redash-0.8.8.apk",
-  "sha256": "cf7ac11822338fb3436a3336e1012a61e77291d590709d736ab43f11c4f2253d",
-  "notes": "El Visor ya ve el vehiculo de cada camara: odometro, mantenimientos e historial, en solo lectura. El telefono que va en el carro sigue siendo el unico que los edita.",
-  "desktopVersion": "0.4.8",
-  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.8/ReDash-desktop-0.4.8-win.zip"
+  "versionCode": 93,
+  "versionName": "0.8.9",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.9/redash-0.8.9.apk",
+  "sha256": "e3ae8cc08d918764e32ae742f29302248109b5fbcfdd6a199c919d1f157161f9",
+  "notes": "El panel web y la app de Windows tambien ven el vehiculo de cada dashcam, en solo lectura: nueva pestana Vehiculo junto a Clips y Eventos.",
+  "desktopVersion": "0.4.9",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.9/ReDash-desktop-0.4.9-win.zip"
 }

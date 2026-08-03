@@ -222,7 +222,7 @@ var I18N={
   rec:"Rec",stop:"Parar",panic:"Pánico",map:"Mapa",flip:"Cambiar",full:"Pantalla",
   m_armed:"Impacto + movimiento",m_motion:"Detección de movimiento",m_impact:"Detección de impacto",
   m_park:"Modo estacionado",armed:"ACTIVO",off:"OFF",
-  tab_live:"En vivo",tab_clips:"Clips",tab_events:"Eventos",tab_map:"Mapa",
+  tab_live:"En vivo",tab_clips:"Clips",tab_events:"Eventos",tab_map:"Mapa",tab_vehicle:"Vehiculo",
   nav_home:"Inicio",nav_link:"Enlace con mi teléfono",nav_cams:"Cámaras",nav_add:"Añadir cámara",
   nav_lang:"Idioma",nav_about:"Acerca de",to_sender:"Cambiar a Cámara",to_viewer:"Cambiar a Visor",
   switch_q:"¿Cambiar de modo?",switch_body:"Se detiene lo que esté en curso y se abre el otro modo.",
@@ -248,6 +248,10 @@ var I18N={
   veh_seen:"Vistos:",veh_factor:"factor",veh_calibrate:"Ajustar",veh_calibrated:"Ajustado, factor",
   rem_last:"Ultimo:",veh_odo_kick:"ODOMETRO ESTIMADO",veh_reading:"lectura",
   veh_no_reading:"Guarda tu primera lectura abajo",veh_history:"Historial",veh_save:"Guardar lectura",veh_odo_now:"Ahora aprox.",veh_odo_saved:"guardado",
+  veh_ro_loading:"Leyendo…",veh_ro_empty:"Esta camara todavia no tiene recordatorios.",
+  veh_ro_note:"Solo lectura. Estos recordatorios son del telefono que va en el carro, y solo ese telefono puede cambiarlos.",
+  veh_ro_offline:"No se pudo leer el vehiculo de esta camara.",
+  veh_ro_old:"Esta camara usa una version anterior de ReDash que todavia no publica su vehiculo. Actualizala para ver esto.",
   veh_odo_ok:"Odometro guardado",veh_odo_lower:"Esa lectura es menor que la anterior",gps_denied:"Permiso de ubicacion denegado",
   gps_desktop:"En una PC la ubicacion es aproximada (cientos de km): sirve para el mapa, no para trazar una ruta. Usa el telefono para grabar viajes.",
   add_ip:"Camara IP (RTSP)",add_ip_sub:"Camaras de seguridad y NVR de otras marcas",ip_cam:"Camara IP",add:"Agregar",
@@ -311,7 +315,7 @@ var I18N={
   rec:"Rec",stop:"Stop",panic:"Panic",map:"Map",flip:"Flip",full:"Full",
   m_armed:"Impact + motion",m_motion:"Motion detection",m_impact:"Impact detection",
   m_park:"Parking mode",armed:"ARMED",off:"OFF",
-  tab_live:"Live",tab_clips:"Clips",tab_events:"Events",tab_map:"Map",
+  tab_live:"Live",tab_clips:"Clips",tab_events:"Events",tab_map:"Map",tab_vehicle:"Vehicle",
   nav_home:"Home",nav_link:"Link with my phone",nav_cams:"Cameras",nav_add:"Add camera",
   nav_lang:"Language",nav_about:"About",to_sender:"Switch to Camera",to_viewer:"Switch to Viewer",
   switch_q:"Switch mode?",switch_body:"Anything running stops, then the other mode opens.",
@@ -337,6 +341,10 @@ var I18N={
   veh_seen:"Seen:",veh_factor:"factor",veh_calibrate:"Adjust",veh_calibrated:"Adjusted, factor",
   rem_last:"Last:",veh_odo_kick:"ESTIMATED ODOMETER",veh_reading:"reading",
   veh_no_reading:"Save your first reading below",veh_history:"History",veh_save:"Save reading",veh_odo_now:"Now about",veh_odo_saved:"saved",
+  veh_ro_loading:"Reading…",veh_ro_empty:"This camera has no reminders yet.",
+  veh_ro_note:"Read only. These reminders belong to the phone that rides in the car, and only that phone can change them.",
+  veh_ro_offline:"Could not read the vehicle from this camera.",
+  veh_ro_old:"This camera runs an older ReDash that does not publish its vehicle yet. Update it to see this.",
   veh_odo_ok:"Odometer saved",veh_odo_lower:"That reading is lower than the previous one",gps_denied:"Location permission denied",
   gps_desktop:"On a PC the location is a rough estimate (hundreds of km): fine for the map, not for tracing a route. Use your phone to record trips.",
   add_ip:"IP camera (RTSP)",add_ip_sub:"Third-party security cameras and NVRs",ip_cam:"IP camera",add:"Add",
@@ -1479,6 +1487,149 @@ function remUrgente(){
   });
   return peor;
 }
+/**
+ * Héroe del vehículo (odómetro + anillo de salud). Compartido por la pantalla propia y la de
+ * solo lectura para que el mismo auto no se vea distinto según quién lo mire.
+ * `factor` se omite cuando no lo hay: al que solo mira no le dice nada útil.
+ */
+function vehHeroBox(odoKm,odoAt,estim,factor,salud){
+  var colorS=salud>0.5?"#5EC9A0":(salud>0.2?"#FFB9A8":"#F79E8C");
+  var hero=el("div");
+  hero.style.cssText="display:flex;align-items:center;gap:12px;padding:15px 16px;margin-bottom:12px;"
+    +"border-radius:18px;border:1px solid rgba(167,139,250,.3);"
+    +"background:linear-gradient(145deg,rgba(167,139,250,.16),rgba(167,139,250,.03))";
+  var colIzq=el("div");colIzq.style.flex="1";
+  colIzq.appendChild(el("p","kick",t("veh_odo_kick")));
+  if(odoKm>0){
+    var big=el("div",null,Math.round(estim).toLocaleString()+" km");
+    big.style.cssText="font-size:27px;font-weight:800;letter-spacing:-.5px";colIzq.appendChild(big);
+    colIzq.appendChild(el("p","hint",t("veh_reading")+" "+Math.round(odoKm).toLocaleString()
+      +" · "+new Date(odoAt||Date.now()).toLocaleDateString()
+      +(factor?" · "+t("veh_factor")+" "+factor:"")));
+  }else{
+    var nada=el("div",null,"—");nada.style.cssText="font-size:27px;font-weight:800;color:#6f7285";colIzq.appendChild(nada);
+    if(factor)colIzq.appendChild(el("p","hint",t("veh_no_reading")));
+  }
+  hero.appendChild(colIzq);
+  // Anillo de salud con conic-gradient: el mismo dibujo que el nativo hace con un arco.
+  var ring=el("div");
+  ring.style.cssText="width:58px;height:58px;border-radius:50%;flex-shrink:0;position:relative;"
+    +"background:conic-gradient("+colorS+" 0 "+Math.round(salud*100)+"%, rgba(255,255,255,.09) "+Math.round(salud*100)+"% 100%)";
+  var hueco=el("div");hueco.style.cssText="position:absolute;inset:6px;border-radius:50%;background:var(--bg,#14161f);display:flex;align-items:center;justify-content:center";
+  hueco.appendChild(el("b",null,Math.round(salud*100)+"%"));
+  ring.appendChild(hueco);hero.appendChild(ring);
+  return hero;
+}
+
+/** Salud = promedio de lo que le falta a cada mantenimiento. Honesto y explicable. */
+function vehSalud(estados){
+  if(!estados.length)return 1;
+  var suma=0;
+  estados.forEach(function(s){suma+=Math.min(1,s.pct);});
+  return 1-suma/estados.length;
+}
+
+/**
+ * Tarjeta de un mantenimiento SIN acciones: encabezado, barra, último y lo que falta.
+ * La pantalla propia le añade la fila de botones; la de solo lectura la usa tal cual.
+ */
+function remCardView(r,s,onTop){
+  var c=el("div","glass");c.style.cssText="padding:14px;margin-bottom:10px";
+  var top=el("div");top.style.cssText="display:flex;align-items:center;gap:8px"+(onTop?";cursor:pointer":"");
+  if(onTop)top.onclick=onTop;
+  top.appendChild(el("b",null,r.name||t("rem_"+r.type)));
+  top.appendChild(el("div","spacer"));
+  var pill=el("div","pill "+(s.overdue?"":(s.pct>=0.9?"":"ok")),
+    s.overdue?t("rem_overdue"):Math.round(s.pct*100)+"%");
+  if(s.overdue)pill.style.cssText="background:rgba(248,113,113,.18);color:#F87171";
+  else if(s.pct>=0.9)pill.style.cssText="background:rgba(251,191,36,.18);color:#FBBF24";
+  top.appendChild(pill);c.appendChild(top);
+
+  var p=el("div","prog"+(s.overdue?" late":(s.pct>=0.9?" warn":"")));
+  var fill=el("i");fill.style.width=Math.min(100,Math.round(s.pct*100))+"%";
+  p.appendChild(fill);c.appendChild(p);
+
+  // Fecha del último servicio: es el cambio visible al tocar "Ya lo hice".
+  c.appendChild(el("p","hint",t("rem_last")+" "+new Date(r.lastAt).toLocaleDateString()));
+  // En modo mes fijo la frase es otra: no "faltan X" sino "te toca en <mes>".
+  if(r.month>0){
+    c.appendChild(el("p","hint",s.overdue
+      ? t("rem_missed")+" "+MESES[lang][r.month-1]
+      : t("plate_set")+" "+MESES[lang][r.month-1]+" · "+s.remainingDays+" "+t("days")));
+  }else{
+    var det=[];
+    if(r.km>0)det.push(s.remainingKm+" km");
+    if(r.days>0)det.push(s.remainingDays+" "+t("days"));
+    c.appendChild(el("p","hint",(s.overdue?t("rem_since"):t("rem_left"))+" "+det.join(" · ")));
+  }
+  return c;
+}
+
+/** Historial compartido: recibe [{n,at,odo}] ya juntados. */
+function vehHistCard(eventos){
+  if(!eventos.length)return null;
+  eventos.sort(function(a,b){return b.at-a.at;});
+  var hcard=el("div","glass");hcard.style.cssText="padding:14px;margin-bottom:10px";
+  hcard.appendChild(el("p","kick",t("veh_history")));
+  eventos.slice(0,6).forEach(function(ev){
+    var fila=el("div");fila.style.cssText="display:flex;gap:8px;margin-top:8px";
+    fila.appendChild(el("span","hint",ev.n));
+    fila.appendChild(el("div","spacer"));
+    var der=el("span","hint",new Date(ev.at).toLocaleDateString()+(ev.odo>0?" · "+ev.odo.toLocaleString()+" km":""));
+    der.style.color="#6f7285";fila.appendChild(der);
+    hcard.appendChild(fila);
+  });
+  return hcard;
+}
+
+/**
+ * El vehículo de una dashcam, en SOLO LECTURA. `base` vacío = la que sirve esta página.
+ *
+ * El dueño del dato es el teléfono que va en el carro, igual que en el Visor de Android: desde
+ * aquí solo se mira. Antes el panel web no tenía forma de ver el vehículo de la dashcam — la
+ * pantalla existía únicamente en modo sender, donde el vehículo es el del propio navegador.
+ */
+function drawVehicleRemote(wrap,base,key){
+  wrap.appendChild(el("p","hint",t("veh_ro_loading")));
+  function vaciar(){while(wrap.firstChild)wrap.removeChild(wrap.firstChild);}
+  fetch((base||"")+"/vehicle",{headers:{Authorization:"Bearer "+key}}).then(function(r){
+    // Un 404 NO es "sin conexión": es una dashcam con una versión anterior, que no conoce la
+    // ruta. Decirlo evita que el usuario busque el problema en la red.
+    if(r.status===404)throw new Error("old");
+    if(!r.ok)throw new Error("off");
+    return r.json();
+  }).then(function(d){
+    if(!wrap.isConnected)return;          // el usuario ya navegó a otra pantalla
+    vaciar();
+    var lista=d.reminders||[];
+    wrap.appendChild(vehHeroBox(d.odoKm||0,d.odoAt||0,d.estimatedKm||0,0,vehSalud(lista)));
+    // La nota explica la AUSENCIA de botones: sin ella la pantalla parece a medio hacer.
+    var nota=el("p","hint",t("veh_ro_note"));nota.style.margin="0 2px 12px";
+    wrap.appendChild(nota);
+    if(!lista.length){
+      var vacio=el("div","glass");vacio.style.cssText="padding:22px;text-align:center";
+      vacio.appendChild(el("p","hint",t("veh_ro_empty")));
+      wrap.appendChild(vacio);return;
+    }
+    // El estado llega YA RESUELTO desde la dashcam: aquí no se recalcula nada, solo se ordena.
+    lista.slice().sort(function(a,b){return b.pct-a.pct;}).forEach(function(r){
+      wrap.appendChild(remCardView(r,r));
+    });
+    var eventos=[];
+    lista.forEach(function(r){
+      (r.history||[]).forEach(function(hh){
+        eventos.push({n:r.name||t("rem_"+r.type),at:hh.at,odo:hh.odo||0});
+      });
+    });
+    var hc=vehHistCard(eventos);
+    if(hc)wrap.appendChild(hc);
+  }).catch(function(e){
+    if(!wrap.isConnected)return;
+    vaciar();
+    wrap.appendChild(el("p","hint",t(e&&e.message==="old"?"veh_ro_old":"veh_ro_offline")));
+  });
+}
+
 function drawVehicle(root){
   var bar=appbar(t("nav_veh"));
   bar.replaceChild(icoBtn("back",null,function(){go("home");}),bar.firstChild);
@@ -1489,38 +1640,8 @@ function drawVehicle(root){
   // ---- Héroe: la pantalla contesta primero "¿está bien mi auto?" ----
   var V0=veh();
   var estim0=V0.odoKm>0 ? V0.odoKm+RD_REM.kmSince(localTrips(),V0.odoAt||0,V0.factor||1) : 0;
-  // Salud = promedio de lo que le falta a cada mantenimiento. Un número honesto y explicable.
-  var salud=1;
-  if(lista.length){
-    var suma=0;
-    lista.forEach(function(r){suma+=Math.min(1,remState(r).pct);});
-    salud=1-suma/lista.length;
-  }
-  var colorS=salud>0.5?"#5EC9A0":(salud>0.2?"#FFB9A8":"#F79E8C");
-  var hero=el("div");
-  hero.style.cssText="display:flex;align-items:center;gap:12px;padding:15px 16px;margin-bottom:12px;"
-    +"border-radius:18px;border:1px solid rgba(167,139,250,.3);"
-    +"background:linear-gradient(145deg,rgba(167,139,250,.16),rgba(167,139,250,.03))";
-  var colIzq=el("div");colIzq.style.flex="1";
-  colIzq.appendChild(el("p","kick",t("veh_odo_kick")));
-  if(V0.odoKm>0){
-    var big=el("div",null,Math.round(estim0).toLocaleString()+" km");
-    big.style.cssText="font-size:27px;font-weight:800;letter-spacing:-.5px";colIzq.appendChild(big);
-    colIzq.appendChild(el("p","hint",t("veh_reading")+" "+Math.round(V0.odoKm).toLocaleString()
-      +" · "+new Date(V0.odoAt||Date.now()).toLocaleDateString()+" · "+t("veh_factor")+" "+(V0.factor||1)));
-  }else{
-    var nada=el("div",null,"—");nada.style.cssText="font-size:27px;font-weight:800;color:#6f7285";colIzq.appendChild(nada);
-    colIzq.appendChild(el("p","hint",t("veh_no_reading")));
-  }
-  hero.appendChild(colIzq);
-  // Anillo de salud con conic-gradient: el mismo dibujo que el nativo hace con un arco.
-  var ring=el("div");
-  ring.style.cssText="width:58px;height:58px;border-radius:50%;flex-shrink:0;position:relative;"
-    +"background:conic-gradient("+colorS+" 0 "+Math.round(salud*100)+"%, rgba(255,255,255,.09) "+Math.round(salud*100)+"% 100%)";
-  var hueco=el("div");hueco.style.cssText="position:absolute;inset:6px;border-radius:50%;background:var(--bg,#14161f);display:flex;align-items:center;justify-content:center";
-  hueco.appendChild(el("b",null,Math.round(salud*100)+"%"));
-  ring.appendChild(hueco);hero.appendChild(ring);
-  wrap.appendChild(hero);
+  var salud=vehSalud(lista.map(remState));
+  wrap.appendChild(vehHeroBox(V0.odoKm||0,V0.odoAt||0,estim0,V0.factor||1,salud));
 
   // Orden por urgencia: lo que está por vencer, arriba. El índice original se conserva
   // porque los botones mutan rems() por posición.
@@ -1534,38 +1655,10 @@ function drawVehicle(root){
   }
   orden.forEach(function(i){
     var r=lista[i];
-    var s=remState(r),km=remKm(r);
-    var c=el("div","glass");c.style.cssText="padding:14px;margin-bottom:10px";
+    var s=remState(r);
     var plegada=!!remPlegadas[r.id];
-    var top=el("div");top.style.cssText="display:flex;align-items:center;gap:8px;cursor:pointer";
     // Tocar el encabezado la despliega otra vez: nada queda escondido sin salida.
-    top.onclick=function(){remPlegadas[r.id]=!plegada;render();};
-    top.appendChild(el("b",null,r.name||t("rem_"+r.type)));
-    top.appendChild(el("div","spacer"));
-    var pill=el("div","pill "+(s.overdue?"":(s.pct>=0.9?"":"ok")),
-      s.overdue?t("rem_overdue"):Math.round(s.pct*100)+"%");
-    if(s.overdue)pill.style.cssText="background:rgba(248,113,113,.18);color:#F87171";
-    else if(s.pct>=0.9)pill.style.cssText="background:rgba(251,191,36,.18);color:#FBBF24";
-    top.appendChild(pill);c.appendChild(top);
-
-    var p=el("div","prog"+(s.overdue?" late":(s.pct>=0.9?" warn":"")));
-    var fill=el("i");fill.style.width=Math.min(100,Math.round(s.pct*100))+"%";
-    p.appendChild(fill);c.appendChild(p);
-
-    // Qué falta, en el criterio que manda (km o fecha)
-    // Fecha del ultimo servicio: es el cambio visible al tocar "Ya lo hice".
-    c.appendChild(el("p","hint",t("rem_last")+" "+new Date(r.lastAt).toLocaleDateString()));
-    // En modo mes fijo la frase es otra: no "faltan X" sino "te toca en <mes>".
-    if(r.month>0){
-      c.appendChild(el("p","hint",s.overdue
-        ? t("rem_missed")+" "+MESES[lang][r.month-1]
-        : t("plate_set")+" "+MESES[lang][r.month-1]+" · "+s.remainingDays+" "+t("days")));
-    }else{
-      var det=[];
-      if(r.km>0)det.push(s.remainingKm+" km");
-      if(r.days>0)det.push(s.remainingDays+" "+t("days"));
-      c.appendChild(el("p","hint",(s.overdue?t("rem_since"):t("rem_left"))+" "+det.join(" · ")));
-    }
+    var c=remCardView(r,s,function(){remPlegadas[r.id]=!plegada;render();});
 
     var row=el("div");row.style.cssText=(plegada?"display:none":"display:flex")+";gap:8px;margin-top:10px";
     var hecho=el("button","btn ghost",t("rem_done"));
@@ -1618,20 +1711,8 @@ function drawVehicle(root){
       eventos.push({n:r.name||t("rem_"+r.type),at:hh.at,odo:hh.odo||0});
     });
   });
-  eventos.sort(function(a,b){return b.at-a.at;});
-  if(eventos.length){
-    var hcard=el("div","glass");hcard.style.cssText="padding:14px;margin-bottom:10px";
-    hcard.appendChild(el("p","kick",t("veh_history")));
-    eventos.slice(0,6).forEach(function(ev){
-      var fila=el("div");fila.style.cssText="display:flex;gap:8px;margin-top:8px";
-      fila.appendChild(el("span","hint",ev.n));
-      fila.appendChild(el("div","spacer"));
-      var der=el("span","hint",new Date(ev.at).toLocaleDateString()+(ev.odo>0?" · "+ev.odo.toLocaleString()+" km":""));
-      der.style.color="#6f7285";fila.appendChild(der);
-      hcard.appendChild(fila);
-    });
-    wrap.appendChild(hcard);
-  }
+  var hcard=vehHistCard(eventos);
+  if(hcard)wrap.appendChild(hcard);
 
   // --- agregar ---
   var add=el("div","glass");add.style.cssText="padding:14px;margin-bottom:10px";
@@ -1752,7 +1833,9 @@ function drawCamDetail(root,arg){
   left.appendChild(deck);
 
   var tabs=el("div","tabs");
-  [["live",t("tab_live")],["clips",t("tab_clips")],["events",t("tab_events")]].forEach(function(p){
+  // El vehículo es contenido DE esta cámara, igual que sus clips o sus eventos: por eso es una
+  // pestaña más, como en el Visor de Android.
+  [["live",t("tab_live")],["clips",t("tab_clips")],["events",t("tab_events")],["vehicle",t("tab_vehicle")]].forEach(function(p){
     var e=el("div","tab"+(tab===p[0]?" on":""),p[1]);
     e.onclick=function(){tab=p[0];render();};tabs.appendChild(e);
   });
@@ -1760,6 +1843,7 @@ function drawCamDetail(root,arg){
   var box=el("div","glass");box.style.padding="12px";box.style.marginTop="12px";
   if(tab==="clips")loadLocalClips(box,BASE,AKEY);
   else if(tab==="events")loadLocalEvents(box,BASE,AKEY);
+  else if(tab==="vehicle")drawVehicleRemote(box,BASE,AKEY);
   else box.classList.add("hidden");
   left.appendChild(box);
   g.appendChild(left);g.appendChild(el("div"));
