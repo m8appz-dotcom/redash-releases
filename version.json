@@ -1,9 +1,9 @@
 {
-  "versionCode": 87,
-  "versionName": "0.8.3",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.3/redash-0.8.3.apk",
-  "sha256": "12aa339679680e9122b9c044babefba0eb7a3cde840a59f725397f5c307786bc",
-  "notes": "Mi vehiculo ya tiene boton de regreso y el titulo respira: antes no habia como salir de la pantalla salvo el gesto del sistema.",
-  "desktopVersion": "0.4.4",
-  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.4/ReDash-0.4.4-win-x64.zip"
+  "versionCode": 88,
+  "versionName": "0.8.4",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.4/redash-0.8.4.apk",
+  "sha256": "4015b8a8ac8812ae64d62421f958951f2104792cdd342147c46ce3ceaf50eb43",
+  "notes": "El odometro ahora GUARDA tu lectura y muestra tu millaje estimado al dia; con dos lecturas se corrige solo. Ya lo hice muestra la fecha del ultimo servicio y su confirmacion.",
+  "desktopVersion": "0.4.5",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.5/ReDash-0.4.5-win-x64.zip"
 }

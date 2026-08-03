@@ -112,6 +112,24 @@
     return null;
   }
 
+  /**
+   * Nueva lectura del odometro. El usuario escribe LO QUE MARCA SU TABLERO — eso es lo que
+   * quiere "guardar" — y de paso, si entre dos lecturas la app vio suficientes km, se deriva
+   * el factor de correccion solo (lo real entre lo visto), sin pedirle cuentas a nadie.
+   * Devuelve { odoKm, factor } o null si la lectura es menor que la anterior (un tipeo).
+   */
+  function updateOdometer(prev, newOdo, seenSincePrev, factor) {
+    if (!(newOdo > 0)) return null;
+    if (prev && prev.odoKm > 0) {
+      if (newOdo < prev.odoKm) return null;
+      var real = newOdo - prev.odoKm;
+      if (seenSincePrev > 10 && real > 0) {
+        return { odoKm: newOdo, factor: calibrate(seenSincePrev, real) };
+      }
+    }
+    return { odoKm: newOdo, factor: factor > 0 ? factor : 1 };
+  }
+
   /* Valores de arranque. El usuario los edita: son un punto de partida razonable,
      no una recomendacion del fabricante de su auto. */
   var PRESETS = [
@@ -127,6 +145,7 @@
   ];
 
   var api = { kmSince: kmSince, dueState: dueState, calibrate: calibrate, plateMonth: plateMonth,
+              updateOdometer: updateOdometer,
               nextNotice: nextNotice, PRESETS: PRESETS, DIA: DIA };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else raiz.RD_REM = api;

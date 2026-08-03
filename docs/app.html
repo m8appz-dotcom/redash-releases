@@ -244,8 +244,10 @@ var I18N={
   rem_oil:"Cambio de aceite",rem_tires:"Rotacion de llantas",rem_brakes:"Pastillas de freno",
   rem_filter:"Filtros",rem_plate:"Matricula",rem_insurance:"Seguro",rem_license:"Licencia de conducir",
   veh_odo:"Ajustar con tu odometro",
-  veh_odo_hint:"La app solo cuenta los viajes que grabo, asi que se queda corta. Dile cuantos km hiciste de verdad y corrige el calculo.",
-  veh_seen:"Vistos:",veh_factor:"factor",veh_calibrate:"Ajustar",veh_calibrated:"Ajustado, factor",gps_denied:"Permiso de ubicacion denegado",
+  veh_odo_hint:"Escribe lo que marca tu tablero. La app mantiene tu millaje al dia con los viajes grabados, y con dos lecturas se corrige sola.",
+  veh_seen:"Vistos:",veh_factor:"factor",veh_calibrate:"Ajustar",veh_calibrated:"Ajustado, factor",
+  rem_last:"Ultimo:",veh_save:"Guardar lectura",veh_odo_now:"Ahora aprox.",veh_odo_saved:"guardado",
+  veh_odo_ok:"Odometro guardado",veh_odo_lower:"Esa lectura es menor que la anterior",gps_denied:"Permiso de ubicacion denegado",
   gps_desktop:"En una PC la ubicacion es aproximada (cientos de km): sirve para el mapa, no para trazar una ruta. Usa el telefono para grabar viajes.",
   add_ip:"Camara IP (RTSP)",add_ip_sub:"Camaras de seguridad y NVR de otras marcas",ip_cam:"Camara IP",add:"Agregar",
   ip_bad_url:"La direccion debe empezar con rtsp://",connecting:"conectando",
@@ -330,8 +332,10 @@ var I18N={
   rem_oil:"Oil change",rem_tires:"Tire rotation",rem_brakes:"Brake pads",
   rem_filter:"Filters",rem_plate:"Registration",rem_insurance:"Insurance",rem_license:"Driver license",
   veh_odo:"Adjust with your odometer",
-  veh_odo_hint:"The app only counts trips it recorded, so it falls short. Tell it how many km you really drove and it fixes the math.",
-  veh_seen:"Seen:",veh_factor:"factor",veh_calibrate:"Adjust",veh_calibrated:"Adjusted, factor",gps_denied:"Location permission denied",
+  veh_odo_hint:"Type what your dashboard shows. The app keeps your mileage up to date with your recorded trips, and with two readings it corrects itself.",
+  veh_seen:"Seen:",veh_factor:"factor",veh_calibrate:"Adjust",veh_calibrated:"Adjusted, factor",
+  rem_last:"Last:",veh_save:"Save reading",veh_odo_now:"Now about",veh_odo_saved:"saved",
+  veh_odo_ok:"Odometer saved",veh_odo_lower:"That reading is lower than the previous one",gps_denied:"Location permission denied",
   gps_desktop:"On a PC the location is a rough estimate (hundreds of km): fine for the map, not for tracing a route. Use your phone to record trips.",
   add_ip:"IP camera (RTSP)",add_ip_sub:"Third-party security cameras and NVRs",ip_cam:"IP camera",add:"Add",
   ip_bad_url:"The address must start with rtsp://",connecting:"connecting",
@@ -1499,6 +1503,8 @@ function drawVehicle(root){
     p.appendChild(fill);c.appendChild(p);
 
     // Qué falta, en el criterio que manda (km o fecha)
+    // Fecha del ultimo servicio: es el cambio visible al tocar "Ya lo hice".
+    c.appendChild(el("p","hint",t("rem_last")+" "+new Date(r.lastAt).toLocaleDateString()));
     // En modo mes fijo la frase es otra: no "faltan X" sino "te toca en <mes>".
     if(r.month>0){
       c.appendChild(el("p","hint",s.overdue
@@ -1574,19 +1580,30 @@ function drawVehicle(root){
   add.appendChild(grid);
   wrap.appendChild(add);
 
-  // --- calibración por odómetro ---
+  // --- odómetro ---
+  // El usuario escribe LO QUE MARCA SU TABLERO y eso se GUARDA. Con dos lecturas el factor
+  // de corrección se deriva solo (antes solo se intentaba calibrar y con pocos km vistos no
+  // pasaba nada visible: parecía que el botón no funcionaba).
   var cal=el("div","glass");cal.style.cssText="padding:14px";
   cal.appendChild(el("p","kick",t("veh_odo")));
   cal.appendChild(el("p","hint",t("veh_odo_hint")));
-  var vistos=RD_REM.kmSince(localTrips(),0,1);
-  cal.appendChild(el("p","hint",t("veh_seen")+" "+vistos.toFixed(0)+" km · "+t("veh_factor")+" "+(veh().factor||1)));
-  var iOdo=el("input");iOdo.type="number";iOdo.placeholder="1000";cal.appendChild(iOdo);
-  var bCal=el("button","btn ghost",t("veh_calibrate"));bCal.style.marginTop="10px";
+  var V=veh();
+  if(V.odoKm>0){
+    var estim=V.odoKm+RD_REM.kmSince(localTrips(),V.odoAt||0,V.factor||1);
+    cal.appendChild(el("p","hint",t("veh_odo_now")+" ~"+Math.round(estim).toLocaleString()+" km · "
+      +t("veh_odo_saved")+" "+new Date(V.odoAt||Date.now()).toLocaleDateString()));
+  }
+  var iOdo=el("input");iOdo.type="number";iOdo.placeholder="87450";cal.appendChild(iOdo);
+  var bCal=el("button","btn ghost",t("veh_save"));bCal.style.marginTop="10px";
   bCal.onclick=function(){
-    var real=parseFloat(iOdo.value);
-    if(!(real>0)){flash(t("need_fields"));return;}
-    var v=veh();v.factor=RD_REM.calibrate(vistos,real);saveVeh(v);
-    flash(t("veh_calibrated")+" "+v.factor);render();
+    var lectura=parseFloat(iOdo.value);
+    if(!(lectura>0)){flash(t("need_fields"));return;}
+    var v=veh();
+    var vistosDesde=v.odoAt?RD_REM.kmSince(localTrips(),v.odoAt,1):0;
+    var res=RD_REM.updateOdometer(v.odoKm>0?v:null,lectura,vistosDesde,v.factor||1);
+    if(!res){flash(t("veh_odo_lower"));return;}
+    v.odoKm=res.odoKm;v.odoAt=Date.now();v.factor=res.factor;saveVeh(v);
+    render();flash(t("veh_odo_ok"));
   };
   cal.appendChild(bCal);
   wrap.appendChild(cal);
