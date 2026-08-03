@@ -1567,11 +1567,18 @@ function drawVehicle(root){
     hecho.onclick=function(){
       var l=rems();
       var vv=veh();
+      var ahora=Date.now();
       var odoAhora=vv.odoKm>0?Math.round(vv.odoKm+RD_REM.kmSince(localTrips(),vv.odoAt||0,vv.factor||1)):0;
-      l[i].history=(l[i].history||[]).concat([{at:Date.now(),odo:odoAhora}]).slice(-12);
-      l[i].lastAt=Date.now();
+      // Si el último registro es de hace menos de 2 minutos fue un doble toque: se reemplaza
+      // en vez de duplicar. El historial es el activo del auto, no puede ensuciarse.
+      var previas=l[i].history||[];
+      if(previas.length && ahora-previas[previas.length-1].at<120000)previas=previas.slice(0,-1);
+      l[i].history=previas.concat([{at:ahora,odo:odoAhora}]).slice(-12);
+      l[i].lastAt=ahora;
       l[i].notified=0;   // ciclo nuevo: vuelve a poder avisar
-      saveRems(l);render();flash(t("rem_reset"));
+      saveRems(l);
+      // Marcado el servicio, la pantalla ya cumplió: se vuelve a la home con el aviso.
+      go("home");flash(t("rem_reset"));
     };
     var quitar=el("button","btn ghost","✕");
     quitar.style.cssText="padding:8px 12px;font-size:13px;max-width:52px";

@@ -1,9 +1,9 @@
 {
-  "versionCode": 89,
-  "versionName": "0.8.5",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.5/redash-0.8.5.apk",
-  "sha256": "969171b15c507114efbec62357bdc69612f3a302e3eb59e98c73b1b7728d395b",
-  "notes": "Mi vehiculo ahora es un dashboard: tu odometro estimado al dia, un anillo de salud del auto, los mantenimientos ordenados por urgencia y el historial de servicios con sus kilometros.",
-  "desktopVersion": "0.4.6",
-  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.6/ReDash-0.4.6-win-x64.zip"
+  "versionCode": 90,
+  "versionName": "0.8.6",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.6/redash-0.8.6.apk",
+  "sha256": "64c9ef11d2136706083df624932623f1e554ee7557ef34bcd7ef56b2ea2599e1",
+  "notes": "Al marcar un mantenimiento como hecho la pantalla se cierra sola y vuelve a la app, con la confirmacion a la vista. Y un doble toque ya no duplica el historial.",
+  "desktopVersion": "0.4.7",
+  "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.7/ReDash-0.4.7-win-x64.zip"
 }
