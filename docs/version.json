@@ -1,9 +1,9 @@
 {
-  "versionCode": 93,
-  "versionName": "0.8.9",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.9/redash-0.8.9.apk",
-  "sha256": "e3ae8cc08d918764e32ae742f29302248109b5fbcfdd6a199c919d1f157161f9",
-  "notes": "El panel web y la app de Windows tambien ven el vehiculo de cada dashcam, en solo lectura: nueva pestana Vehiculo junto a Clips y Eventos.",
+  "versionCode": 94,
+  "versionName": "0.8.10",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.10/redash-0.8.10.apk",
+  "sha256": "1a93296497a282d65459403d582a3a308f6ce1b1fc3848377a934f3dff7c8d29",
+  "notes": "Las fotos que llegan a la dashcam se archivan junto al video del golpe y aparecen en la galeria. Y un cuerpo de peticion enorme ya no puede tumbar el servicio.",
   "desktopVersion": "0.4.10",
   "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.10/ReDash-desktop-0.4.10-win.zip"
 }
