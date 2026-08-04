@@ -1,14 +1,14 @@
 {
-  "versionCode": 95,
-  "versionName": "0.8.11",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.11/redash-0.8.11.apk",
-  "sha256": "ee69c3bee496b5c4c63242890e5d486396b0763dc5d8f42cb9f886350e9de850",
+  "versionCode": 96,
+  "versionName": "0.8.12",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.12/redash-0.8.12.apk",
+  "sha256": "84ac131f4abd7806d5261d91cee706f096734398df08bee9d3c60dc6b4c0f6c5",
   "notes": "Las fotos que llegan a la dashcam se archivan junto al video del golpe y aparecen en la galeria. Y un cuerpo de peticion enorme ya no puede tumbar el servicio.",
-  "glassesVersionCode": 95,
-  "glassesVersionName": "0.8.11-gafas",
-  "glassesApkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.11/redash-0.8.11-gafas.apk",
-  "glassesSha256": "22c096ea76596e549befecd6a43612c8e701bd8cfa7de3d4637dce03663b108d",
-  "glassesNotes": "Gafas Meta: vista en vivo, pantalla completa al tocar el video, foto al clip protegido (o al telefono si no hay dashcam), y calidad y fps elegibles.",
+  "glassesVersionCode": 96,
+  "glassesVersionName": "0.8.12-gafas",
+  "glassesApkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.12/redash-0.8.12-gafas.apk",
+  "glassesSha256": "dc65969b3b953c68435b085877584cd9d2878f50fa8f6b5a99aa5d46e653f6f6",
+  "glassesNotes": "Pantalla completa de verdad al tocar el video, un reintento automatico cuando las gafas tardan en despertar, y el diagnostico dice si el enlace esta conectado.",
   "desktopVersion": "0.4.10",
   "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.10/ReDash-desktop-0.4.10-win.zip"
 }
