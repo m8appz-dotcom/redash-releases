@@ -1,14 +1,14 @@
 {
-  "versionCode": 99,
-  "versionName": "0.8.15",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.15/redash-0.8.15.apk",
-  "sha256": "708e265321cf9b9e7b6ce69911351a85ab4baa8d5845fdefcee0368940a6191a",
+  "versionCode": 100,
+  "versionName": "0.8.16",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.16/redash-0.8.16.apk",
+  "sha256": "3e85cbee19c76cc53ed42a74eada1fc25de614f41f8d7fe744f13ceccf7c924b",
   "notes": "Las fotos que llegan a la dashcam se archivan junto al video del golpe y aparecen en la galeria. Y un cuerpo de peticion enorme ya no puede tumbar el servicio.",
-  "glassesVersionCode": 99,
-  "glassesVersionName": "0.8.15-gafas",
-  "glassesApkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.15/redash-0.8.15-gafas.apk",
-  "glassesSha256": "e1409213fddb9f18e384f2d431c9b2c6110c46387c9b70dfa66200bc97200ed4",
-  "glassesNotes": "Ya se puede GRABAR video de las gafas: sale a la galeria en Movies/ReDash. Sale a resolucion de stream (720x1280 como mucho), no a la de las fotos: es un techo de Meta.",
+  "glassesVersionCode": 100,
+  "glassesVersionName": "0.8.16-gafas",
+  "glassesApkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.16/redash-0.8.16-gafas.apk",
+  "glassesSha256": "bed73255e9174d8af81a762ae8788d8b6535488a03ad8ed89bd86ce0ac3493b0",
+  "glassesNotes": "Arreglados los bloques verdes y la estatica del video: habia cuadros que no eran imagen pintandose como imagen, y la conversion de color ahora es la oficial de Meta. Si aun ves bloques, baja la calidad: por Bluetooth menos se ve mejor.",
   "desktopVersion": "0.4.10",
   "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.10/ReDash-desktop-0.4.10-win.zip"
 }
