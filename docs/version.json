@@ -1,14 +1,14 @@
 {
-  "versionCode": 98,
-  "versionName": "0.8.14",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.14/redash-0.8.14.apk",
-  "sha256": "895e8c658cec689ebff7bfd2467facab8e703ed391dc5fcc8a18c2aeb77001b2",
+  "versionCode": 99,
+  "versionName": "0.8.15",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.15/redash-0.8.15.apk",
+  "sha256": "708e265321cf9b9e7b6ce69911351a85ab4baa8d5845fdefcee0368940a6191a",
   "notes": "Las fotos que llegan a la dashcam se archivan junto al video del golpe y aparecen en la galeria. Y un cuerpo de peticion enorme ya no puede tumbar el servicio.",
-  "glassesVersionCode": 98,
-  "glassesVersionName": "0.8.14-gafas",
-  "glassesApkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.14/redash-0.8.14-gafas.apk",
-  "glassesSha256": "4c639b7b343312f6a68a28d145dec1fd1a1516645744fdc01450e7ab4f2fc0af",
-  "glassesNotes": "El video ya no se comprime en cada cuadro: se veia pixelado por un atajo en la conversion de color, no por el enlace. Prueba tambien 720p en la propia pantalla.",
+  "glassesVersionCode": 99,
+  "glassesVersionName": "0.8.15-gafas",
+  "glassesApkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.15/redash-0.8.15-gafas.apk",
+  "glassesSha256": "e1409213fddb9f18e384f2d431c9b2c6110c46387c9b70dfa66200bc97200ed4",
+  "glassesNotes": "Ya se puede GRABAR video de las gafas: sale a la galeria en Movies/ReDash. Sale a resolucion de stream (720x1280 como mucho), no a la de las fotos: es un techo de Meta.",
   "desktopVersion": "0.4.10",
   "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.10/ReDash-desktop-0.4.10-win.zip"
 }
