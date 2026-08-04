@@ -1,14 +1,14 @@
 {
-  "versionCode": 96,
-  "versionName": "0.8.12",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.12/redash-0.8.12.apk",
-  "sha256": "84ac131f4abd7806d5261d91cee706f096734398df08bee9d3c60dc6b4c0f6c5",
+  "versionCode": 97,
+  "versionName": "0.8.13",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.13/redash-0.8.13.apk",
+  "sha256": "ac87875d62958ec2ac2d834c1b99231a522958bd4983e4cd6f2d3e6a52e0cafb",
   "notes": "Las fotos que llegan a la dashcam se archivan junto al video del golpe y aparecen en la galeria. Y un cuerpo de peticion enorme ya no puede tumbar el servicio.",
-  "glassesVersionCode": 96,
-  "glassesVersionName": "0.8.12-gafas",
-  "glassesApkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.12/redash-0.8.12-gafas.apk",
-  "glassesSha256": "dc65969b3b953c68435b085877584cd9d2878f50fa8f6b5a99aa5d46e653f6f6",
-  "glassesNotes": "Pantalla completa de verdad al tocar el video, un reintento automatico cuando las gafas tardan en despertar, y el diagnostico dice si el enlace esta conectado.",
+  "glassesVersionCode": 97,
+  "glassesVersionName": "0.8.13-gafas",
+  "glassesApkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.13/redash-0.8.13-gafas.apk",
+  "glassesSha256": "445cc720fda97da6ed7655b3948f430b91e9f02f040c9e6292b85859168a7628",
+  "glassesNotes": "Los mensajes de error ahora estan en cristiano: dicen que hacer en vez de soltar el texto tecnico del SDK. El detalle sigue ahi tocando el mensaje.",
   "desktopVersion": "0.4.10",
   "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.10/ReDash-desktop-0.4.10-win.zip"
 }
