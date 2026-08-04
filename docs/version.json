@@ -1,9 +1,14 @@
 {
-  "versionCode": 94,
-  "versionName": "0.8.10",
-  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.10/redash-0.8.10.apk",
-  "sha256": "1a93296497a282d65459403d582a3a308f6ce1b1fc3848377a934f3dff7c8d29",
+  "versionCode": 95,
+  "versionName": "0.8.11",
+  "apkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.11/redash-0.8.11.apk",
+  "sha256": "ee69c3bee496b5c4c63242890e5d486396b0763dc5d8f42cb9f886350e9de850",
   "notes": "Las fotos que llegan a la dashcam se archivan junto al video del golpe y aparecen en la galeria. Y un cuerpo de peticion enorme ya no puede tumbar el servicio.",
+  "glassesVersionCode": 95,
+  "glassesVersionName": "0.8.11-gafas",
+  "glassesApkUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/v0.8.11/redash-0.8.11-gafas.apk",
+  "glassesSha256": "22c096ea76596e549befecd6a43612c8e701bd8cfa7de3d4637dce03663b108d",
+  "glassesNotes": "Gafas Meta: vista en vivo, pantalla completa al tocar el video, foto al clip protegido (o al telefono si no hay dashcam), y calidad y fps elegibles.",
   "desktopVersion": "0.4.10",
   "desktopUrl": "https://github.com/m8appz-dotcom/redash-releases/releases/download/desktop-v0.4.10/ReDash-desktop-0.4.10-win.zip"
 }
